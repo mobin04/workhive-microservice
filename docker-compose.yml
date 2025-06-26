@@ -1,0 +1,72 @@
+version: "3.8"
+
+services:
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./auth-service/.env
+    volumes:
+      - ./auth-service:/app
+      - /app/node_modules
+    restart: always
+
+  job-service:
+    build:
+      context: ./job-service
+      dockerfile: Dockerfile
+    container_name: job-service
+    ports:
+      - "8002:8002"
+    env_file:
+      - ./job-service/.env
+    volumes:
+      - ./job-service:/app
+      - /app/node_modules
+    restart: always
+
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: notification-service
+    ports:
+      - "8003:8003"
+    env_file:
+      - ./notification-service/.env
+    volumes:
+      - ./notification-service:/app
+      - /app/node_modules
+    restart: always
+
+  application-service:
+    build:
+      context: ./application-service
+      dockerfile: Dockerfile
+    container_name: application-service
+    ports:
+      - "8004:8004"
+    env_file:
+      - ./application-service/.env
+    volumes:
+      - ./application-service:/app
+      - /app/node_modules
+    restart: always
+
+  nginx-proxy:
+    build:
+      context: ./proxy
+      dockerfile: Dockerfile
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+    depends_on:
+      - auth-service
+      - job-service
+      - notification-service
+      - application-service
+    restart: always
