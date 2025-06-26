@@ -30,7 +30,7 @@ This project includes services for authentication, job management, applications,
 └── docker-compose.yml
 ```
 
-Each service is isolated, communicates via HTTP and RabbitMQ, and can be scaled independently.
+Each service is isolated, communicates via RabbitMQ Message Broker, and can be scaled independently.
 
 ---
 
