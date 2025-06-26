@@ -15,8 +15,6 @@ This project includes services for authentication, job management, applications,
 - [API Documentation](#api-documentation)
 - [Testing](#testing)
 - [Development](#development)
-- [Deployment](#deployment)
-- [License](#license)
 
 ---
 
