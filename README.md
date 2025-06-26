@@ -141,7 +141,6 @@ Coverage reports are generated in the `coverage/` folder.
 ## Contributors
 
 - [mobin Mathew](https://github.com/mobin04)
-- [Other Contributors]
 
 ---
 
