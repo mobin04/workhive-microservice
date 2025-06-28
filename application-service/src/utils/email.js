@@ -9,8 +9,6 @@ class Email {
     this.url = url;
     this.from = `${process.env.EMAIL_FROM_ME}`;
     this.user = user;
-    this.loginDetails = others.loggedUserInfo;
-    this.otpSecret = others.otpSecret;
     this.applicationStatus = others.application;
     this.jobDetails = others.jobDetails;
   }
@@ -62,41 +60,6 @@ class Email {
     } catch (error) {
       throw new Error(error.message || 'Failed to send email.');
     }
-  }
-
-  // Send welcome email.
-  async sendWelcome() {
-    await this.sendEmail('Welcome to WorkHive.', 'welcomeEmail', {
-      name: this.firstName,
-      profile: `${process.env.FRONTEND_URL}/profile`, // set the URL properly after
-      coverImage: this.user.coverImage,
-    });
-  }
-
-  // Send Login Email.
-  async sendLoginEmail() {
-    await this.sendEmail('Welcome Back to WorkHive', 'loginEmail', {
-      userName: this.firstName,
-      time: new Date().toDateString(),
-      location: this.loginDetails.location,
-      device: `${this.loginDetails.device.browser}, ${this.loginDetails.device.type}`,
-      coverImage: this.user.coverImage,
-    });
-  }
-
-  async sendOtpEmail() {
-    await this.sendEmail('Verification code for signup', 'otpEmailTemplate', {
-      otpCode: this.otpSecret,
-      userName: this.firstName,
-    });
-  }
-
-  async sendLoginOtpEmail() {
-    await this.sendEmail('Verification code for login', 'otpLoginEmail', {
-      userName: this.firstName,
-      otpCode: this.otpSecret,
-      coverImageUrl: this.user.coverImage,
-    });
   }
 
   async sendApplicationStatusUpdate() {
