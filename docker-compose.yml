@@ -28,7 +28,7 @@ services:
       - ./job-service:/app
       - /app/node_modules
     restart: always
-
+   
   notification-service:
     build:
       context: ./notification-service
