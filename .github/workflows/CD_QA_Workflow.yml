@@ -10,6 +10,137 @@ jobs:
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
+
+      - name: Create Application Env file
+        working-directory: ./application-service
+        run: |
+          touch .env
+          echo PORT=${{ secrets.PORT_APPLICATION }} >> .env
+          echo NODE_ENV=${{ secrets.NODE_ENV }} >> .env
+          echo API_URL=${{ secrets.API_URL_APPLICATION }} >> .env
+          echo FRONTEND_URL=${{ secrets.FRONTEND_URL_APPLICATION }} >> .env
+          echo MONGO_URI=${{ secrets.MONGO_URI_APPLICATION }} >> .env
+          echo MONGO_PASSWRD=${{ secrets.MONGO_PASSWRD_APPLICATION }} >> .env
+          echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+          echo JWT_COOKIE_EXPIRES_IN=${{ secrets.JWT_COOKIE_EXPIRES_IN }} >> .env
+          echo JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }} >> .env
+          echo JWT_SIGNUP_EXPIRE=${{ secrets.JWT_SIGNUP_EXPIRE }} >> .env
+          echo JWT_LOGIN_EXPIRE=${{ secrets.JWT_LOGIN_EXPIRE }} >> .env
+          echo STORAGE_BUCKET_NAME=${{ secrets.STORAGE_BUCKET_NAME }} >> .env
+          echo TYPE=${{ secrets.TYPE }} >> .env
+          echo PROJECT_ID=${{ secrets.PROJECT_ID }} >> .env
+          echo PRIVATE_KEY_ID=${{ secrets.PRIVATE_KEY_ID }} >> .env
+          echo PRIVATE_KEY=${{ secrets.PRIVATE_KEY }} >> .env
+          echo CLIENT_EMAIL=${{ secrets.CLIENT_EMAIL }} >> .env
+          echo MAILTRAP_USER_NAME=${{ secrets.MAILTRAP_USER_NAME }} >> .env
+          echo MAILTRAP_PASSWORD=${{ secrets.MAILTRAP_PASSWORD }} >> .env
+          echo MAILTRAP_HOST=${{ secrets.MAILTRAP_HOST }} >> .env
+          echo MAILTRAP_PORT=${{ secrets.MAILTRAP_PORT }} >> .env
+          echo MAIL_JET_PRIVATE_KEY=${{ secrets.MAIL_JET_PRIVATE_KEY }} >> .env
+          echo MAIL_JET_PUBLIC_KEY=${{ secrets.MAIL_JET_PUBLIC_KEY }} >> .env
+          echo EMAIL_FROM_ME=${{ secrets.EMAIL_FROM_ME }} >> .env
+          echo MAIL_JET_HOST=${{ secrets.MAIL_JET_HOST }} >> .env
+          echo MAIL_JET_PORT=${{ secrets.MAIL_JET_PORT }} >> .env
+          echo IPINFO_API_KEY=${{ secrets.IPINFO_API_KEY }} >> .env
+          echo API_BASE_URL_APPLICATION=${{ secrets.API_BASE_URL_APPLICATION }} >> .env
+          echo MESSAGE_BROKER_URL=${{ secrets.MESSAGE_BROKER_URL }} >> .env
+          echo SWAGGER_URL=http://localhost/api/v2/applications >> .env
+          cat .env
+
+
+      - name: Create Auth Env file
+        working-directory: ./auth-service
+        run: |
+          touch .env
+          echo PORT=${{ secrets.PORT_AUTH }} >> .env
+          echo NODE_ENV=${{ secrets.NODE_ENV }} >> .env
+          echo API_URL="" >> .env
+          echo FRONTEND_URL=https://not_yet_implemented >> .env
+          echo MONGO_URI=${{ secrets.MONGO_URI_AUTH }} >> .env
+          echo MONGO_PASSWRD=${{ secrets.MONGO_PASSWRD_AUTH }} >> .env
+          echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+          echo JWT_COOKIE_EXPIRES_IN=${{ secrets.JWT_COOKIE_EXPIRES_IN }} >> .env
+          echo JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }} >> .env
+          echo JWT_SIGNUP_EXPIRE=${{ secrets.JWT_SIGNUP_EXPIRE }} >> .env
+          echo JWT_LOGIN_EXPIRE=${{ secrets.JWT_LOGIN_EXPIRE }} >> .env
+          echo STORAGE_BUCKET_NAME=${{ secrets.STORAGE_BUCKET_NAME }} >> .env
+          echo TYPE=${{ secrets.TYPE }} >> .env
+          echo PROJECT_ID=${{ secrets.PROJECT_ID }} >> .env
+          echo PRIVATE_KEY_ID=${{ secrets.PRIVATE_KEY_ID }} >> .env
+          echo PRIVATE_KEY=${{ secrets.PRIVATE_KEY }} >> .env
+          echo CLIENT_EMAIL=${{ secrets.CLIENT_EMAIL }} >> .env
+          echo MAILTRAP_USER_NAME=${{ secrets.MAILTRAP_USER_NAME }} >> .env
+          echo MAILTRAP_PASSWORD=${{ secrets.MAILTRAP_PASSWORD }} >> .env
+          echo MAILTRAP_HOST=${{ secrets.MAILTRAP_HOST }} >> .env
+          echo MAILTRAP_PORT=${{ secrets.MAILTRAP_PORT }} >> .env
+          echo MAIL_JET_PRIVATE_KEY=${{ secrets.MAIL_JET_PRIVATE_KEY }} >> .env
+          echo MAIL_JET_PUBLIC_KEY=${{ secrets.MAIL_JET_PUBLIC_KEY }} >> .env
+          echo EMAIL_FROM_ME=${{ secrets.EMAIL_FROM_ME }} >> .env
+          echo MAIL_JET_HOST=${{ secrets.MAIL_JET_HOST }} >> .env
+          echo MAIL_JET_PORT=${{ secrets.MAIL_JET_PORT }} >> .env
+          echo IPINFO_API_KEY=${{ secrets.IPINFO_API_KEY }} >> .env
+          echo API_BASE_URL_AUTH=${{ secrets.API_BASE_URL_AUTH }} >> .env
+          echo MESSAGE_BROKER_URL=${{ secrets.MESSAGE_BROKER_URL }} >> .env
+          echo EXCHANGE_NAME=${{ secrets.EXCHANGE_NAME_APPLICATION }} >> .env
+          echo SWAGGER_URL=http://localhost/api/v2/auth >> .env
+          cat .env
+
+      - name: Create Job Env file
+        working-directory: ./job-service
+        run: |
+          touch .env
+          echo PORT=${{ secrets.PORT_JOB }} >> .env
+          echo NODE_ENV=${{ secrets.NODE_ENV }} >> .env
+          echo API_URL="" >> .env
+          echo FRONTEND_URL=${{ secrets.FRONTEND_URL_APPLICATION }} >> .env
+          echo MONGO_URI=${{ secrets.MONGO_URI_JOB }} >> .env
+          echo MONGO_PASSWRD=${{ secrets.MONGO_PASSWRD_JOB }} >> .env
+          echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+          echo JWT_COOKIE_EXPIRES_IN=${{ secrets.JWT_COOKIE_EXPIRES_IN }} >> .env
+          echo JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }} >> .env
+          echo JWT_SIGNUP_EXPIRE=${{ secrets.JWT_SIGNUP_EXPIRE }} >> .env
+          echo JWT_LOGIN_EXPIRE=${{ secrets.JWT_LOGIN_EXPIRE }} >> .env
+          echo STORAGE_BUCKET_NAME=${{ secrets.STORAGE_BUCKET_NAME }} >> .env
+          echo TYPE=${{ secrets.TYPE }} >> .env
+          echo PROJECT_ID=${{ secrets.PROJECT_ID }} >> .env
+          echo PRIVATE_KEY_ID=${{ secrets.PRIVATE_KEY_ID }} >> .env
+          echo PRIVATE_KEY=${{ secrets.PRIVATE_KEY }} >> .env
+          echo CLIENT_EMAIL=${{ secrets.CLIENT_EMAIL }} >> .env
+          echo MAILTRAP_USER_NAME=${{ secrets.MAILTRAP_USER_NAME }} >> .env
+          echo MAILTRAP_PASSWORD=${{ secrets.MAILTRAP_PASSWORD }} >> .env
+          echo MAILTRAP_HOST=${{ secrets.MAILTRAP_HOST }} >> .env
+          echo MAILTRAP_PORT=${{ secrets.MAILTRAP_PORT }} >> .env
+          echo MAIL_JET_PRIVATE_KEY=${{ secrets.MAIL_JET_PRIVATE_KEY }} >> .env
+          echo MAIL_JET_PUBLIC_KEY=${{ secrets.MAIL_JET_PUBLIC_KEY }} >> .env
+          echo EMAIL_FROM_ME=${{ secrets.EMAIL_FROM_ME }} >> .env
+          echo MAIL_JET_HOST=${{ secrets.MAIL_JET_HOST }} >> .env
+          echo MAIL_JET_PORT=${{ secrets.MAIL_JET_PORT }} >> .env
+          echo IPINFO_API_KEY=${{ secrets.IPINFO_API_KEY }} >> .env
+          echo API_BASE_URL_JOB=${{ secrets.API_BASE_URL_JOB }} >> .env
+          echo MESSAGE_BROKER_URL=${{ secrets.MESSAGE_BROKER_URL }} >> .env
+          echo SWAGGER_URL=http://localhost/api/v2/jobs >> .env
+          cat .env
+
+      - name: Create Notification Env file
+        working-directory: ./notification-service
+        run: |
+          touch .env
+          echo PORT=${{ secrets.PORT_NOTIFICATION }} >> .env
+          echo NODE_ENV=${{ secrets.NODE_ENV }} >> .env
+          echo API_URL="" >> .env
+          echo FRONTEND_URL="#" >> .env
+          echo MONGO_URI=${{ secrets.MONGO_URI_NOTIFICATION }} >> .env
+          echo MONGO_PASSWRD=${{ secrets.MONGO_PASSWRD_NOTIFICATION }} >> .env
+          echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+          echo JWT_COOKIE_EXPIRES_IN=${{ secrets.JWT_COOKIE_EXPIRES_IN }} >> .env
+          echo JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }} >> .env
+          echo JWT_SIGNUP_EXPIRE=${{ secrets.JWT_SIGNUP_EXPIRE }} >> .env
+          echo JWT_LOGIN_EXPIRE=${{ secrets.JWT_LOGIN_EXPIRE }} >> .env
+          echo API_BASE_URL_NOTIFICATION=${{ secrets.API_BASE_URL_NOTIFICATION }} >> .env
+          echo MESSAGE_BROKER_URL=${{ secrets.MESSAGE_BROKER_URL }} >> .env
+          echo SWAGGER_URL=${{http://localhost/api/v2/notifications}} >> .env
+          cat .env
+          
       - name: Generate deployment package
         run: |
           zip -r deploy.zip . -x '*.git'
