@@ -1,0 +1,239 @@
+name: Deploy to Elastic Beanstalk
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+  EB_APP_NAME: WorkHive
+  EB_ENV_NAME: WorkHive-env-1
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        run: |
+          aws ecr get-login-password | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
+
+
+          
+      - name: Create Application Env file
+        working-directory: ./application-service
+        run: |
+          touch .env
+          echo PORT=${{ secrets.PORT_APPLICATION }} >> .env
+          echo NODE_ENV=${{ secrets.NODE_ENV }} >> .env
+          echo API_URL=${{ secrets.API_URL_APPLICATION }} >> .env
+          echo FRONTEND_URL=${{ secrets.FRONTEND_URL_APPLICATION }} >> .env
+          echo MONGO_URI=${{ secrets.MONGO_URI_APPLICATION }} >> .env
+          echo MONGO_PASSWRD=${{ secrets.MONGO_PASSWRD_APPLICATION }} >> .env
+          echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+          echo JWT_COOKIE_EXPIRES_IN=${{ secrets.JWT_COOKIE_EXPIRES_IN }} >> .env
+          echo JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }} >> .env
+          echo JWT_SIGNUP_EXPIRE=${{ secrets.JWT_SIGNUP_EXPIRE }} >> .env
+          echo JWT_LOGIN_EXPIRE=${{ secrets.JWT_LOGIN_EXPIRE }} >> .env
+          echo STORAGE_BUCKET_NAME=${{ secrets.STORAGE_BUCKET_NAME }} >> .env
+          echo TYPE=${{ secrets.TYPE }} >> .env
+          echo PROJECT_ID=${{ secrets.PROJECT_ID }} >> .env
+          echo PRIVATE_KEY_ID=${{ secrets.PRIVATE_KEY_ID }} >> .env
+          echo PRIVATE_KEY=${{ secrets.PRIVATE_KEY }} >> .env
+          echo CLIENT_EMAIL=${{ secrets.CLIENT_EMAIL }} >> .env
+          echo MAILTRAP_USER_NAME=${{ secrets.MAILTRAP_USER_NAME }} >> .env
+          echo MAILTRAP_PASSWORD=${{ secrets.MAILTRAP_PASSWORD }} >> .env
+          echo MAILTRAP_HOST=${{ secrets.MAILTRAP_HOST }} >> .env
+          echo MAILTRAP_PORT=${{ secrets.MAILTRAP_PORT }} >> .env
+          echo MAIL_JET_PRIVATE_KEY=${{ secrets.MAIL_JET_PRIVATE_KEY }} >> .env
+          echo MAIL_JET_PUBLIC_KEY=${{ secrets.MAIL_JET_PUBLIC_KEY }} >> .env
+          echo EMAIL_FROM_ME=${{ secrets.EMAIL_FROM_ME }} >> .env
+          echo MAIL_JET_HOST=${{ secrets.MAIL_JET_HOST }} >> .env
+          echo MAIL_JET_PORT=${{ secrets.MAIL_JET_PORT }} >> .env
+          echo IPINFO_API_KEY=${{ secrets.IPINFO_API_KEY }} >> .env
+          echo API_BASE_URL_APPLICATION=${{ secrets.API_BASE_URL_APPLICATION }} >> .env
+          echo MESSAGE_BROKER_URL=${{ secrets.MESSAGE_BROKER_URL }} >> .env
+          echo SWAGGER_URL=http://localhost/api/v2/applications >> .env
+          cat .env
+
+
+      - name: Create Auth Env file
+        working-directory: ./auth-service
+        run: |
+          touch .env
+          echo PORT=${{ secrets.PORT_AUTH }} >> .env
+          echo NODE_ENV=${{ secrets.NODE_ENV }} >> .env
+          echo API_URL="" >> .env
+          echo FRONTEND_URL=https://not_yet_implemented >> .env
+          echo MONGO_URI=${{ secrets.MONGO_URI_AUTH }} >> .env
+          echo MONGO_PASSWRD=${{ secrets.MONGO_PASSWRD_AUTH }} >> .env
+          echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+          echo JWT_COOKIE_EXPIRES_IN=${{ secrets.JWT_COOKIE_EXPIRES_IN }} >> .env
+          echo JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }} >> .env
+          echo JWT_SIGNUP_EXPIRE=${{ secrets.JWT_SIGNUP_EXPIRE }} >> .env
+          echo JWT_LOGIN_EXPIRE=${{ secrets.JWT_LOGIN_EXPIRE }} >> .env
+          echo STORAGE_BUCKET_NAME=${{ secrets.STORAGE_BUCKET_NAME }} >> .env
+          echo TYPE=${{ secrets.TYPE }} >> .env
+          echo PROJECT_ID=${{ secrets.PROJECT_ID }} >> .env
+          echo PRIVATE_KEY_ID=${{ secrets.PRIVATE_KEY_ID }} >> .env
+          echo PRIVATE_KEY=${{ secrets.PRIVATE_KEY }} >> .env
+          echo CLIENT_EMAIL=${{ secrets.CLIENT_EMAIL }} >> .env
+          echo MAILTRAP_USER_NAME=${{ secrets.MAILTRAP_USER_NAME }} >> .env
+          echo MAILTRAP_PASSWORD=${{ secrets.MAILTRAP_PASSWORD }} >> .env
+          echo MAILTRAP_HOST=${{ secrets.MAILTRAP_HOST }} >> .env
+          echo MAILTRAP_PORT=${{ secrets.MAILTRAP_PORT }} >> .env
+          echo MAIL_JET_PRIVATE_KEY=${{ secrets.MAIL_JET_PRIVATE_KEY }} >> .env
+          echo MAIL_JET_PUBLIC_KEY=${{ secrets.MAIL_JET_PUBLIC_KEY }} >> .env
+          echo EMAIL_FROM_ME=${{ secrets.EMAIL_FROM_ME }} >> .env
+          echo MAIL_JET_HOST=${{ secrets.MAIL_JET_HOST }} >> .env
+          echo MAIL_JET_PORT=${{ secrets.MAIL_JET_PORT }} >> .env
+          echo IPINFO_API_KEY=${{ secrets.IPINFO_API_KEY }} >> .env
+          echo API_BASE_URL_AUTH=${{ secrets.API_BASE_URL_AUTH }} >> .env
+          echo MESSAGE_BROKER_URL=${{ secrets.MESSAGE_BROKER_URL }} >> .env
+          echo EXCHANGE_NAME=${{ secrets.EXCHANGE_NAME_APPLICATION }} >> .env
+          echo SWAGGER_URL=http://localhost/api/v2/auth >> .env
+          cat .env
+
+      - name: Create Job Env file
+        working-directory: ./job-service
+        run: |
+          touch .env
+          echo PORT=${{ secrets.PORT_JOB }} >> .env
+          echo NODE_ENV=${{ secrets.NODE_ENV }} >> .env
+          echo API_URL="" >> .env
+          echo FRONTEND_URL=${{ secrets.FRONTEND_URL_APPLICATION }} >> .env
+          echo MONGO_URI=${{ secrets.MONGO_URI_JOB }} >> .env
+          echo MONGO_PASSWRD=${{ secrets.MONGO_PASSWRD_JOB }} >> .env
+          echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+          echo JWT_COOKIE_EXPIRES_IN=${{ secrets.JWT_COOKIE_EXPIRES_IN }} >> .env
+          echo JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }} >> .env
+          echo JWT_SIGNUP_EXPIRE=${{ secrets.JWT_SIGNUP_EXPIRE }} >> .env
+          echo JWT_LOGIN_EXPIRE=${{ secrets.JWT_LOGIN_EXPIRE }} >> .env
+          echo STORAGE_BUCKET_NAME=${{ secrets.STORAGE_BUCKET_NAME }} >> .env
+          echo TYPE=${{ secrets.TYPE }} >> .env
+          echo PROJECT_ID=${{ secrets.PROJECT_ID }} >> .env
+          echo PRIVATE_KEY_ID=${{ secrets.PRIVATE_KEY_ID }} >> .env
+          echo PRIVATE_KEY=${{ secrets.PRIVATE_KEY }} >> .env
+          echo CLIENT_EMAIL=${{ secrets.CLIENT_EMAIL }} >> .env
+          echo MAILTRAP_USER_NAME=${{ secrets.MAILTRAP_USER_NAME }} >> .env
+          echo MAILTRAP_PASSWORD=${{ secrets.MAILTRAP_PASSWORD }} >> .env
+          echo MAILTRAP_HOST=${{ secrets.MAILTRAP_HOST }} >> .env
+          echo MAILTRAP_PORT=${{ secrets.MAILTRAP_PORT }} >> .env
+          echo MAIL_JET_PRIVATE_KEY=${{ secrets.MAIL_JET_PRIVATE_KEY }} >> .env
+          echo MAIL_JET_PUBLIC_KEY=${{ secrets.MAIL_JET_PUBLIC_KEY }} >> .env
+          echo EMAIL_FROM_ME=${{ secrets.EMAIL_FROM_ME }} >> .env
+          echo MAIL_JET_HOST=${{ secrets.MAIL_JET_HOST }} >> .env
+          echo MAIL_JET_PORT=${{ secrets.MAIL_JET_PORT }} >> .env
+          echo IPINFO_API_KEY=${{ secrets.IPINFO_API_KEY }} >> .env
+          echo API_BASE_URL_JOB=${{ secrets.API_BASE_URL_JOB }} >> .env
+          echo MESSAGE_BROKER_URL=${{ secrets.MESSAGE_BROKER_URL }} >> .env
+          echo SWAGGER_URL=http://localhost/api/v2/jobs >> .env
+          cat .env
+
+      - name: Create Notification Env file
+        working-directory: ./notification-service
+        run: |
+          touch .env
+          echo PORT=${{ secrets.PORT_NOTIFICATION }} >> .env
+          echo NODE_ENV=${{ secrets.NODE_ENV }} >> .env
+          echo API_URL="" >> .env
+          echo FRONTEND_URL="#" >> .env
+          echo MONGO_URI=${{ secrets.MONGO_URI_NOTIFICATION }} >> .env
+          echo MONGO_PASSWRD=${{ secrets.MONGO_PASSWRD_NOTIFICATION }} >> .env
+          echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+          echo JWT_COOKIE_EXPIRES_IN=${{ secrets.JWT_COOKIE_EXPIRES_IN }} >> .env
+          echo JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }} >> .env
+          echo JWT_SIGNUP_EXPIRE=${{ secrets.JWT_SIGNUP_EXPIRE }} >> .env
+          echo JWT_LOGIN_EXPIRE=${{ secrets.JWT_LOGIN_EXPIRE }} >> .env
+          echo API_BASE_URL_NOTIFICATION=${{ secrets.API_BASE_URL_NOTIFICATION }} >> .env
+          echo MESSAGE_BROKER_URL=${{ secrets.MESSAGE_BROKER_URL }} >> .env
+          echo SWAGGER_URL=http://localhost/api/v2/notifications >> .env
+          cat .env
+      - name: Build and push Docker images
+        run: |
+          for service in auth-service job-service application-service notification-service; do
+            docker build -t $ECR_REGISTRY/workhive-$service ./$service
+            docker push $ECR_REGISTRY/workhive-$service
+          done
+          docker build -t $ECR_REGISTRY/workhive-nginx-proxy ./proxy
+          docker push $ECR_REGISTRY/workhive-nginx-proxy
+
+      - name: Generate deployment docker-compose file
+        run: |
+          cat > docker-compose.deploy.yml <<EOF
+          services:
+            auth-service:
+              image: $ECR_REGISTRY/workhive-auth-service
+              ports:
+                - "8001:8001"
+              env_file:
+                - ./auth-service/.env
+              restart: always
+          
+            job-service:
+              image: $ECR_REGISTRY/workhive-job-service
+              ports:
+                - "8002:8002"
+              env_file:
+                - ./job-service/.env
+              restart: always
+          
+            notification-service:
+              image: $ECR_REGISTRY/workhive-notification-service
+              ports:
+                - "8003:8003"
+              env_file:
+                - ./notification-service/.env
+              restart: always
+          
+            application-service:
+              image: $ECR_REGISTRY/workhive-application-service
+              ports:
+                - "8004:8004"
+              env_file:
+                - ./application-service/.env
+              restart: always
+          
+            nginx-proxy:
+              image: $ECR_REGISTRY/workhive-nginx-proxy
+              ports:
+                - "80:80"
+              depends_on:
+                - auth-service
+                - job-service
+                - notification-service
+                - application-service
+              restart: always
+          EOF
+
+
+      - name: Zip deployment package
+        run: zip -r deploy.zip docker-compose.deploy.yml .platform/
+      
+      - name: Deploy to Elastic Beanstalk
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: ${{ env.EB_APP_NAME }}
+          environment_name: ${{ env.EB_ENV_NAME }}
+          version_label: "ver-${{ github.sha }}"
+          region: ${{ env.AWS_REGION }}
+          deployment_package: deploy.zip
+
+
+          
