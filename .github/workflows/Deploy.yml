@@ -225,7 +225,14 @@ jobs:
           mv docker-compose.deploy.yml docker-compose.yml
 
       - name: Zip deployment package
-        run: zip -r deploy.zip docker-compose.yml .platform/
+        run: |
+          zip -r deploy.zip \
+            docker-compose.yml \
+            .platform/ \
+            auth-service/.env \
+            job-service/.env \
+            application-service/.env \
+            notification-service/.env
       
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v22
