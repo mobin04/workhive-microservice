@@ -220,9 +220,12 @@ jobs:
               restart: always
           EOF
 
+      - name: Prepare final deployment compose file
+        run: |
+          mv docker-compose.deploy.yml docker-compose.yml
 
       - name: Zip deployment package
-        run: zip -r deploy.zip docker-compose.deploy.yml .platform/
+        run: zip -r deploy.zip docker-compose.yml .platform/
       
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v22
