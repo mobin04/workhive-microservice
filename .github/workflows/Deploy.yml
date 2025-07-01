@@ -54,8 +54,7 @@ jobs:
           echo TYPE=${{ secrets.TYPE }} >> .env
           echo PROJECT_ID=${{ secrets.PROJECT_ID }} >> .env
           echo PRIVATE_KEY_ID=${{ secrets.PRIVATE_KEY_ID }} >> .env
-          printf 'PRIVATE_KEY="%s"\n' "${{ secrets.PRIVATE_KEY }}" | sed 's/\\n/\
-          /g' >> .env
+          echo PRIVATE_KEY=${{ secrets.PRIVATE_KEY }} >> .env
           echo CLIENT_EMAIL=${{ secrets.CLIENT_EMAIL }} >> .env
           echo MAILTRAP_USER_NAME=${{ secrets.MAILTRAP_USER_NAME }} >> .env
           echo MAILTRAP_PASSWORD=${{ secrets.MAILTRAP_PASSWORD }} >> .env
@@ -92,8 +91,7 @@ jobs:
           echo TYPE=${{ secrets.TYPE }} >> .env
           echo PROJECT_ID=${{ secrets.PROJECT_ID }} >> .env
           echo PRIVATE_KEY_ID=${{ secrets.PRIVATE_KEY_ID }} >> .env
-          printf 'PRIVATE_KEY="%s"\n' "${{ secrets.PRIVATE_KEY }}" | sed 's/\\n/\
-          /g' >> .env
+          echo PRIVATE_KEY=${{ secrets.PRIVATE_KEY }} >> .env
           echo CLIENT_EMAIL=${{ secrets.CLIENT_EMAIL }} >> .env
           echo MAILTRAP_USER_NAME=${{ secrets.MAILTRAP_USER_NAME }} >> .env
           echo MAILTRAP_PASSWORD=${{ secrets.MAILTRAP_PASSWORD }} >> .env
@@ -130,8 +128,7 @@ jobs:
           echo TYPE=${{ secrets.TYPE }} >> .env
           echo PROJECT_ID=${{ secrets.PROJECT_ID }} >> .env
           echo PRIVATE_KEY_ID=${{ secrets.PRIVATE_KEY_ID }} >> .env
-          printf 'PRIVATE_KEY="%s"\n' "${{ secrets.PRIVATE_KEY }}" | sed 's/\\n/\
-          /g' >> .env
+          echo PRIVATE_KEY=${{ secrets.PRIVATE_KEY }} >> .env
           echo CLIENT_EMAIL=${{ secrets.CLIENT_EMAIL }} >> .env
           echo MAILTRAP_USER_NAME=${{ secrets.MAILTRAP_USER_NAME }} >> .env
           echo MAILTRAP_PASSWORD=${{ secrets.MAILTRAP_PASSWORD }} >> .env
