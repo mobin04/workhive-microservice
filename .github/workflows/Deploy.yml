@@ -1,3 +1,4 @@
+# Deploy on AWS Elastic Beanstalk
 name: Deploy to Elastic Beanstalk
 
 on:
