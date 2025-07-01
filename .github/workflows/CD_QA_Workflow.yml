@@ -138,7 +138,7 @@ jobs:
           echo JWT_LOGIN_EXPIRE=${{ secrets.JWT_LOGIN_EXPIRE }} >> .env
           echo API_BASE_URL_NOTIFICATION=${{ secrets.API_BASE_URL_NOTIFICATION }} >> .env
           echo MESSAGE_BROKER_URL=${{ secrets.MESSAGE_BROKER_URL }} >> .env
-          echo SWAGGER_URL=http://localhost/api/v2/notifications .env
+          echo SWAGGER_URL=http://localhost/api/v2/notifications >> .env
           cat .env
           
       - name: Generate deployment package
