@@ -18,7 +18,7 @@ const StartServer = async () => {
 
   initSocket(server);
 
-  const PORT = process.env.PORT;
+  const PORT = process.env.PORT_APPLICATION;
 
   server
     .listen(PORT, () => {

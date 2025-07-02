@@ -17,7 +17,7 @@ const StartServer = async () => {
 
   const server = http.createServer(app);
 
-  const PORT = process.env.PORT;
+  const PORT = process.env.PORT_AUTH;
 
   server
     .listen(PORT, () => {

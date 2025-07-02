@@ -17,7 +17,7 @@ const StartServer = async () => {
 
   const server = http.createServer(app);
 
-  const PORT = process.env.PORT;
+  const PORT = process.env.PORT_JOB;
   server
     .listen(PORT, () => {
       console.log(`✅ Job is listening on port: ${PORT}`);

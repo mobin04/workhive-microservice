@@ -13,7 +13,7 @@ const options = {
     },
     servers: [
       {
-        url: process.env.SWAGGER_URL || 'http://localhost/api/v2/auth',
+        url: process.env.SWAGGER_URL_AUTH || 'http://localhost/api/v2/auth',
       },
     ],
   },

@@ -13,7 +13,7 @@ const options = {
     },
     servers: [
       {
-        url: process.env.SWAGGER_URL || 'http://localhost/api/v2/notifications',
+        url: process.env.SWAGGER_URL_NOTIFICATION || 'http://localhost/api/v2/notifications',
       },
     ],
   },

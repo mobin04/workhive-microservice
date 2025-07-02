@@ -13,7 +13,7 @@ module.exports = async (app) => {
   app.use(express.urlencoded({ extended: true, limit: '1mb' }));
   app.use(
     cors({
-      origin: [process.env.FRONTEND_URL, process.env.SWAGGER_URL],
+      origin: [process.env.FRONTEND_URL, process.env.SWAGGER_URL_APPLICATION],
     })
   );
   app.use(cookieParser());
