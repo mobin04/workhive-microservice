@@ -1,0 +1,22 @@
+# Continuous Deployment on Render
+name: Continuous Deployment on Render
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout source code
+    - uses: actions/checkout@v4
+    
+    - name: Deploy to production
+      uses: johnbeynon/render-deploy-action@v0.0.8
+      with:
+        service-id: ${{ secrets.MY_RENDER_SERVICE_ID }}
+        api-key: ${{ secrets.MY_RENDER_API_KEY }}
+        wait-for-success: true
