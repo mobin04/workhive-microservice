@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: workhive
-    runtime: docker
-    plan: free
-    dockerCommand: ''
-    dockerContext: .
-    dockerfilePath: docker-compose.yml
-    autoDeploy: true
