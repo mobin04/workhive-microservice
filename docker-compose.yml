@@ -6,8 +6,8 @@ services:
     container_name: auth-service
     ports:
       - "8001:8001"
-    # env_file:
-    #   - ./auth-service/.env
+    env_file:
+      - ./auth-service/.env
     # volumes:
     #   - ./auth-service:/app
     #   - /app/node_modules
@@ -20,13 +20,13 @@ services:
     container_name: job-service
     ports:
       - "8002:8002"
-    # env_file:
-    #   - ./job-service/.env
+    env_file:
+      - ./job-service/.env
     # volumes:
     #   - ./job-service:/app
     #   - /app/node_modules
     restart: always
-   
+
   notification-service:
     build:
       context: ./notification-service
@@ -34,8 +34,8 @@ services:
     container_name: notification-service
     ports:
       - "8003:8003"
-    # env_file:
-    #   - ./notification-service/.env
+    env_file:
+      - ./notification-service/.env
     # volumes:
     #   - ./notification-service:/app
     #   - /app/node_modules
@@ -48,8 +48,8 @@ services:
     container_name: application-service
     ports:
       - "8004:8004"
-    # env_file:
-    #   - ./application-service/.env
+    env_file:
+      - ./application-service/.env
     # volumes:
     #   - ./application-service:/app
     #   - /app/node_modules
