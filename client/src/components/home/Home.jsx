@@ -302,7 +302,6 @@ function Home() {
       </div>
 
       {isLoggedIn ? <LoggedInHomepage /> : <GuestHomePage />}
-      <Footer />
     </div>
   );
 }
