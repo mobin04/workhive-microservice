@@ -6,7 +6,7 @@ function Footer() {
   const {themeClasses, dynamicFontColor} = useContext(ThemeContext);
 
   return (
-    <footer className={`${themeClasses} border-t-2`}>
+    <footer className={`${themeClasses} border-t-2 relative bottom-0`}>
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
