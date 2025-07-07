@@ -8,9 +8,7 @@ services:
       - "8001:8001"
     env_file:
       - ./auth-service/.env
-    # volumes:
-    #   - ./auth-service:/app
-    #   - /app/node_modules
+
     restart: always
 
   job-service:
@@ -22,9 +20,7 @@ services:
       - "8002:8002"
     env_file:
       - ./job-service/.env
-    # volumes:
-    #   - ./job-service:/app
-    #   - /app/node_modules
+
     restart: always
 
   notification-service:
@@ -36,9 +32,7 @@ services:
       - "8003:8003"
     env_file:
       - ./notification-service/.env
-    # volumes:
-    #   - ./notification-service:/app
-    #   - /app/node_modules
+
     restart: always
 
   application-service:
@@ -50,9 +44,7 @@ services:
       - "8004:8004"
     env_file:
       - ./application-service/.env
-    # volumes:
-    #   - ./application-service:/app
-    #   - /app/node_modules
+
     restart: always
 
   nginx-proxy:
