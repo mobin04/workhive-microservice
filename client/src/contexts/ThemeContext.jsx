@@ -22,7 +22,7 @@ export function ThemeContextProvider({ children }) {
   const searchBgClasses = isDark
     ? "bg-gray-800 border-gray-600"
     : "bg-gray-50 border-gray-300";
-  const dynamicFontColor = isDark ? "text-gray-300" : "text-gray-400";
+  const dynamicFontColor = isDark ? "text-gray-300" : "text-gray-500";
 
   return (
     <ThemeContext.Provider

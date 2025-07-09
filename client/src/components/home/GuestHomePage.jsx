@@ -18,7 +18,6 @@ function GuestHomePage() {
     ],
   };
 
-
   return (
     <div className={`min-h-screen ${bodyThemeClasses}`}>
       {/* Hero Section */}

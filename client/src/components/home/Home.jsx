@@ -27,13 +27,14 @@ import {
   Instagram,
   Mail,
   Phone,
+  Star,
 } from 'lucide-react';
 import Footer from '../footer/Footer';
 import GuestHomePage from './GuestHomePage';
 import { ThemeContext } from '../../contexts/ThemeContext';
 
 function Home() {
-  const { isDark, themeClasses, bodyThemeClasses, searchBgClasses } = useContext(ThemeContext);
+  const { isDark, themeClasses, bodyThemeClasses, searchBgClasses, dynamicFontColor } = useContext(ThemeContext);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedJobType, setSelectedJobType] = useState('All');
@@ -136,7 +137,7 @@ function Home() {
           >
             Welcome back, John! 👋
           </h1>
-          <p className="text-gray-600 dark:text-gray-300">Discover your next career opportunity</p>
+          <p className={`${dynamicFontColor}`}>Discover your next career opportunity</p>
         </div>
 
         {/* Filters */}
@@ -206,7 +207,7 @@ function Home() {
                   <div className="text-3xl">{job.logo}</div>
                   <div className="flex-1">
                     <h3 className="text-xl font-semibold mb-1">{job.title}</h3>
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-300 mb-2">
+                    <div className={`flex flex-wrap items-center gap-4 text-sm ${dynamicFontColor} mb-2`}>
                       <span className="flex items-center space-x-1">
                         <Building2 className="h-4 w-4" />
                         <span>{job.company}</span>
@@ -220,14 +221,14 @@ function Home() {
                         <span>{job.posted}</span>
                       </span>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm">
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      <span className={`px-3 py-2 flex justify-center items-center ${isDark?'text-white bg-blue-700':'text-white bg-blue-800'} rounded text-sm`}>
                         {job.type}
                       </span>
-                      <span className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-sm">
+                      <span className={`px-3 py-2 flex justify-center items-center ${isDark?'text-white bg-red-700':'text-white bg-red-800'} rounded text-sm`}>
                         {job.level}
                       </span>
-                      <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full text-sm">
+                      <span className={`px-3 py-2 flex justify-center items-center ${isDark?'text-white bg-green-700':'text-white bg-green-800'} rounded text-sm`}>
                         {job.salary}
                       </span>
                     </div>
@@ -239,7 +240,7 @@ function Home() {
                       isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                     } transition-colors`}
                   >
-                    <Heart className="h-5 w-5" />
+                    <Star className="h-5 w-5" />
                   </button>
                   <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                     Apply Now
