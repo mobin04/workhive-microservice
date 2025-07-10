@@ -159,7 +159,7 @@ jobs:
       - name: Build and push Docker images
         run: |
           for service in auth-service job-service application-service notification-service; do
-            docker build -t $ECR_REGISTRY/workhive-$service ./$service
+            docker build -t $ECR_REGISTRY/workhive-$service ./server/$service
             docker push $ECR_REGISTRY/workhive-$service
           done
           docker build -t $ECR_REGISTRY/workhive-nginx-proxy ./proxy
