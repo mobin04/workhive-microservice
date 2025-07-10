@@ -104,7 +104,7 @@ class AuthService {
       throw new AppError(err.message, err.statusCode);
     }
   }
-  
+
   async VerifyLoginLink(userInput) {
     const { token } = userInput;
     try {
