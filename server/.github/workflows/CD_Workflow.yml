@@ -1,5 +1,5 @@
 # Deploy on AWS Elastic Beanstalk
-name: Deploy to Elastic Beanstalk
+name: Deploy on Elastic Beanstalk
 on:
   push:
     branches: [ "main" ]

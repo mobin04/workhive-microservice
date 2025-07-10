@@ -308,7 +308,7 @@ const Login = () => {
                         ) : null}
 
                         {/* Resend OTP  */}
-                        <div className="mt-3 text-center">
+                        <div className="my-5 text-center">
                           <p className="text-sm text-gray-600">
                             Didn't receive the code?{" "}
                             <button
@@ -323,27 +323,29 @@ const Login = () => {
                             </button>
                           </p>
                         </div>
+
+                        <button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200 flex items-center justify-center space-x-2">
+                          {isPending ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                              <span>Signing In...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>Sign In</span>
+                              <ArrowRight className="h-4 w-4" />
+                            </>
+                          )}
+                        </button>
                       </form>
                     )}
 
                     {err ? <p className="text-red-600">{err}</p> : null}
                     {successMsg ? (
-                      <p className="text-green-600 transition-all duration-200">{successMsg}</p>
+                      <p className="text-green-600 transition-all duration-200">
+                        {successMsg}
+                      </p>
                     ) : null}
-                    {/* Login Button */}
-                    {/* <button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200 flex items-center justify-center space-x-2">
-                      {isPending ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                          <span>Signing In...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Sign In</span>
-                          <ArrowRight className="h-4 w-4" />
-                        </>
-                      )}
-                    </button> */}
 
                     {/* Passwordless Login */}
                     <div className="text-center">
