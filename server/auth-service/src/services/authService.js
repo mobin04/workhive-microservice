@@ -104,7 +104,7 @@ class AuthService {
       throw new AppError(err.message, err.statusCode);
     }
   }
-
+  
   async VerifyLoginLink(userInput) {
     const { token } = userInput;
     try {
@@ -178,6 +178,70 @@ class AuthService {
       }
 
       return formatData(null);
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
+  async ResentOtp(userInput) {
+    const { mode, token } = userInput;
+    try {
+      if (!['signup', 'login'].includes(mode)) {
+        throw new AppError('Please select the mode either signup or login');
+      }
+
+      if (!token) {
+        throw new AppError('Invalid or expired token!', 401);
+      }
+
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      const { otpSecret, otpToken } = this.authConfig.generateOTP();
+
+      if (mode === 'signup') {
+        const requiredFields = [
+          'name',
+          'email',
+          'password',
+          'role',
+          'authType',
+        ];
+
+        if (!requiredFields.every((key) => key in decoded)) {
+          throw new AppError('Invalid or expired token!', 403);
+        }
+
+        const { name, email, password, role, authType } = decoded;
+
+        const user = { name, email, password, role, authType, otpSecret };
+
+        await new Email(user, '', { otpSecret: otpToken }).sendOtpEmail();
+        return formatData({ user, mode });
+      }
+
+      if (mode === 'login') {
+        if (!['authType', 'userId'].every((key) => key in decoded)) {
+          throw new AppError('Invalid or expired token', 403);
+        }
+
+        const { authType, userId } = decoded;
+
+        const existingUser = await this.repository.FindById({ id: userId });
+
+        if (!existingUser) throw new AppError('User not found!', 404);
+
+        const user = { ...existingUser, otpSecret };
+
+        await new Email(user, '', {
+          otpSecret: otpToken,
+        }).sendLoginOtpEmail();
+
+        return formatData({ user, mode });
+      }
+      
+      
+      return formatData(null);
+      
     } catch (err) {
       throw new AppError(err.message, err.statusCode);
     }

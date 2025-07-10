@@ -2,6 +2,7 @@ const { User } = require('../models/index');
 const { AppError, catchAsync } = require('../../utils/index');
 
 class AuthRepository {
+  
   async FindByEmail({ email }) {
     try {
       const existingUser = await User.findOne({ email }).lean();
