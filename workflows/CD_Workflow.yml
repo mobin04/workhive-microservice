@@ -28,7 +28,7 @@ jobs:
         run: |
           aws ecr get-login-password | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
       - name: Create Application Env file
-        working-directory: ./application-service
+        working-directory: ./server/application-service
         run: |
           cat <<EOF > .env
           PORT_APPLICATION=${{ secrets.PORT_APPLICATION }}
@@ -64,7 +64,7 @@ jobs:
           EOF
           cat .env
       - name: Create Auth Env file
-        working-directory: ./auth-service
+        working-directory: ./server/auth-service
         run: |
           cat <<EOF > .env
           PORT_AUTH=${{ secrets.PORT_AUTH }}
@@ -101,7 +101,7 @@ jobs:
           EOF
           cat .env
       - name: Create Job Env file
-        working-directory: ./job-service
+        working-directory: ./server/job-service
         run: |
           cat <<EOF > .env
           PORT_JOB=${{ secrets.PORT_JOB }}
@@ -137,7 +137,7 @@ jobs:
           EOF
           cat .env
       - name: Create Notification Env file
-        working-directory: ./notification-service
+        working-directory: ./server/notification-service
         run: |
           cat <<EOF > .env
           PORT_NOTIFICATION=${{ secrets.PORT_NOTIFICATION }}
@@ -173,7 +173,7 @@ jobs:
               ports:
                 - "8001:8001"
               env_file:
-                - ./auth-service/.env
+                - ./server/auth-service/.env
               restart: always
           
             job-service:
@@ -181,7 +181,7 @@ jobs:
               ports:
                 - "8002:8002"
               env_file:
-                - ./job-service/.env
+                - ./server/job-service/.env
               restart: always
           
             notification-service:
@@ -189,7 +189,7 @@ jobs:
               ports:
                 - "8003:8003"
               env_file:
-                - ./notification-service/.env
+                - ./server/notification-service/.env
               restart: always
           
             application-service:
@@ -197,7 +197,7 @@ jobs:
               ports:
                 - "8004:8004"
               env_file:
-                - ./application-service/.env
+                - ./server/application-service/.env
               restart: always
           
             nginx-proxy:
