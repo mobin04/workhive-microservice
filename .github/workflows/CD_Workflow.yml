@@ -162,7 +162,7 @@ jobs:
             docker build -t $ECR_REGISTRY/workhive-$service ./server/$service
             docker push $ECR_REGISTRY/workhive-$service
           done
-          docker build -t $ECR_REGISTRY/workhive-nginx-proxy ./proxy
+          docker build -t $ECR_REGISTRY/workhive-nginx-proxy ./server/proxy
           docker push $ECR_REGISTRY/workhive-nginx-proxy
       - name: Generate deployment docker-compose file
         run: |
