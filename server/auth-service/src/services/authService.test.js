@@ -545,6 +545,110 @@ describe('AuthService - RequestLoginLink', () => {
   });
 });
 
+describe('AuthService - ResentOtp', () => {
+  let service;
+  let mockRepo;
+  let AuthConfigMock;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    service = new AuthService();
+    mockRepo = service.repository;
+
+    // Mock generateOTP
+    AuthConfigMock = service.authConfig;
+    AuthConfigMock.generateOTP = jest.fn().mockReturnValue({
+      otpSecret: 'mockOtpSecret',
+      otpToken: '123456',
+    });
+
+    // Mock Email sending
+    Email.mockImplementation(() => ({
+      sendOtpEmail: jest.fn().mockResolvedValue(true),
+      sendLoginOtpEmail: jest.fn().mockResolvedValue(true),
+    }));
+  });
+
+  it('should resend OTP for signup flow with valid token', async () => {
+    const mockDecoded = {
+      name: 'Mobin',
+      email: 'mobin@example.com',
+      password: 'secret',
+      role: 'user',
+      authType: 'signup',
+    };
+
+    jwt.verify.mockReturnValue(mockDecoded);
+
+    const response = await service.ResentOtp({
+      token: 'validToken',
+      mode: 'signup',
+    });
+
+    expect(AuthConfigMock.generateOTP).toHaveBeenCalled();
+    expect(jwt.verify).toHaveBeenCalledWith(
+      'validToken',
+      process.env.JWT_SECRET
+    );
+    expect(response.data.user).toMatchObject({
+      name: 'Mobin',
+      email: 'mobin@example.com',
+      role: 'user',
+      authType: 'signup',
+      otpSecret: 'mockOtpSecret',
+    });
+  });
+
+  it('should resend OTP for login flow with valid token and userId', async () => {
+    const mockDecoded = {
+      userId: 'user123',
+      authType: 'login',
+    };
+
+    const mockUser = {
+      _id: 'user123',
+      email: 'mobin@example.com',
+      name: 'Mobin',
+    };
+    mockRepo.FindById = jest.fn().mockResolvedValue(mockUser);
+    jwt.verify.mockReturnValue(mockDecoded);
+
+    const response = await service.ResentOtp({
+      token: 'validLoginToken',
+      mode: 'login',
+    });
+
+    expect(mockRepo.FindById).toHaveBeenCalledWith({ id: 'user123' });
+    expect(response.data.user).toMatchObject({
+      _id: 'user123',
+      email: 'mobin@example.com',
+      otpSecret: 'mockOtpSecret',
+    });
+  });
+
+  it('should throw AppError for invalid mode', async () => {
+    await expect(
+      service.ResentOtp({ token: 'x', mode: 'invalid' })
+    ).rejects.toThrow('Please select the mode either signup or login');
+  });
+
+  it('should throw AppError for missing token', async () => {
+    await expect(
+      service.ResentOtp({ token: '', mode: 'signup' })
+    ).rejects.toThrow('Invalid or expired token!');
+  });
+
+  it('should throw AppError if user not found during login flow', async () => {
+    const mockDecoded = { userId: 'user123', authType: 'login' };
+    jwt.verify.mockReturnValue(mockDecoded);
+    mockRepo.FindById = jest.fn().mockResolvedValue(null);
+
+    await expect(
+      service.ResentOtp({ token: 'x', mode: 'login' })
+    ).rejects.toThrow('User not found!');
+  });
+});
+
 describe('AuthService - VerifyLoginLink', () => {
   let service;
   let mockRepo;
@@ -618,7 +722,7 @@ describe('AuthService - RPCObserver', () => {
       },
     };
 
-      // Call the consume callback as if a message arrived
+    // Call the consume callback as if a message arrived
     await consumeCallback(msg);
 
     expect(mockRepo.FindById).toHaveBeenCalledWith({ id: 'user123' });

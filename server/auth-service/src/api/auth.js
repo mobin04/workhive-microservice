@@ -331,6 +331,73 @@ module.exports = (app, channel) => {
 
   /**
    * @swagger
+   * /api/v2/auth/resend-otp:
+   *   post:
+   *     summary: Resend OTP for signup or login flows
+   *     tags:
+   *       - Auth
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - mode
+   *             properties:
+   *               mode:
+   *                 type: string
+   *                 enum: [signup, login]
+   *                 description: Indicates whether OTP is for signup or login flow
+   *     responses:
+   *       200:
+   *         description: OTP resent successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: success
+   *                 token:
+   *                   type: string
+   *                   description: JWT token containing updated OTP secret
+   *       400:
+   *         description: Invalid mode or token
+   *       401:
+   *         description: Unauthorized or expired token
+   *       500:
+   *         description: Internal server error
+   */
+
+  app.post(
+    `${baseUrl}/resend-otp`,
+    catchAsync(async (req, res, next) => {
+      const { mode } = req.body;
+      let token;
+
+      if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith('Bearer')
+      ) {
+        token = req.headers.authorization.split(' ')[1];
+      } else if (req.cookies.jwt) {
+        token = req.cookies.jwt;
+      }
+
+      const { data } = await service.ResentOtp({ mode, token });
+
+      if (!data) return next(new AppError('Failed to send OTP!', 500));
+
+      authMiddleware.createSendToken(data.user, 200, req, res, data.mode);
+    })
+  );
+
+  /**
+   * @swagger
    * /api/v2/auth/login-link:
    *   post:
    *     summary: Request magic login link (passwordless)
