@@ -219,10 +219,10 @@ jobs:
           zip -r deploy.zip \
             docker-compose.yml \
             .platform/ \
-            auth-service/.env \
-            job-service/.env \
-            application-service/.env \
-            notification-service/.env
+            server/auth-service/.env \
+            server/job-service/.env \
+            server/application-service/.env \
+            server/notification-service/.env
       
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v22
