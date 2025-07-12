@@ -1,8 +1,10 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "../../contexts/ThemeContext";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { envVariables } from "../../config";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import axios from "axios";
 import {
   Eye,
@@ -10,14 +12,13 @@ import {
   Mail,
   Lock,
   Briefcase,
-  Sun,
-  Moon,
   ArrowRight,
   Send,
   UserLock,
 } from "lucide-react";
+import { setUser } from "../../store/slices/userSlice";
 
-const login = async ({ url, credentials }) => {
+const loginHandler = async ({ url, credentials }) => {
   const response = await axios.post(url, credentials, {
     withCredentials: true,
   });
@@ -25,6 +26,8 @@ const login = async ({ url, credentials }) => {
 };
 
 const Login = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { isDark } = useContext(ThemeContext);
   const [showPassword, setShowPassword] = useState(false);
   const [err, setErr] = useState("");
@@ -33,7 +36,10 @@ const Login = () => {
   const [isPasswordlessMode, setIsPasswordlessMode] = useState(false);
   const [linkSent, setLinkSent] = useState(false);
   const [otpMode, setOtpMode] = useState(false);
-  const { REQUEST_LOGINOTP_URL } = envVariables;
+  const { REQUEST_LOGINOTP_URL, RESEND_OTP, VERIFY_OTP, REQUEST_MAGIC_LINK } =
+    envVariables;
+  const [seconds, setSeconds] = useState(0);
+  const [isResendDisabled, setIsResendDisabled] = useState(false);
 
   const {
     handleSubmit,
@@ -41,36 +47,74 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
-  const useLogin = (url) => {
+  const useLogin = (url, type) => {
     return useMutation({
-      mutationFn: (credentials) => login({ url, credentials }),
+      mutationFn: (credentials) => loginHandler({ type, url, credentials }),
       onSuccess: (data) => {
         setErr("");
         setSuccessMsg(data.message);
         setTimeout(() => {
           setSuccessMsg("");
         }, 4000);
-        setOtpMode(true);
+
+        if (type === "request_login") {
+          setOtpMode(true);
+        }
+        if (type === "login") {
+          dispatch(setUser(data?.data?.user));
+          navigate("/");
+        }
+        if (type === "request_magic_login") {
+          setLinkSent(true);
+        }
       },
       onError: (error) => {
-        setErr(error.response.data.message || "Login failed! Please try again");
+        setErr(error.response.data.message || "Error occour! Please try again");
         setTimeout(() => {
           setErr("");
         }, 4000);
+        if (type === "resend_otp") {
+          setIsResendDisabled(false);
+        }
       },
     });
   };
 
-  const { mutate, isPending } = useLogin(REQUEST_LOGINOTP_URL);
+  const { mutate: requestLoginOtpMutate, isPending: isLoginPending } = useLogin(
+    REQUEST_LOGINOTP_URL,
+    "request_login"
+  );
+  const { mutate: resendOtpMutate, isPending: isResendOtpPending } = useLogin(
+    RESEND_OTP,
+    "resend_otp"
+  );
+  const { mutate: loginMutate, isPending: loginPending } = useLogin(
+    VERIFY_OTP,
+    "login"
+  );
+  const { mutate: requestMagicLoginMutate, isPending: reqMagicLoginPending } =
+    useLogin(REQUEST_MAGIC_LINK, "request_magic_login");
 
-  const handleLogin = (formData) => {
+  const requestLoginOtp = (formData) => {
     const { email, password } = formData;
-    mutate({ email, password });
+    requestLoginOtpMutate({ email, password });
   };
 
-  const handlePasswordlessLogin = () => {
-    console.log("Passwordless login attempt:", { email: passwordlessEmail });
-    setLinkSent(true);
+  const handleResendOtp = () => {
+    resendOtpMutate({ mode: "login" });
+    setSeconds(60);
+    setIsResendDisabled(true);
+  };
+
+  const handleLogin = (formData) => {
+    const { otp } = formData;
+    loginMutate({ otp, mode: "login" });
+  };
+
+  const handlePasswordlessLogin = (formData) => {
+    const email = formData.magicEmail;
+    requestMagicLoginMutate({ email });
+    setPasswordlessEmail(email);
   };
 
   const resetPasswordlessState = () => {
@@ -78,6 +122,18 @@ const Login = () => {
     setLinkSent(false);
     setPasswordlessEmail("");
   };
+
+  useEffect(() => {
+    if (seconds === 0) {
+      return setIsResendDisabled(false);
+    }
+
+    const interval = setInterval(() => {
+      setSeconds((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [seconds]);
 
   const LoginthemeClasses = isDark
     ? "bg-gray-900 text-white"
@@ -166,7 +222,7 @@ const Login = () => {
                     {!otpMode ? (
                       <form
                         className="space-y-6"
-                        onSubmit={handleSubmit(handleLogin)}
+                        onSubmit={handleSubmit(requestLoginOtp)}
                       >
                         <div>
                           <label className="block text-sm font-medium mb-2">
@@ -226,8 +282,8 @@ const Login = () => {
                           ) : null}
                         </div>
 
-                        <button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200 flex items-center justify-center space-x-2">
-                          {isPending ? (
+                        <button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200 flex items-center justify-center space-x-2 cursor-pointer">
+                          {isLoginPending ? (
                             <>
                               <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
                               <span>Sending OTP...</span>
@@ -241,7 +297,7 @@ const Login = () => {
                         </button>
                       </form>
                     ) : (
-                      <form>
+                      <form onSubmit={handleSubmit(handleLogin)}>
                         <label className="block text-sm font-medium mb-2">
                           Enter OTP
                         </label>
@@ -310,25 +366,32 @@ const Login = () => {
                         {/* Resend OTP  */}
                         <div className="my-5 text-center">
                           <p className="text-sm text-gray-600">
-                            Didn't receive the code?{" "}
-                            <button
-                              type="button"
-                              className="text-blue-600 hover:text-blue-800 font-medium"
-                              onClick={() => {
-                                // Add your resend OTP logic here
-                                console.log("Resend OTP clicked");
-                              }}
-                            >
-                              Resend OTP
-                            </button>
+                            {!isResendDisabled
+                              ? `Didn't receive the code?`
+                              : `Resend otp after ${seconds} seconds`}
+                            {!isResendDisabled ? (
+                              <button
+                                type="button"
+                                className="text-blue-600 hover:text-blue-800 font-medium mx-1.5 cursor-pointer"
+                                onClick={handleResendOtp}
+                              >
+                                Resend OTP
+                              </button>
+                            ) : null}
                           </p>
                         </div>
 
-                        <button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200 flex items-center justify-center space-x-2">
-                          {isPending ? (
+                        <button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200 flex items-center justify-center space-x-2 cursor-pointer">
+                          {isResendOtpPending || loginPending ? (
                             <>
                               <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                              <span>Signing In...</span>
+                              <span>
+                                {isResendOtpPending
+                                  ? "Please wait..."
+                                  : loginPending
+                                  ? "Signing In..."
+                                  : "Wait a moment..."}
+                              </span>
                             </>
                           ) : (
                             <>
@@ -351,7 +414,7 @@ const Login = () => {
                     <div className="text-center">
                       <button
                         onClick={() => setIsPasswordlessMode(true)}
-                        className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                        className="text-blue-600 hover:text-blue-700 font-medium transition-colors cursor-pointer"
                       >
                         Login without password
                       </button>
@@ -377,7 +440,10 @@ const Login = () => {
                         </p>
                       </div>
 
-                      <div className="space-y-6">
+                      <form
+                        className="space-y-6"
+                        onSubmit={handleSubmit(handlePasswordlessLogin)}
+                      >
                         <div>
                           <label className="block text-sm font-medium mb-2">
                             Email Address
@@ -385,23 +451,37 @@ const Login = () => {
                           <div className="relative">
                             <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                             <input
+                              {...register("magicEmail", {
+                                required: "Please enter your email",
+                              })}
                               type="email"
-                              value={passwordlessEmail}
-                              onChange={(e) =>
-                                setPasswordlessEmail(e.target.value)
-                              }
+                              name={"magicEmail"}
                               className={`w-full pl-10 pr-4 py-3 rounded-lg border ${inputClasses} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200`}
                               placeholder="Enter your email"
                             />
                           </div>
                         </div>
-
+                        {errors.magicEmail ? (
+                          <p className="text-red-600">
+                            {errors.magicEmail.message}
+                          </p>
+                        ) : null}
+                        {err ? <p className="text-red-600">{err}</p> : null}
                         <button
-                          onClick={handlePasswordlessLogin}
+                          type="submit"
                           className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200 flex items-center justify-center space-x-2"
                         >
-                          <Send className="h-4 w-4" />
-                          <span>Send Login Link</span>
+                          {reqMagicLoginPending ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                              <span>Please wait...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Send className="h-4 w-4" />
+                              <span>Send Login Link</span>
+                            </>
+                          )}
                         </button>
 
                         <div className="text-center">
@@ -412,7 +492,7 @@ const Login = () => {
                             Back to password login
                           </button>
                         </div>
-                      </div>
+                      </form>
                     </>
                   ) : (
                     /* Link Sent Confirmation */
@@ -437,7 +517,7 @@ const Login = () => {
                         } mb-6`}
                       >
                         Click the link in your email to complete your login. The
-                        link will expire in 15 minutes.
+                        link will expire in 10 minutes.
                       </p>
                       <button
                         onClick={resetPasswordlessState}

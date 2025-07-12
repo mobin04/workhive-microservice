@@ -7,7 +7,7 @@ export const ThemeContext = createContext(null);
 export function ThemeContextProvider({ children }) {
   const dispatch = useDispatch();
 
-  const {isDark} = useSelector((state) => state.themeReducer);
+  const {isDark} = useSelector((state) => state.theme);
   
   const setDark = () => {
     dispatch(handleChangeTheme());
