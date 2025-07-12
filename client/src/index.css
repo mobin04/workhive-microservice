@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -15,9 +15,8 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-
 * {
-  /* transition: all 0.15s ease; */
+  transition: all 0.3s ease;
 }
 
 body {
@@ -29,4 +28,4 @@ body {
     color: #213547;
     background-color: #ffffff;
   }
-} 
+}
