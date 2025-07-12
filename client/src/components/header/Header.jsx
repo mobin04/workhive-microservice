@@ -12,7 +12,10 @@ import {
   X,
 } from "lucide-react";
 import { ThemeContext } from "../../contexts/ThemeContext";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { envVariables } from "../../config";
+import { setUser } from "../../store/slices/userSlice";
 
 function Header() {
   const navigate = useNavigate();
@@ -23,6 +26,8 @@ function Header() {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const { user } = useSelector((state) => state.user);
+  const { LOGOUT_URL } = envVariables;
+  const dispatch = useDispatch();
 
   const staticData = {
     popularSearches: [
@@ -47,6 +52,16 @@ function Header() {
     setIsMobileSearchOpen(!isMobileSearchOpen);
     setIsJobSearchOpen(false);
     setIsLocationSearchOpen(false);
+  };
+
+  const signOut = async () => {
+    try {
+      const res = await axios.post(LOGOUT_URL, "", { withCredentials: true });
+      if (res.data.message) dispatch(setUser(null));
+      setProfileDropdownOpen(false);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -219,8 +234,10 @@ function Header() {
                     }`}
                     onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                   >
-                    <img src={user.coverImage} className="h-8 w-8 rounded-full flex items-center justify-center">
-                    </img>
+                    <img
+                      src={user.coverImage}
+                      className="h-8 w-8 rounded-full flex items-center justify-center"
+                    ></img>
                     <span className="hidden md:block font-medium">
                       {user?.name}
                     </span>
@@ -262,8 +279,8 @@ function Header() {
                       </a>
                       <div className="border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
                         <a
-                          href="#"
-                          className="block px-4 py-2 text-red-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                          className="cursor-pointer block px-4 py-2 text-red-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                          onClick={signOut}
                         >
                           Sign Out
                         </a>

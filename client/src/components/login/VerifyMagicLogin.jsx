@@ -15,6 +15,7 @@ const VerifyMagicLogin = () => {
   const [searchParams] = useSearchParams();
   const { VERIFY_MAGIC_LOGIN } = envVariables;
   const token = searchParams.get("token");
+  const [timer, setTimer] = useState(0);
   const navigate = useNavigate();
 
   const [status, setStatus] = useState("loading"); // 'loading', 'success', 'error'
@@ -25,13 +26,16 @@ const VerifyMagicLogin = () => {
     }
     const login = async () => {
       try {
-        const res = await axios.get(`${VERIFY_MAGIC_LOGIN}?token=${token}`);
+        const res = await axios.get(`${VERIFY_MAGIC_LOGIN}?token=${token}`, {
+          withCredentials: true,
+        });
 
         const user = res.data?.data?.user;
 
         if (user) {
           setStatus("success");
           dispatch(setUser(user));
+          setTimer(3);
         } else {
           throw new Error();
         }
@@ -49,6 +53,19 @@ const VerifyMagicLogin = () => {
       navigate("/login");
     }
   };
+
+  useEffect(() => {
+    if (timer === 0) {
+      return;
+    }
+    const interval = setInterval(() => {
+      setTimer((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  if (timer === 1) navigate("/");
 
   const themeClasses = isDark
     ? "bg-gray-900 text-white"
@@ -99,15 +116,11 @@ const VerifyMagicLogin = () => {
               <p
                 className={`${isDark ? "text-gray-400" : "text-gray-600"} mb-6`}
               >
-                Welcome back to WorkHive. Redirecting you to your dashboard...
+                Welcome back to WorkHive
               </p>
-              <button
-                onClick={handleRedirectHome}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-200 inline-flex items-center space-x-2"
-              >
-                <Home className="h-4 w-4" />
-                <span>Go to Dashboard</span>
-              </button>
+              <p
+                className={`${isDark ? "text-gray-400" : "text-gray-600"}`}
+              >{`Redirecting you to your dashboard ${timer}`}</p>
             </div>
           </div>
         )}
