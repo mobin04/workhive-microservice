@@ -15,7 +15,6 @@ import Loading from "./components/loader/Loading";
 import { setLoading } from "./store/slices/loadingSlice";
 
 function App () {
-  const { isLoading } = useSelector((state) => state.loading);
   const dispatch = useDispatch();
   const { GET_PROFILE_URL } = envVariables;
 
@@ -39,8 +38,7 @@ function App () {
     dispatch(setLoading(mutation.isPending));
   }, [mutation.isPending]);
   
-  if (isLoading) return <Loading />;
-
+  
   return (
     <div>
       <Header />

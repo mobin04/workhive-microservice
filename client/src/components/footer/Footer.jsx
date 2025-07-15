@@ -6,7 +6,7 @@ function Footer() {
   const {themeClasses, dynamicFontColor} = useContext(ThemeContext);
 
   return (
-    <footer className={`${themeClasses} border-t-2 relative bottom-0`}>
+    <footer className={`${themeClasses} border-t-2`}>
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
@@ -70,7 +70,7 @@ function Footer() {
 
         <div className={`border-t border-gray-200 dark:border-gray-700 mt-8 pt-8 text-center ${dynamicFontColor}`}>
           <p>&copy; 2025 WorkHive By Mobin. All rights reserved.</p>
-          <div className="flex justify-center space-x-6 mt-4">
+          <div className="flex justify-center space-x-6 mt-4 mb-10">
             <a href="#" className="hover:text-blue-600 transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-blue-600 transition-colors">Terms of Service</a>
             <a href="#" className="hover:text-blue-600 transition-colors">Cookie Policy</a>

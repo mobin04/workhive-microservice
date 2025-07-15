@@ -1,9 +1,11 @@
 import { BarChart3, Building2, Code, Palette, Stethoscope, Wrench } from 'lucide-react';
 import React, { useContext } from 'react';
 import { ThemeContext } from '../../contexts/ThemeContext';
+import { useNavigate } from 'react-router-dom';
 
 function GuestHomePage() {
   const {bodyThemeClasses, themeClasses, dynamicFontColor, isDark} = useContext(ThemeContext);
+  const navigate = useNavigate();
   
   const staticData = {
     popularSearches: ['Software Engineer', 'Data Analyst', 'Product Manager', 'UX Designer'],
@@ -29,11 +31,11 @@ function GuestHomePage() {
               Dream Job
             </span>
           </h1>
-          <p className="text-xl mb-8 text-gray-600 dark:text-gray-300">
+          <p className={`text-xl mb-8 ${dynamicFontColor}`}>
             Connect with top companies and discover opportunities that match your skills
           </p>
 
-          <button className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+          <button onClick={() => navigate('/login')} className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">
             Get Started
           </button>
         </div>
