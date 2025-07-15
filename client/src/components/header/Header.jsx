@@ -245,9 +245,15 @@ function Header() {
 
                   {profileDropdownOpen && (
                     <div
-                      className={`absolute top-full right-0 mt-2 w-fit ${themeClasses} border rounded-lg shadow-xl z-50 py-2`}
+                      className={`absolute top-full right-0 mt-2 w-fit ${
+                        isDark ? "bg-gray-900/60" : "bg-gray-200/50"
+                      } backdrop-blur-md border rounded-lg shadow-xl z-50 py-2`}
                     >
-                      <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                      <div
+                        className={`px-4 py-2 border-b ${
+                          isDark ? "border-gray-400" : "border-gray-700"
+                        } `}
+                      >
                         <div className="font-medium">{user.name}</div>
                         <div className="text-sm text-gray-500">
                           {user.email}
@@ -256,7 +262,9 @@ function Header() {
                       <a
                         href="#"
                         className={`block px-4 py-2 ${
-                          isDark ? "hover:bg-gray-700" : "hover:bg-blue-50"
+                          isDark
+                            ? "hover:bg-gray-400/50"
+                            : "hover:bg-gray-600/30"
                         } transition-colors`}
                       >
                         My Profile
@@ -264,7 +272,9 @@ function Header() {
                       <a
                         href="#"
                         className={`block px-4 py-2 ${
-                          isDark ? "hover:bg-gray-700" : "hover:bg-blue-50"
+                          isDark
+                            ? "hover:bg-gray-400/50"
+                            : "hover:bg-gray-600/30"
                         } transition-colors`}
                       >
                         My Applications
@@ -272,14 +282,24 @@ function Header() {
                       <a
                         href="#"
                         className={`block px-4 py-2 ${
-                          isDark ? "hover:bg-gray-700" : "hover:bg-blue-50"
+                          isDark
+                            ? "hover:bg-gray-400/50"
+                            : "hover:bg-gray-600/30"
                         } transition-colors`}
                       >
                         Saved Jobs
                       </a>
-                      <div className="border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
+                      <div
+                        className={`border-t ${
+                          isDark ? "border-gray-400" : "border-gray-700"
+                        } mt-2 pt-2`}
+                      >
                         <a
-                          className="cursor-pointer block px-4 py-2 text-red-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                          className={`cursor-pointer block px-4 py-2 text-red-600 ${
+                            isDark
+                              ? "hover:bg-gray-600/50"
+                              : "hover:bg-gray-600/30"
+                          } transition-colors`}
                           onClick={signOut}
                         >
                           Sign Out
