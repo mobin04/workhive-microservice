@@ -1,12 +1,13 @@
-import React, { useContext } from 'react'
-import { ThemeContext } from '../../../contexts/ThemeContext'
-import { Building2, Clock, MapPin, Star } from 'lucide-react'
+import React, { useContext } from "react";
+import { ThemeContext } from "../../../contexts/ThemeContext";
+import { Building2, Clock, Frown, MapPin, Star } from "lucide-react";
 
-const JobsCard = ({jobs, posted}) => {
-  const {isDark, dynamicFontColor, themeClasses} = useContext(ThemeContext)
+const JobsCard = ({ jobs, posted }) => {
+  const { isDark, dynamicFontColor, themeClasses } = useContext(ThemeContext);
   return (
     <div>
-      <div className="space-y-4 mb-8">
+      {jobs && jobs.length !== 0 ? (
+        <div className="space-y-4 mb-8">
           {jobs &&
             jobs.map((job) => (
               <div
@@ -70,7 +71,15 @@ const JobsCard = ({jobs, posted}) => {
                                 : "text-white bg-green-600"
                             } rounded text-sm`}
                           >
-                            {`${job.salaryMinPerMonth > 1000 ? Math.floor(job.salaryMinPerMonth / 1000) + "k" : job.salaryMinPerMonth} - ${job.salaryMaxPerMonth > 1000 ? Math.floor(job.salaryMaxPerMonth / 1000) + "k" : job.salaryMaxPerMonth} / M`}
+                            {`${
+                              job.salaryMinPerMonth > 1000
+                                ? Math.floor(job.salaryMinPerMonth / 1000) + "k"
+                                : job.salaryMinPerMonth
+                            } - ${
+                              job.salaryMaxPerMonth > 1000
+                                ? Math.floor(job.salaryMaxPerMonth / 1000) + "k"
+                                : job.salaryMaxPerMonth
+                            } / M`}
                           </span>
                         )}
                       </div>
@@ -92,8 +101,20 @@ const JobsCard = ({jobs, posted}) => {
               </div>
             ))}
         </div>
+      ) : (
+        <div className="flex gap-3 justify-center items-center mt-20">
+          <div
+            className="text-gray-400 text-3xl font-bold"
+          >
+            No Jobs Found!
+          </div>
+          <Frown
+            className="text-gray-400 scale-150"
+          />
+        </div>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default JobsCard
+export default JobsCard;
