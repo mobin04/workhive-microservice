@@ -23,7 +23,7 @@ class AuthService {
       const existingUser = await this.repository.FindByEmail({ email });
 
       if (existingUser) {
-        throw new AppError('User already exist please login!', 400);
+        throw new AppError('Email already exist!', 400);
       }
 
       const { otpSecret, otpToken } = this.authConfig.generateOTP();
@@ -37,7 +37,7 @@ class AuthService {
         authType: 'signup',
       };
 
-      await new Email(user, '', { otpSecret: otpToken }).sendOtpEmail();
+      await new Email(user,'', { otpSecret: otpToken }).sendOtpEmail();
 
       return formatData({ user });
     } catch (err) {
@@ -158,7 +158,7 @@ class AuthService {
         });
 
         await new Email(user, '', '').sendWelcome();
-        return formatData(user);
+        return formatData({loggingUser: user});
       }
 
       if (mode === 'login') {

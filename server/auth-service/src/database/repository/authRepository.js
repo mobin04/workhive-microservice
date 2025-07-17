@@ -35,6 +35,7 @@ class AuthRepository {
       const user = await User.create({ name, email, password, role });
       return user;
     } catch (err) {
+      console.log(err)
       throw new AppError('Unable to create user!', 500);
     }
   }
@@ -46,7 +47,7 @@ class AuthRepository {
         filteredProperty,
         {
           new: true,
-          runValidators: true,
+          runValidators: true, 
         }
       ).lean();
       return updateUser;

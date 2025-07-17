@@ -7,16 +7,27 @@ export const ThemeContext = createContext(null);
 export function ThemeContextProvider({ children }) {
   const dispatch = useDispatch();
 
-  const {isDark} = useSelector((state) => state.theme);
-  
+  const { isDark } = useSelector((state) => state.theme);
+
   const setDark = () => {
     dispatch(handleChangeTheme());
   };
-  
+
   const themeClasses = isDark
     ? "bg-gray-900 text-white border-gray-700"
     : "bg-white text-gray-900 border-gray-200";
 
+  const authThemeClass = isDark
+    ? "bg-gray-900 text-white"
+    : "bg-gray-50 text-gray-900";
+    
+  const authCardClasses = isDark
+    ? "bg-gray-800 border-gray-700"
+    : "bg-white border-gray-200";
+    
+  const authInputClasses = isDark
+    ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400"
+    : "bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500";
 
   const bodyThemeClasses = isDark ? "bg-gray-800" : "bg-gray-50";
   const searchBgClasses = isDark
@@ -33,6 +44,9 @@ export function ThemeContextProvider({ children }) {
         bodyThemeClasses,
         searchBgClasses,
         dynamicFontColor,
+        authThemeClass,
+        authCardClasses,
+        authInputClasses
       }}
     >
       {children}

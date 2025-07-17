@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import GuestHomePage from "./GuestHomePage";
 import { ThemeContext } from "../../contexts/ThemeContext";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,25 +12,24 @@ import { setLoading } from "../../store/slices/loadingSlice";
 import Loading from "../loader/Loading";
 
 const fetchJobs = async (filter = {}) => {
+  const cleanedFilter = Object.fromEntries(
+    Object.entries(filter).filter(
+      // eslint-disable-next-line no-unused-vars
+      ([_, value]) => value?.toString().trim().toLowerCase() !== "all"
+    )
+  );
+
+  const queryString = new URLSearchParams(cleanedFilter).toString();
+
   try {
-    const cleanedFilter = Object.fromEntries(
-      Object.entries(filter).filter(
-        // eslint-disable-next-line no-unused-vars
-        ([_, value]) => value?.toString().trim().toLowerCase() !== "all"
-      )
-    );
-
-    const queryString = new URLSearchParams(cleanedFilter).toString();
-
     const res = await axios.get(`${envVariables.GET_JOB_URL}?${queryString}`, {
       withCredentials: true,
     });
-
     return res.data;
   } catch (err) {
-    console.log(err);
+    console.error("Failed to fetch jobs:", err);
+    throw err;
   }
-  return;
 };
 
 function Home() {
@@ -42,7 +41,7 @@ function Home() {
     category: "ALL",
     jobType: "ALL",
     jobLevel: "ALL",
-    limit: "2",
+    limit: "10",
     page: "1",
   });
 
@@ -55,7 +54,7 @@ function Home() {
     dispatch(setLoading(isPending));
   }, [isPending]);
 
-  const applyFilter = (data) => {
+  const applyFilter = useCallback((data) => {
     setFilter({
       category: data?.category,
       jobLevel: data?.joblevel.split(" ").join("_").toLowerCase(),
@@ -63,7 +62,7 @@ function Home() {
       salaryMinPerMonth: data?.minSalary,
       salaryMaxPerMonth: data?.maxSalary,
     });
-  };
+  }, []);
 
   const pageFilter = (data) => {
     setFilter((prev) => ({
