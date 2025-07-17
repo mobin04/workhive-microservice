@@ -503,7 +503,7 @@ module.exports = (app, channel) => {
       const authConfig = new AuthConfig();
 
       const loggedUserInfo = await authConfig.getLoggedInUserInfo(req);
-
+// console.log(data.logginUser)
       await new Email(data.loggingUser, '', {
         loggedUserInfo,
       }).sendLoginEmail();

@@ -1,8 +1,9 @@
-import React, { useContext } from "react";
+import React, { memo, useContext } from "react";
 import { ThemeContext } from "../../../contexts/ThemeContext";
 import { Building2, Clock, Frown, MapPin, Star } from "lucide-react";
 
 const JobsCard = ({ jobs, posted }) => {
+
   const { isDark, dynamicFontColor, themeClasses } = useContext(ThemeContext);
   return (
     <div>
@@ -117,4 +118,4 @@ const JobsCard = ({ jobs, posted }) => {
   );
 };
 
-export default JobsCard;
+export default memo(JobsCard);

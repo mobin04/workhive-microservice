@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { memo } from "react";
 
 const Pagination = ({
   totalPages = 5,
@@ -7,6 +8,7 @@ const Pagination = ({
   currentPage = 1,
   pageFilter,
 }) => {
+  
   const { register, setValue, handleSubmit, watch } = useForm({
     defaultValues: { page: currentPage },
   });
@@ -14,13 +16,17 @@ const Pagination = ({
   const selectedPage = watch("page");
 
   const onSubmit = (data) => {
-    pageFilter(Number(data.page)); // Call parent function with selected page
+    pageFilter(Number(data.page));
   };
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className={`fixed bottom-0 left-0 w-full z-50 ${isDark ? 'bg-gray-500/10 backdrop-blur-2xl' : 'bg-gray-400/10 backdrop-blur-2xl text-black'} flex justify-center items-center space-x-4 py-4 shadow-md`}
+      className={`fixed bottom-0 left-0 w-full z-50 ${
+        isDark
+          ? "bg-gray-500/10 backdrop-blur-2xl"
+          : "bg-gray-400/10 backdrop-blur-2xl text-black"
+      } flex justify-center items-center space-x-4 py-4 shadow-md`}
     >
       <input type="hidden" {...register("page")} />
 
@@ -80,4 +86,4 @@ const Pagination = ({
   );
 };
 
-export default Pagination;
+export default memo(Pagination);

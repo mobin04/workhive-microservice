@@ -239,7 +239,7 @@ function Header() {
                       className="h-8 w-8 rounded-full flex items-center justify-center"
                     ></img>
                     <span className="hidden md:block font-medium">
-                      {user?.name}
+                      {user?.name?.split(' ')[0]}
                     </span>
                   </button>
 
@@ -254,7 +254,7 @@ function Header() {
                           isDark ? "border-gray-400" : "border-gray-700"
                         } `}
                       >
-                        <div className="font-medium">{user.name}</div>
+                        <div className="font-medium">{user?.name}</div>
                         <div className="text-sm text-gray-500">
                           {user.email}
                         </div>
@@ -320,7 +320,7 @@ function Header() {
                   </button>
                   <button
                     className="text-white px-3 py-2 text-sm md:text-lg bg-blue-600 md:px-5 md:py-3 rounded-md cursor-pointer hover:bg-blue-700 transition-all duration-200 hover:translate-y-[0.99px]"
-                    onClick={() => navigate("/login")}
+                    onClick={() => navigate("/signup")}
                   >
                     Signup
                   </button>

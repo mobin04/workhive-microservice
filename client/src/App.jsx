@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import Header from "./components/header/Header";
 import Home from "./components/home/Home";
 import { Route, Routes } from "react-router-dom";
@@ -8,23 +8,27 @@ import Footer from "./components/footer/Footer";
 import VerifyMagicLogin from "./components/login/VerifyMagicLogin";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setUser } from "./store/slices/userSlice";
 import { envVariables } from "./config";
-import Loading from "./components/loader/Loading";
 import { setLoading } from "./store/slices/loadingSlice";
+import Signup from "./components/sign-up/SignUp";
 
-function App () {
+
+function App() {
+  // Fetch Profile at initial load
   const dispatch = useDispatch();
   const { GET_PROFILE_URL } = envVariables;
 
+  const fetchProfile = useCallback(async () => {
+    const response = await axios.get(GET_PROFILE_URL, {
+      withCredentials: true,
+    });
+    return response.data;
+  }, [GET_PROFILE_URL]);
+
   const mutation = useMutation({
-    mutationFn: async () => {
-      const response = await axios.get(GET_PROFILE_URL, {
-        withCredentials: true,
-      });
-      return response.data;
-    },
+    mutationFn: fetchProfile,
     onSuccess: (data) => {
       dispatch(setUser(data.data.user));
     },
@@ -33,18 +37,18 @@ function App () {
   useEffect(() => {
     mutation.mutate();
   }, []);
-  
+
   useEffect(() => {
     dispatch(setLoading(mutation.isPending));
   }, [mutation.isPending]);
-  
-  
+
   return (
     <div>
       <Header />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={ <Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup/>}/>
         <Route path="/magic-login" element={<VerifyMagicLogin />} />
       </Routes>
       <Footer />

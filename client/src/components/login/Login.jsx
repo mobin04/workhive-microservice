@@ -5,7 +5,6 @@ import { useMutation } from "@tanstack/react-query";
 import { envVariables } from "../../config";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import axios from "axios";
 import {
   Eye,
   EyeOff,
@@ -17,18 +16,13 @@ import {
   UserLock,
 } from "lucide-react";
 import { setUser } from "../../store/slices/userSlice";
+import authHandler from "../../utils/authHandler";
 
-const loginHandler = async ({ url, credentials }) => {
-  const response = await axios.post(url, credentials, {
-    withCredentials: true,
-  });
-  return response.data;
-};
 
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { isDark } = useContext(ThemeContext);
+  const { isDark, authThemeClass, authCardClasses, authInputClasses} = useContext(ThemeContext);
   const [showPassword, setShowPassword] = useState(false);
   const [err, setErr] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -49,7 +43,7 @@ const Login = () => {
 
   const useLogin = (url, type) => {
     return useMutation({
-      mutationFn: (credentials) => loginHandler({ type, url, credentials }),
+      mutationFn: (credentials) => authHandler({ type, url, credentials }),
       onSuccess: (data) => {
         setErr("");
         setSuccessMsg(data.message);
@@ -77,23 +71,23 @@ const Login = () => {
           setIsResendDisabled(false);
         }
       },
-    });
+    }); 
   };
 
-  const { mutate: requestLoginOtpMutate, isPending: isLoginPending } = useLogin(
-    REQUEST_LOGINOTP_URL,
-    "request_login"
-  );
-  const { mutate: resendOtpMutate, isPending: isResendOtpPending } = useLogin(
-    RESEND_OTP,
-    "resend_otp"
-  );
-  const { mutate: loginMutate, isPending: loginPending } = useLogin(
-    VERIFY_OTP,
-    "login"
-  );
+  const loginMutations = {
+    requestLoginOtp: useLogin(REQUEST_LOGINOTP_URL, "request_login"),
+    resendOtp: useLogin(RESEND_OTP, "resend_otp"),
+    login: useLogin(VERIFY_OTP, "login"),
+    requestMagicLogin: useLogin(REQUEST_MAGIC_LINK, "request_magic_login"),
+  };
+
+  const { mutate: requestLoginOtpMutate, isPending: isLoginPending } =
+    loginMutations.requestLoginOtp;
+  const { mutate: resendOtpMutate, isPending: isResendOtpPending } =
+    loginMutations.resendOtp;
+  const { mutate: loginMutate, isPending: loginPending } = loginMutations.login;
   const { mutate: requestMagicLoginMutate, isPending: reqMagicLoginPending } =
-    useLogin(REQUEST_MAGIC_LINK, "request_magic_login");
+    loginMutations.requestMagicLogin;
 
   const requestLoginOtp = (formData) => {
     const { email, password } = formData;
@@ -135,21 +129,10 @@ const Login = () => {
     return () => clearInterval(interval);
   }, [seconds]);
 
-  const LoginthemeClasses = isDark
-    ? "bg-gray-900 text-white"
-    : "bg-gray-50 text-gray-900";
-
-  const cardClasses = isDark
-    ? "bg-gray-800 border-gray-700"
-    : "bg-white border-gray-200";
-
-  const inputClasses = isDark
-    ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400"
-    : "bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500";
 
   return (
     <div
-      className={`min-h-screen ${LoginthemeClasses} transition-colors duration-300`}
+      className={`min-h-screen ${authThemeClass} transition-colors duration-300`}
     >
       <div className="flex min-h-screen">
         {/* Left Side - Branding */}
@@ -201,7 +184,7 @@ const Login = () => {
             </div>
 
             <div
-              className={`${cardClasses} rounded-2xl shadow-xl border p-8 transition-all duration-300`}
+              className={`${authCardClasses} rounded-2xl shadow-xl border p-8 transition-all duration-300`}
             >
               {!isPasswordlessMode ? (
                 /* Regular Login Form */
@@ -236,7 +219,7 @@ const Login = () => {
                               })}
                               type="email"
                               name="email"
-                              className={`w-full pl-10 pr-4 py-3 rounded-lg border ${inputClasses} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200`}
+                              className={`w-full pl-10 pr-4 py-3 rounded-lg border ${authInputClasses} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200`}
                               placeholder="Enter your email"
                             />
                           </div>
@@ -260,7 +243,7 @@ const Login = () => {
                               })}
                               type={showPassword ? "text" : "password"}
                               name="password"
-                              className={`w-full pl-10 pr-12 py-3 rounded-lg border ${inputClasses} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200`}
+                              className={`w-full pl-10 pr-12 py-3 rounded-lg border ${authInputClasses} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200`}
                               placeholder="Enter your password"
                             />
                             <button
@@ -322,7 +305,7 @@ const Login = () => {
                             type="text"
                             name="otp"
                             maxLength={6}
-                            className={`w-full pl-10 pr-4 py-3 rounded-lg border ${inputClasses} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200 text-center text-lg tracking-widest font-mono`}
+                            className={`w-full pl-10 pr-4 py-3 rounded-lg border ${authInputClasses} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200 text-center text-lg tracking-widest font-mono`}
                             placeholder="000000"
                             onInput={(e) => {
                               // Only allow numbers
@@ -456,7 +439,7 @@ const Login = () => {
                               })}
                               type="email"
                               name={"magicEmail"}
-                              className={`w-full pl-10 pr-4 py-3 rounded-lg border ${inputClasses} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200`}
+                              className={`w-full pl-10 pr-4 py-3 rounded-lg border ${authInputClasses} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200`}
                               placeholder="Enter your email"
                             />
                           </div>
@@ -487,7 +470,7 @@ const Login = () => {
                         <div className="text-center">
                           <button
                             onClick={resetPasswordlessState}
-                            className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                            className="text-blue-600 hover:text-blue-700 font-medium transition-colors cursor-pointer"
                           >
                             Back to password login
                           </button>
@@ -560,12 +543,12 @@ const Login = () => {
                       }`}
                     >
                       Don't have an account?{" "}
-                      <a
-                        href="#"
-                        className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                      <span
+                        onClick={() => navigate("/signup")}
+                        className="text-blue-600 hover:text-blue-700 font-medium transition-colors cursor-pointer"
                       >
                         Sign up for free
-                      </a>
+                      </span>
                     </p>
                   </div>
                 </>
