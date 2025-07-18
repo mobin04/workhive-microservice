@@ -10,10 +10,12 @@ import Pagination from "./pagination/Pagination";
 import { setLoading } from "../../store/slices/loadingSlice";
 import Loading from "../loader/Loading";
 import { fetchJobs } from "../../utils/fetchJobs";
+import { setJobs } from "../../store/slices/jobSlice";
 
 function Home() {
   const { isDark, bodyThemeClasses } = useContext(ThemeContext);
   const { user } = useSelector((state) => state.user);
+  const { jobs } = useSelector((state) => state.jobs);
   const { isLoading } = useSelector((state) => state.loading);
   const dispatch = useDispatch();
   const [filter, setFilter] = useState({
@@ -33,8 +35,13 @@ function Home() {
   });
 
   useEffect(() => {
+    if (!data) return;
+    dispatch(setJobs(data));
+  }, [data, dispatch]);
+
+  useEffect(() => {
     dispatch(setLoading(isPending));
-  }, [isPending]);
+  }, [isPending, dispatch]);
 
   const applyFilter = useCallback((data) => {
     setFilter({
@@ -52,15 +59,7 @@ function Home() {
       page: data.toString(),
     }));
   };
-
-  const posted = (timeString) => {
-    const postedDateInMs = new Date(timeString).getTime();
-    const timeDifferents = Date.now() - postedDateInMs;
-    const msInDays = 1000 * 60 * 60 * 24;
-    const daysAgo = timeDifferents / msInDays;
-    return Math.round(daysAgo);
-  };
-
+  
   // Logged In Homepage
   const LoggedInHomepage = () => (
     <div className={`min-h-screen ${bodyThemeClasses}`}>
@@ -68,13 +67,13 @@ function Home() {
         {/* Filters */}
         <Filtering applyFilter={applyFilter} />
 
-        {data?.data?.jobs && data?.totalJobs ? (
+        {jobs && jobs.totalJobs ? (
           <p
             className={`ml-1 mb-2 ${
               isDark ? "text-gray-400" : "text-gray-400"
             }`}
           >
-            Total {data?.totalJobs} jobs found
+            Total {jobs.totalJobs} jobs found
           </p>
         ) : (
           <p className={`${isDark ? "text-gray-400" : "text-gray-400"}`}>
@@ -82,13 +81,13 @@ function Home() {
           </p>
         )}
         {/* Job Listings */}
-        <JobsCard jobs={data?.data?.jobs} posted={posted} />
+        <JobsCard/>
         {/* Pagination */}
-        {data?.data?.jobs.length !== 0 ? (
+        {jobs && jobs.totalPages > 1 ? (
           <Pagination
-            currentPage={data?.currentPage}
+            currentPage={jobs?.currentPage}
             isDark={isDark}
-            totalPages={data?.totalPages}
+            totalPages={jobs?.totalPages}
             pageFilter={pageFilter}
           />
         ) : null}

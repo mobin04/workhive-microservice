@@ -1,9 +1,9 @@
+/* eslint-disable no-unused-vars */
 import axios from "axios";
 
 export const fetchJobs = async (filter = {}, url) => {
   const cleanedFilter = Object.fromEntries(
     Object.entries(filter).filter(
-      // eslint-disable-next-line no-unused-vars
       ([_, value]) => value?.toString().trim().toLowerCase() !== "all"
     )
   );
