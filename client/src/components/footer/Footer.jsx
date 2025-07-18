@@ -54,15 +54,15 @@ function Footer() {
             <ul className={`space-y-2 ${dynamicFontColor}`}>
               <li className="flex items-center space-x-2">
                 <Mail className="h-4 w-4" />
-                <span>hello@workhive.com</span>
+                <span>mobinmathew888@gmail.com</span>
               </li>
               <li className="flex items-center space-x-2">
                 <Phone className="h-4 w-4" />
-                <span>+91 98765 43210</span>
+                <span>+91 62386 68846</span>
               </li>
               <li className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4" />
-                <span>Mumbai, India</span>
+                <span>Kerala, India</span>
               </li>
             </ul>
           </div>

@@ -71,9 +71,9 @@ class JobService {
 
   async GetSigleJob(userInput) {
     const { id } = userInput;
+    
     try {
-      const job = await this.jobRepository.GetJobById({ id });
-
+      const job = await this.jobRepository.GetJobByJobId({ id });
       if (!job) {
         throw new AppError('No job found with that ID!', 404);
       }

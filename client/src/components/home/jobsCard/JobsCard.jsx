@@ -1,8 +1,10 @@
 import React, { memo, useContext } from "react";
 import { ThemeContext } from "../../../contexts/ThemeContext";
 import { Building2, Clock, Frown, MapPin, Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const JobsCard = ({ jobs, posted }) => {
+  const navigate = useNavigate();
 
   const { isDark, dynamicFontColor, themeClasses } = useContext(ThemeContext);
   return (
@@ -17,14 +19,14 @@ const JobsCard = ({ jobs, posted }) => {
               >
                 <div className="flex flex-col md:flex-row md:items-center justify-between">
                   <div className="flex items-start space-x-4">
-                    {/* <div className="text-3xl" >{job.logo}</div> */}
-                    <div className="w-14 h-14 p-1 rounded-full bg-gray-100 overflow-hidden">
+                    <div className="flex-shrink-0">
                       <img
-                        className="w-full h-full object-cover object-center"
                         src={job.companyLogo}
-                        alt="logo"
+                        alt={`${job.company} logo`}
+                        className="w-20 h-20 rounded-lg object-cover border-2 border-gray-200"
                       />
                     </div>
+
                     <div className="flex-1">
                       <h3 className="text-xl font-semibold mb-1">
                         {job.title}
@@ -94,7 +96,10 @@ const JobsCard = ({ jobs, posted }) => {
                     >
                       <Star className="h-5 w-5" />
                     </button>
-                    <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <button
+                      onClick={() => navigate(`/job?id=${job._id}`)}
+                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
                       Apply Now
                     </button>
                   </div>
@@ -104,14 +109,8 @@ const JobsCard = ({ jobs, posted }) => {
         </div>
       ) : (
         <div className="flex gap-3 justify-center items-center mt-20">
-          <div
-            className="text-gray-400 text-3xl font-bold"
-          >
-            No Jobs Found!
-          </div>
-          <Frown
-            className="text-gray-400 scale-150"
-          />
+          <div className="text-gray-400 text-3xl font-bold">No Jobs Found!</div>
+          <Frown className="text-gray-400 scale-150" />
         </div>
       )}
     </div>

@@ -239,7 +239,7 @@ function Header() {
                       className="h-8 w-8 rounded-full flex items-center justify-center"
                     ></img>
                     <span className="hidden md:block font-medium">
-                      {user?.name?.split(' ')[0]}
+                      {user?.name?.split(' ')[0].toUpperCase()}
                     </span>
                   </button>
 

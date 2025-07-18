@@ -157,7 +157,7 @@ const Signup = () => {
 
   const roleButtonClasses = (isSelected) => {
     const baseClasses =
-      "flex-1 p-4 rounded-lg border-2 transition-all duration-200 text-center";
+      "flex-1 p-4 rounded-lg border-2 transition-all duration-200 text-center cursor-pointer";
     if (isSelected) {
       return `${baseClasses} ${
         isDark ? "bg-blue-900/30" : "border-blue-500 bg-blue-50"
@@ -309,7 +309,7 @@ const Signup = () => {
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
                         >
                           {showPassword ? (
                             <EyeOff className="h-5 w-5" />
@@ -375,7 +375,7 @@ const Signup = () => {
                       type="submit"
                       // onClick={handleSignup}
                       disabled={signupOtpPending}
-                      className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50"
+                      className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
                     >
                       {signupOtpPending ? (
                         <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
@@ -439,7 +439,7 @@ const Signup = () => {
                       disabled={
                         signupPending || otpCode.some((digit) => !digit)
                       }
-                      className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50"
+                      className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
                     >
                       {signupPending ? (
                         <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
@@ -464,7 +464,9 @@ const Signup = () => {
                         {!isResendDisabled ? (
                           isResendOtpPending ? (
                             <button
-                              className={`mx-2 animate-spin w-4 h-4 border-3 ${isDark ? 'border-gray-200' : 'border-blue-600'} border-t-transparent rounded-full`}
+                              className={`mx-2 animate-spin w-4 h-4 border-3 ${
+                                isDark ? "border-gray-200" : "border-blue-600"
+                              } border-t-transparent rounded-full`}
                             ></button>
                           ) : (
                             <button
@@ -483,7 +485,7 @@ const Signup = () => {
                     <div className="text-center">
                       <button
                         onClick={() => setIsOtpMode(false)}
-                        className="inline-flex items-center space-x-2 text-gray-500 hover:text-gray-700 transition-colors"
+                        className="inline-flex items-center space-x-2 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
                       >
                         <ArrowLeft className="h-4 w-4" />
                         <span>Back to Signup</span>
@@ -519,8 +521,8 @@ const Signup = () => {
                 <p className={`${isDark ? "text-gray-400" : "text-gray-600"}`}>
                   Already have an account?{" "}
                   <a
-                    href="#"
-                    className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                    onClick={() => navigate("/login")}
+                    className="text-blue-600 hover:text-blue-700 font-medium transition-colors cursor-pointer"
                   >
                     Sign in
                   </a>

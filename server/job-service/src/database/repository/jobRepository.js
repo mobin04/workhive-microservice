@@ -47,6 +47,7 @@ class JobRepository {
   }
 
   async GetJobById(input) {
+    const {id} = input;
     try {
       const job = await Job.findOne({ applications: id });
       return job;

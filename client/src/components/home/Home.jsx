@@ -4,33 +4,12 @@ import { ThemeContext } from "../../contexts/ThemeContext";
 import { useDispatch, useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 import { envVariables } from "../../config";
-import axios from "axios";
 import Filtering from "./filter/Filter";
 import JobsCard from "./jobsCard/JobsCard";
 import Pagination from "./pagination/Pagination";
 import { setLoading } from "../../store/slices/loadingSlice";
 import Loading from "../loader/Loading";
-
-const fetchJobs = async (filter = {}) => {
-  const cleanedFilter = Object.fromEntries(
-    Object.entries(filter).filter(
-      // eslint-disable-next-line no-unused-vars
-      ([_, value]) => value?.toString().trim().toLowerCase() !== "all"
-    )
-  );
-
-  const queryString = new URLSearchParams(cleanedFilter).toString();
-
-  try {
-    const res = await axios.get(`${envVariables.GET_JOB_URL}?${queryString}`, {
-      withCredentials: true,
-    });
-    return res.data;
-  } catch (err) {
-    console.error("Failed to fetch jobs:", err);
-    throw err;
-  }
-};
+import { fetchJobs } from "../../utils/fetchJobs";
 
 function Home() {
   const { isDark, bodyThemeClasses } = useContext(ThemeContext);
@@ -46,8 +25,11 @@ function Home() {
   });
 
   const { data, isLoading: isPending } = useQuery({
-    queryKey: ["jobs", filter],
-    queryFn: ({ queryKey }) => fetchJobs(queryKey[1]),
+    queryKey: ["jobs", { filter, url: envVariables.GET_JOB_URL }],
+    queryFn: ({ queryKey }) => {
+      const { filter, url } = queryKey[1];
+      return fetchJobs(filter, url);
+    },
   });
 
   useEffect(() => {

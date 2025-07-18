@@ -13,6 +13,7 @@ import { setUser } from "./store/slices/userSlice";
 import { envVariables } from "./config";
 import { setLoading } from "./store/slices/loadingSlice";
 import Signup from "./components/sign-up/SignUp";
+import JobViewer from "./components/job-viewer/JobViewer";
 
 
 function App() {
@@ -50,6 +51,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup/>}/>
         <Route path="/magic-login" element={<VerifyMagicLogin />} />
+        <Route path="/job" element={<JobViewer/>} />
       </Routes>
       <Footer />
     </div>
