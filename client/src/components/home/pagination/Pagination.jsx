@@ -2,13 +2,7 @@ import { useForm } from "react-hook-form";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { memo } from "react";
 
-const Pagination = ({
-  totalPages = 5,
-  isDark,
-  currentPage = 1,
-  pageFilter,
-}) => {
-  
+const Pagination = ({ totalPages, isDark, currentPage, pageFilter }) => {
   const { register, setValue, handleSubmit, watch } = useForm({
     defaultValues: { page: currentPage },
   });
@@ -18,7 +12,7 @@ const Pagination = ({
   const onSubmit = (data) => {
     pageFilter(Number(data.page));
   };
-
+  
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}

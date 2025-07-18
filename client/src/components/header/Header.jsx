@@ -1,21 +1,27 @@
-import React, { useContext, useState } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Bell,
-  Briefcase,
-  Building2,
-  MapPin,
-  Moon,
-  Search,
-  Sun,
-  User,
-  X,
-} from "lucide-react";
 import { ThemeContext } from "../../contexts/ThemeContext";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { envVariables } from "../../config";
 import { setUser } from "../../store/slices/userSlice";
+import { useQuery } from "@tanstack/react-query";
+import { fetchJobs } from "../../utils/fetchJobs";
+import { setJobs } from "../../store/slices/jobSlice";
+import { useDebounce } from "../../hooks/useDebounce";
+import { Bell, Briefcase, MapPin, Moon, Search, Sun, X } from "lucide-react";
+import Loading from "../loader/Loading";
+
+const initialState = {
+  search: "",
+  location: "",
+};
 
 function Header() {
   const navigate = useNavigate();
@@ -26,23 +32,34 @@ function Header() {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const { user } = useSelector((state) => state.user);
-  const { LOGOUT_URL } = envVariables;
-  const dispatch = useDispatch();
+  const { LOGOUT_URL, GET_JOB_URL } = envVariables;
+  const reduxDispatch = useDispatch();
 
-  const staticData = {
-    popularSearches: [
-      "Software Engineer",
-      "Data Analyst",
-      "Product Manager",
-      "UX Designer",
-    ],
-    popularCitys: [
-      "Mumbai, IN",
-      "Bangalore, IN",
-      "Hyderabad, IN",
-      "Chennai, IN",
-    ],
-  };
+  function reducer(state, action) {
+    return { ...state, [action.name]: action.value };
+  }
+
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const debouncedSearch = useDebounce(state.search, 400);
+
+  const staticData = useMemo(
+    () => ({
+      popularSearches: [
+        "Software Engineer",
+        "Data Analyst",
+        "Product Manager",
+        "UX Designer",
+      ],
+      popularCitys: [
+        "Mumbai, IN",
+        "Bangalore, IN",
+        "Hyderabad, IN",
+        "Chennai, IN",
+      ],
+    }),
+    []
+  );
 
   const toggleTheme = () => {
     setDark(!isDark);
@@ -57,12 +74,37 @@ function Header() {
   const signOut = async () => {
     try {
       const res = await axios.post(LOGOUT_URL, "", { withCredentials: true });
-      if (res.data.message) dispatch(setUser(null));
+      if (res.data.message) reduxDispatch(setUser(null));
       setProfileDropdownOpen(false);
     } catch (err) {
       console.log(err);
     }
   };
+
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ["jobs", { search: debouncedSearch }],
+    queryFn: ({ queryKey }) => fetchJobs(queryKey[1], GET_JOB_URL),
+    enabled: false,
+  });
+
+  useEffect(() => {
+    if (debouncedSearch && debouncedSearch.length >= 3) {
+      refetch();
+    } else if (debouncedSearch.length < 3) {
+      fetchJobs({}, GET_JOB_URL).then((res) => {
+        reduxDispatch(setJobs(res));
+      });
+    }
+  }, [debouncedSearch, refetch, GET_JOB_URL, reduxDispatch]);
+
+  useEffect(() => {
+    if (data?.data?.jobs) {
+      // console.log('called')
+      reduxDispatch(setJobs(data));
+    }
+  }, [data, reduxDispatch]);
+
+  // if (debouncedSearch && isLoading) return <Loading />;
 
   return (
     <>
@@ -99,11 +141,23 @@ function Header() {
                     <Search className="h-4 w-4 text-blue-600" />
                     <input
                       type="text"
+                      value={state.search}
+                      name="search"
+                      onChange={(e) => dispatch(e.target)}
                       placeholder="Search jobs, category, companies..."
                       className={`flex-1 bg-transparent outline-none ${
                         isDark ? "placeholder-gray-400" : "placeholder-gray-500"
                       }`}
                     />
+                    {debouncedSearch && isLoading && (
+                      <div
+                        className={`animate-spin rounded-full h-5 w-5 border-4  ${
+                          isDark
+                            ? "border-r-blue-300 border-b-blue-400 border-l-blue-500"
+                            : "border-r-blue-300 border-b-blue-400 border-l-blue-500"
+                        } border-t-transparent`}
+                      ></div>
+                    )}
                   </div>
 
                   {isJobSearchOpen && (
@@ -239,7 +293,7 @@ function Header() {
                       className="h-8 w-8 rounded-full flex items-center justify-center"
                     ></img>
                     <span className="hidden md:block font-medium">
-                      {user?.name?.split(' ')[0].toUpperCase()}
+                      {user?.name?.split(" ")[0].toUpperCase()}
                     </span>
                   </button>
 

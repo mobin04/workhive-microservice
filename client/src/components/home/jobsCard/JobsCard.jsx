@@ -2,17 +2,26 @@ import React, { memo, useContext } from "react";
 import { ThemeContext } from "../../../contexts/ThemeContext";
 import { Building2, Clock, Frown, MapPin, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-const JobsCard = ({ jobs, posted }) => {
+const JobsCard = () => {
   const navigate = useNavigate();
+  const {jobs} = useSelector(state => state.jobs)
+  const posted = (timeString) => {
+    const postedDateInMs = new Date(timeString).getTime();
+    const timeDifferents = Date.now() - postedDateInMs;
+    const msInDays = 1000 * 60 * 60 * 24;
+    const daysAgo = timeDifferents / msInDays;
+    return Math.round(daysAgo);
+  };
 
   const { isDark, dynamicFontColor, themeClasses } = useContext(ThemeContext);
   return (
     <div>
-      {jobs && jobs.length !== 0 ? (
+      {jobs && jobs?.data?.jobs.length !== 0 ? (
         <div className="space-y-4 mb-8">
           {jobs &&
-            jobs.map((job) => (
+            jobs?.data?.jobs.map((job) => (
               <div
                 key={job._id}
                 className={`${themeClasses} p-6 rounded-xl hover:shadow-lg transition-all`}
