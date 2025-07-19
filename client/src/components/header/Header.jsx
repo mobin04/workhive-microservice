@@ -93,8 +93,7 @@ function Header() {
     staleTime: 5 * 60 * 1000, // 5 minutes
     cacheTime: 10 * 60 * 1000, // 10 minutes
   });
-
-
+  
   useEffect(() => {
     if (data) {
       reduxDispatch(setJobs(data));
@@ -614,15 +613,11 @@ function Header() {
                         key={idx}
                         onClick={() => selectLocation(item)}
                         className={`p-3 rounded cursor-pointer transition-colors flex items-center space-x-2 ${
-                          isDark
-                            ? "hover:bg-gray-700"
-                            : "hover:bg-blue-50"
+                          isDark ? "hover:bg-gray-700" : "hover:bg-blue-50"
                         }`}
                       >
                         <MapPin className="h-3 w-3 text-gray-400" />
-                        <span className="truncate">
-                          {item.place_name}
-                        </span>
+                        <span className="truncate">{item.place_name}</span>
                       </div>
                     ))}
                   </div>

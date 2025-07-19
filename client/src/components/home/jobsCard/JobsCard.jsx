@@ -6,13 +6,16 @@ import { useSelector } from "react-redux";
 
 const JobsCard = () => {
   const navigate = useNavigate();
-  const {jobs} = useSelector(state => state.jobs)
+  const { jobs } = useSelector((state) => state.jobs);
   const posted = (timeString) => {
     const postedDateInMs = new Date(timeString).getTime();
     const timeDifferents = Date.now() - postedDateInMs;
     const msInDays = 1000 * 60 * 60 * 24;
     const daysAgo = timeDifferents / msInDays;
-    return Math.round(daysAgo);
+    if (Math.round(daysAgo) === 0) {
+      return "Today";
+    }
+    return `${Math.round(daysAgo)} days ago`;
   };
 
   const { isDark, dynamicFontColor, themeClasses } = useContext(ThemeContext);
@@ -53,7 +56,7 @@ const JobsCard = () => {
                         </span>
                         <span className="flex items-center space-x-1">
                           <Clock className="h-4 w-4" />
-                          <span>{posted(job.updatedAt)} days ago</span>
+                          <span>{posted(job.createdAt)}</span>
                         </span>
                       </div>
                       <div className="flex flex-wrap gap-2 mt-3">
