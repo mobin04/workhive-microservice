@@ -21,4 +21,7 @@ export const envVariables = {
   // 🔹Jobs
   GET_JOB_URL: `${import.meta.env.VITE_API_URL}/jobs`,
 
+  
+  // 🔹Mapbox Token
+  MAPBOX_ACCESS_KEY: import.meta.env.VITE_MAPBOX_API_KEY
 };
