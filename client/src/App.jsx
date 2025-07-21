@@ -8,16 +8,20 @@ import Footer from "./components/footer/Footer";
 import VerifyMagicLogin from "./components/login/VerifyMagicLogin";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "./store/slices/userSlice";
 import { envVariables } from "./config";
 import { setLoading } from "./store/slices/loadingSlice";
 import Signup from "./components/sign-up/SignUp";
 import JobViewer from "./components/job-viewer/JobViewer";
 import JobApplicationForm from "./components/submit-application/JobApplicationForm";
-
+import ErrorComponent from "./components/error-page/ErrorPage";
+import Popup from "./components/info-popup/Popup";
+import { showPopup } from "./store/slices/popupSlice";
 
 function App() {
+  const { popup } = useSelector((state) => state.popup);
+
   // Fetch Profile at initial load
   const dispatch = useDispatch();
   const { GET_PROFILE_URL } = envVariables;
@@ -33,7 +37,26 @@ function App() {
     mutationFn: fetchProfile,
     onSuccess: (data) => {
       dispatch(setUser(data.data.user));
+      dispatch(
+        showPopup({
+          message: "Logged in successfully!",
+          type: "success",
+          visible: true,
+        })
+      );
     },
+    onError: (err) => {
+      if (err.code === "ERR_NETWORK") {
+        dispatch(
+          showPopup({
+            message: "Connection failed! Please check your internet connection",
+            type: "error",
+            visible: true,
+          })
+        );
+      }
+    },
+    retry: false,
   });
 
   useEffect(() => {
@@ -48,14 +71,33 @@ function App() {
     <div>
       <Header />
       <Routes>
-        <Route path="/" element={ <Home />} />
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup/>}/>
+        <Route path="/signup" element={<Signup />} />
         <Route path="/magic-login" element={<VerifyMagicLogin />} />
-        <Route path="/job" element={<JobViewer/>} />
-        <Route path="/apply" element={<JobApplicationForm/>}/>
+        <Route path="/job" element={<JobViewer />} />
+        <Route path="/apply" element={<JobApplicationForm />} />
+        <Route
+          path="*"
+          element={
+            <ErrorComponent
+              type="404"
+              onGoBack={true}
+              onGoHome={true}
+              onRetry={false}
+            />
+          }
+        />
       </Routes>
       <Footer />
+
+      {popup?.visible ? (
+        <Popup
+          message={popup.message}
+          type={popup.type}
+          isVisible={popup.visible}
+        />
+      ) : null}
     </div>
   );
 }

@@ -18,6 +18,7 @@ import { setJobs } from "../../store/slices/jobSlice";
 import { useDebounce } from "../../hooks/useDebounce";
 import { Bell, Briefcase, MapPin, Moon, Search, Sun, X } from "lucide-react";
 import { forwardGeocode } from "../../utils/mapbox";
+import { showPopup } from "../../store/slices/popupSlice";
 
 const initialState = {
   search: "",
@@ -93,7 +94,7 @@ function Header() {
     staleTime: 5 * 60 * 1000, // 5 minutes
     cacheTime: 10 * 60 * 1000, // 10 minutes
   });
-  
+
   useEffect(() => {
     if (data) {
       reduxDispatch(setJobs(data));
@@ -106,9 +107,9 @@ function Header() {
       (debouncedSearch && debouncedSearch.trim().length >= 2) ||
       (state.locationCoords && Array.isArray(state.locationCoords));
 
-    if (shouldSearch) {
+    if (shouldSearch && user) {
       refetch();
-    } else if (debouncedSearch === "" && !state.locationCoords) {
+    } else if (debouncedSearch === "" && !state.locationCoords && user) {
       // fetch all jobs when search is cleared
       fetchJobs({}, GET_JOB_URL)
         .then((res) => {
@@ -124,6 +125,7 @@ function Header() {
     refetch,
     GET_JOB_URL,
     reduxDispatch,
+    user
   ]);
 
   // Handle location search
@@ -188,7 +190,14 @@ function Header() {
       const res = await axios.post(LOGOUT_URL, "", { withCredentials: true });
       if (res.data.message) {
         reduxDispatch(setUser(null));
-        navigate('/')
+        reduxDispatch(
+          showPopup({
+            message: "Logged out successfully!",
+            type: "success",
+            visible: true,
+          })
+        );
+        navigate("/");
       }
       setProfileDropdownOpen(false);
     } catch (err) {

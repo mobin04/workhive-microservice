@@ -32,6 +32,7 @@ function Home() {
       const { filter, url } = queryKey[1];
       return fetchJobs(filter, url);
     },
+    enabled: user ? true : false
   });
 
   useEffect(() => {
