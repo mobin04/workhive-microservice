@@ -14,6 +14,7 @@ module.exports = async (app) => {
   app.use(
     cors({
       origin: [process.env.FRONTEND_URL, process.env.SWAGGER_URL_APPLICATION],
+      credentials: true,
     })
   );
   app.use(cookieParser());

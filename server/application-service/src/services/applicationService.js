@@ -25,7 +25,7 @@ class ApplicationService {
     } catch (err) {
       throw new AppError(err.message, err.statusCode);
     }
-  } 
+  }
 
   async CreateApplication(userInput) {
     const { jobId, userId, file, currentUser } = userInput;
@@ -52,17 +52,19 @@ class ApplicationService {
           400
         );
 
-      // 🔹 Retrieve Job Details (With Retry)
       const job = await ProvideMessage(
         { type: 'jobId', id: jobId },
         routing_key_job,
         10000
       );
+
       if (!job || !job._id) throw new AppError('Job does not exist!', 400);
 
       // 🔹 Start MongoDB Transaction
       const session = await mongoose.startSession();
       session.startTransaction();
+
+      let hasCommitted = false;
 
       try {
         const application = await this.applicationRepo.CreateApplication(
@@ -70,7 +72,6 @@ class ApplicationService {
           { session }
         );
 
-        // 🔹 Upload Resume
         const resumeUrl = await handleFileUpload.uploadImage(
           file,
           'resume',
@@ -85,10 +86,11 @@ class ApplicationService {
           { session }
         );
 
+        // end transation
         await session.commitTransaction();
+        hasCommitted = true;
         session.endSession();
 
-        // 🔹 Push Application to Job Service
         const pushApplicationToJob = await ProvideMessage(
           { applicationId: newApplication._id, jobId, type: 'pushApplication' },
           routing_key_job,
@@ -97,7 +99,6 @@ class ApplicationService {
         if (!pushApplicationToJob)
           throw new AppError('Error pushing application to job service', 500);
 
-        // 🔹 Get Applicant Details
         const applicantDetails = await ProvideMessage(
           { type: 'userId', id: newApplication.applicant },
           routing_key_user,
@@ -106,7 +107,6 @@ class ApplicationService {
         if (!applicantDetails)
           throw new AppError('Applicant details not found!', 404);
 
-        // 🔹 Format Response
         const applicationInfo = {
           job: {
             id: job?._id || null,
@@ -123,17 +123,18 @@ class ApplicationService {
           application: newApplication || null,
         };
 
-        // 🔹Send Email Notification
         await new Email(applicationInfo.applicant, '', {
-          application: applicationInfo.application,
+          application: applicationInfo,
         }).sendApplicationStatusUpdate();
 
-        // 🔹Notifiy employer
         notifyEmployer(applicationInfo.job.employer, applicationInfo.job.title);
+        // console.log(applicationInfo.job.title)
 
         return formatData(applicationInfo);
       } catch (err) {
-        await session.abortTransaction();
+        if (!hasCommitted) {
+          await session.abortTransaction();
+        }
         session.endSession();
         throw new AppError(err.message, err.statusCode);
       }
@@ -280,7 +281,7 @@ class ApplicationService {
 
       return formatData({ updatedApplication: updatedApplication, applicant });
     } catch (err) {
-      // console.log('ERROR' + err); 
+      // console.log('ERROR' + err);
       throw new AppError(err.message, err.statusCode);
     }
   }
@@ -402,4 +403,3 @@ class ApplicationService {
 }
 
 module.exports = ApplicationService;
- 
