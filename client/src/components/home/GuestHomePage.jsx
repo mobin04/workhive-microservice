@@ -21,7 +21,7 @@ function GuestHomePage() {
   };
 
   return (
-    <div className={`min-h-screen ${bodyThemeClasses}`}>
+    <div className={`${bodyThemeClasses}`}>
       {/* Hero Section */}
       <div className={`${themeClasses} py-16 px-4`}>
         <div className="max-w-6xl mx-auto text-center">

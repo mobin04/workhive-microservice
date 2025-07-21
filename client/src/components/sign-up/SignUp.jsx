@@ -16,7 +16,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../../store/slices/userSlice";
 
 const { REQUEST_SIGNUP_URL, VERIFY_OTP, RESEND_OTP } = envVariables;
@@ -31,9 +31,16 @@ const Signup = () => {
   const [userEmail, setUserEmail] = useState("");
   const [isResendDisabled, setIsResendDisabled] = useState(false);
   const [seconds, setSeconds] = useState(0);
-
+  const {user} = useSelector((state) => state.user)
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if(user?._id){
+      navigate('/')
+    }
+  })
+  
 
   const {
     register,
@@ -172,7 +179,7 @@ const Signup = () => {
 
   return (
     <div
-      className={`min-h-screen ${authThemeClass} transition-colors duration-300`}
+      className={`${authThemeClass} transition-colors duration-300`}
     >
       <div className="flex min-h-screen">
         {/* Left Side - Branding */}

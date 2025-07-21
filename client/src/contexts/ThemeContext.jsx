@@ -135,6 +135,42 @@ export function ThemeContextProvider({ children }) {
     [isDark]
   );
 
+  const applyJobThemeClass = useMemo(
+    () => ({
+      container: isDark
+        ? "bg-gray-900 border-gray-700 shadow-gray-800"
+        : "bg-white border-gray-200",
+      text: {
+        primary: isDark ? "text-white" : "text-gray-900",
+        secondary: isDark ? "text-gray-300" : "text-gray-600",
+        muted: isDark ? "text-gray-400" : "text-gray-500",
+      },
+      card: isDark
+        ? "bg-gray-800 border-gray-700"
+        : "bg-gray-50 border-gray-200",
+      input: isDark
+        ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500",
+      button: {
+        primary:
+          "bg-blue-600 hover:bg-blue-700 text-white disabled:bg-blue-400",
+        secondary: isDark
+          ? "bg-gray-700 hover:bg-gray-600 text-gray-200 border-gray-600"
+          : "bg-white hover:bg-gray-50 text-gray-700 border-gray-300",
+        danger: "bg-red-600 hover:bg-red-700 text-white",
+      },
+      uploadArea: isDark
+        ? "border-gray-600 bg-gray-800 hover:bg-gray-750"
+        : "border-gray-300 bg-gray-50 hover:bg-gray-100",
+      mainContainerBg: isDark ? "bg-gray-900" : "bg-gray-100",
+      xBg: isDark ? "hover:bg-red-900 " : " hover:bg-red-100",
+      uploadIconBg: isDark
+        ? "bg-blue-900 text-blue-600"
+        : "bg-blue-100 dark:text-blue-400",
+    }),
+    [isDark]
+  );
+
   const themeContextValue = useMemo(
     () => ({
       isDark,
@@ -150,6 +186,7 @@ export function ThemeContextProvider({ children }) {
       getJobLevelColor,
       jobViewerThemeClass,
       getStatusColor,
+      applyJobThemeClass,
     }),
     [
       isDark,
@@ -165,6 +202,7 @@ export function ThemeContextProvider({ children }) {
       getJobLevelColor,
       jobViewerThemeClass,
       getStatusColor,
+      applyJobThemeClass,
     ]
   );
 

@@ -13,7 +13,7 @@ const ErrorComponent = ({
   onGoBack,
   type = "general" // "general", "404", "network", "auth"
 }) => {
-  
+
   const getErrorContent = () => {
     switch (type) {
       case "404":
@@ -86,7 +86,7 @@ const ErrorComponent = ({
   };
 
   return (
-    <div className={`min-h-screen flex items-center justify-center p-4 ${themeClasses.container}`}>
+    <div className={`flex items-center justify-center p-4 ${themeClasses.container}`}>
       <div className={`max-w-md w-full text-center p-8 rounded-lg border ${themeClasses.card}`}>
         {/* Error Icon */}
         <div className="flex justify-center mb-6">

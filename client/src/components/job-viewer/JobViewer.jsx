@@ -15,7 +15,7 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Loading from "../loader/Loading";
 
 const JobViewer = () => {
@@ -26,6 +26,7 @@ const JobViewer = () => {
     getStatusColor,
   } = useContext(ThemeContext);
   const location = useLocation();
+  const navigate = useNavigate();
 
 
   const url = useMemo(() => {
@@ -33,8 +34,6 @@ const JobViewer = () => {
     return `${envVariables.GET_JOB_URL}/${jobId}`;
   }, [location.search])
   
-  
-
   const { data, isLoading } = useQuery({
     queryKey: ["job", url],
     queryFn: ({ queryKey }) => fetchJobs({}, queryKey[1]),
@@ -264,7 +263,7 @@ const JobViewer = () => {
                 <div
                   className={`font-medium ${jobViewerThemeClass.text.primary}`}
                 >
-                  {formatDate(jobData.updatedAt)}
+                  {formatDate(jobData.updatedAt || jobData.createdAt)}
                 </div>
               </div>
             </div>
@@ -289,6 +288,7 @@ const JobViewer = () => {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3">
           <button
+            onClick={() => navigate(`/apply?id=${jobData._id}`)}
             className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-colors cursor-pointer ${jobViewerThemeClass.button.primary}`}
           >
             Apply Now
