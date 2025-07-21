@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { setUser } from "../../store/slices/userSlice";
 import authHandler from "../../utils/authHandler";
+import { showPopup } from "../../store/slices/popupSlice";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -63,6 +64,13 @@ const Login = () => {
         }
         if (type === "login") {
           dispatch(setUser(data?.data?.user));
+          dispatch(
+            showPopup({
+              message: "logged in successfully!",
+              type: "success",
+              visible: true,
+            })
+          );
           navigate("/");
         }
         if (type === "request_magic_login") {
@@ -137,9 +145,7 @@ const Login = () => {
   }, [seconds]);
 
   return (
-    <div
-      className={`${authThemeClass} transition-colors duration-300`}
-    >
+    <div className={`${authThemeClass} transition-colors duration-300`}>
       <div className="flex min-h-screen">
         {/* Left Side - Branding */}
         <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 relative overflow-hidden m-15 rounded-3xl">
