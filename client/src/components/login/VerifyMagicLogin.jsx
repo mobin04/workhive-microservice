@@ -73,7 +73,7 @@ const VerifyMagicLogin = () => {
 
   return (
     <div
-      className={`min-h-screen ${themeClasses} transition-colors duration-300 flex items-center justify-center`}
+      className={`${themeClasses} transition-colors duration-300 flex items-center justify-center`}
     >
       <div className="text-center">
         {/* Logo */}

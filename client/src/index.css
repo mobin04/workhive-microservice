@@ -38,12 +38,12 @@
 
 body {
   margin: 0;
-  background-color: rgb(3, 3, 73);
+  background: rgb(17 24 39);
 }
 
-@media (prefers-color-scheme: light) {
+/* @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
     background-color: #ffffff;
   }
-}
+} */

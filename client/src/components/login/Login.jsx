@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { envVariables } from "../../config";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Eye,
   EyeOff,
@@ -18,11 +18,12 @@ import {
 import { setUser } from "../../store/slices/userSlice";
 import authHandler from "../../utils/authHandler";
 
-
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { isDark, authThemeClass, authCardClasses, authInputClasses} = useContext(ThemeContext);
+  const { user } = useSelector((state) => state.user);
+  const { isDark, authThemeClass, authCardClasses, authInputClasses } =
+    useContext(ThemeContext);
   const [showPassword, setShowPassword] = useState(false);
   const [err, setErr] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -34,6 +35,12 @@ const Login = () => {
     envVariables;
   const [seconds, setSeconds] = useState(0);
   const [isResendDisabled, setIsResendDisabled] = useState(false);
+
+  useEffect(() => {
+    if (user?._id) {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   const {
     handleSubmit,
@@ -71,7 +78,7 @@ const Login = () => {
           setIsResendDisabled(false);
         }
       },
-    }); 
+    });
   };
 
   const loginMutations = {
@@ -129,10 +136,9 @@ const Login = () => {
     return () => clearInterval(interval);
   }, [seconds]);
 
-
   return (
     <div
-      className={`min-h-screen ${authThemeClass} transition-colors duration-300`}
+      className={`${authThemeClass} transition-colors duration-300`}
     >
       <div className="flex min-h-screen">
         {/* Left Side - Branding */}

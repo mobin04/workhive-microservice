@@ -188,6 +188,7 @@ function Header() {
       const res = await axios.post(LOGOUT_URL, "", { withCredentials: true });
       if (res.data.message) {
         reduxDispatch(setUser(null));
+        navigate('/')
       }
       setProfileDropdownOpen(false);
     } catch (err) {

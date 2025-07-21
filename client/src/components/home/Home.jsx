@@ -62,7 +62,7 @@ function Home() {
   
   // Logged In Homepage
   const LoggedInHomepage = () => (
-    <div className={`min-h-screen ${bodyThemeClasses}`}>
+    <div className={`${bodyThemeClasses}`}>
       <div className="max-w-7xl mx-auto px-4 pb-3 pt-3">
         {/* Filters */}
         <Filtering applyFilter={applyFilter} />
@@ -98,7 +98,7 @@ function Home() {
   if (isLoading) return <Loading />;
 
   return (
-    <div className={`min-h-screen ${isDark ? "dark" : ""}`}>
+    <div className={`${isDark ? "dark" : ""}`}>
       {user ? <LoggedInHomepage /> : <GuestHomePage />}
     </div>
   );
