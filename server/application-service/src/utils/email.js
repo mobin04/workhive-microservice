@@ -90,7 +90,8 @@ class Email {
       },
     };
 
-    const status = statusConfig[this.applicationStatus.status]; // get the fields from string key
+    const status = statusConfig[this.applicationStatus.application.status]; // get the fields from string key
+
     await this.sendEmail(
       'Application status updated',
       'applicationStatusEmail',
@@ -102,10 +103,10 @@ class Email {
         companyName:
           this.applicationStatus.job.company || this.jobDetails.company,
         applicationDate: new Date(
-          this.applicationStatus.createdAt
+          this.applicationStatus.application.createdAt
         ).toLocaleDateString(),
         applicationUpdateDate: new Date(
-          this.applicationStatus.updatedAt
+          this.applicationStatus.application.updatedAt
         ).toLocaleDateString(),
         statusMessage: status.message,
       }
