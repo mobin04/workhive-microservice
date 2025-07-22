@@ -171,6 +171,89 @@ export function ThemeContextProvider({ children }) {
     [isDark]
   );
 
+  const errorColorSchemes = useMemo(
+    () => ({
+      purple: {
+        gradient: isDark
+          ? "from-purple-500/20 via-purple-600/10 to-transparent"
+          : "from-purple-50 via-purple-100/50 to-transparent",
+        iconBg: isDark ? "bg-purple-500/20" : "bg-purple-100",
+        icon: "text-purple-400",
+        accent: "text-purple-400",
+        button: isDark
+          ? "bg-purple-600 hover:bg-purple-700 text-white"
+          : "bg-purple-600 hover:bg-purple-700 text-white",
+      },
+      red: {
+        gradient: isDark
+          ? "from-red-500/20 via-red-600/10 to-transparent"
+          : "from-red-50 via-red-100/50 to-transparent",
+        iconBg: isDark ? "bg-red-500/20" : "bg-red-100",
+        icon: "text-red-400",
+        accent: "text-red-400",
+        button: isDark
+          ? "bg-red-600 hover:bg-red-700 text-white"
+          : "bg-red-600 hover:bg-red-700 text-white",
+      },
+      yellow: {
+        gradient: isDark
+          ? "from-yellow-500/20 via-yellow-600/10 to-transparent"
+          : "from-yellow-50 via-yellow-100/50 to-transparent",
+        iconBg: isDark ? "bg-yellow-500/20" : "bg-yellow-100",
+        icon: "text-yellow-400",
+        accent: "text-yellow-400",
+        button: isDark
+          ? "bg-yellow-600 hover:bg-yellow-700 text-white"
+          : "bg-yellow-600 hover:bg-yellow-700 text-white",
+      },
+      blue: {
+        gradient: isDark
+          ? "from-blue-700/30 via-blue-600/10 to-transparent"
+          : "from-blue-50 via-blue-100/50 to-transparent",
+        iconBg: isDark ? "bg-blue-500/20" : "bg-blue-100",
+        icon: "text-blue-400",
+        accent: "text-blue-400",
+        button: isDark
+          ? "bg-blue-600 hover:bg-blue-700 text-white"
+          : "bg-blue-600 hover:bg-blue-700 text-white",
+      },
+      orange: {
+        gradient: isDark
+          ? "from-orange-500/20 via-orange-600/10 to-transparent"
+          : "from-orange-50 via-orange-100/50 to-transparent",
+        iconBg: isDark ? "bg-orange-500/20" : "bg-orange-100",
+        icon: "text-orange-400",
+        accent: "text-orange-400",
+        button: isDark
+          ? "bg-orange-600 hover:bg-orange-700 text-white"
+          : "bg-orange-600 hover:bg-orange-700 text-white",
+      },
+    }),
+    [isDark]
+  );
+
+  const errorThemeClass = useMemo(
+    () => ({
+      container: isDark
+        ? "bg-gray-900/20 text-white"
+        : "bg-gray-500/10 text-gray-900",
+      card: isDark
+        ? "bg-gray-800/70 border-gray-700/50 backdrop-blur-lg"
+        : "bg-white/80 border-gray-200 backdrop-blur-sm",
+      text: {
+        primary: isDark ? "text-white" : "text-gray-900",
+        secondary: isDark ? "text-gray-300" : "text-gray-600",
+        muted: isDark ? "text-gray-400" : "text-gray-500",
+      },
+      button: {
+        secondary: isDark
+          ? "bg-gray-700/50 hover:bg-gray-600/50 text-gray-200 border-gray-600/50"
+          : "bg-white/80 hover:bg-gray-50/80 text-gray-700 border-gray-300",
+      },
+    }),
+    [isDark]
+  );
+
   const themeContextValue = useMemo(
     () => ({
       isDark,
@@ -187,6 +270,8 @@ export function ThemeContextProvider({ children }) {
       jobViewerThemeClass,
       getStatusColor,
       applyJobThemeClass,
+      errorColorSchemes,
+      errorThemeClass,
     }),
     [
       isDark,
@@ -203,6 +288,8 @@ export function ThemeContextProvider({ children }) {
       jobViewerThemeClass,
       getStatusColor,
       applyJobThemeClass,
+      errorColorSchemes,
+      errorThemeClass,
     ]
   );
 
