@@ -21,13 +21,13 @@ const applyJob = async (formData) => {
 };
 
 const JobApplicationForm = () => {
-  const { applyJobThemeClass } = useContext(ThemeContext);
+  const { applyJobThemeClass, isDark } = useContext(ThemeContext);
   const [resumeFile, setResumeFile] = useState(null);
   const [resumePreview, setResumePreview] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
-  
+
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -95,7 +95,7 @@ const JobApplicationForm = () => {
       onSuccess: (data) => {
         setResumeFile(null);
         setResumePreview(null);
-        setIsSuccess(true)
+        setIsSuccess(true);
         console.log(data);
       },
       onError: (error) => {
@@ -123,8 +123,15 @@ const JobApplicationForm = () => {
 
   if (isLoading) return <Loading />;
 
-  if(isSuccess) return <ApplicationSuccessMessage jobData={jobData} show={isSuccess} applicationId={jobData._id}/>
-  
+  if (isSuccess)
+    return (
+      <ApplicationSuccessMessage
+        jobData={jobData}
+        show={isSuccess}
+        applicationId={jobData._id}
+      />
+    );
+
   return (
     <div className={`${applyJobThemeClass.mainContainerBg} md:py-3`}>
       <div
@@ -298,7 +305,13 @@ const JobApplicationForm = () => {
               type="button"
               onClick={handleSubmit}
               disabled={!resumeFile || isPending}
-              className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 ${applyJobThemeClass.button.primary}`}
+              className={`flex-1 ${
+                isDark
+                  ? "disabled:bg-gray-800 disabled:text-gray-600"
+                  : "disabled:bg-gray-300 disabled:text-gray-400"
+              }  disabled:cursor-not-allowed px-6 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center cursor-pointer gap-2 ${
+                applyJobThemeClass.button.primary
+              }`}
             >
               {isPending ? (
                 <>
@@ -315,7 +328,7 @@ const JobApplicationForm = () => {
             <button
               type="button"
               onClick={() => navigate(`/job?id=${jobData?._id}`)}
-              className={`px-6 py-3 rounded-lg font-semibold border transition-colors ${applyJobThemeClass.button.secondary}`}
+              className={`px-6 py-3 cursor-pointer rounded-lg font-semibold border transition-colors ${applyJobThemeClass.button.secondary}`}
             >
               Cancel
             </button>

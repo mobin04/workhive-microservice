@@ -18,9 +18,11 @@ import JobApplicationForm from "./components/submit-application/JobApplicationFo
 import ErrorComponent from "./components/error-page/ErrorPage";
 import Popup from "./components/info-popup/Popup";
 import { showPopup } from "./store/slices/popupSlice";
+import { showError } from "./store/slices/errorSlice";
 
 function App() {
   const { popup } = useSelector((state) => state.popup);
+  const { errorShow } = useSelector((state) => state.errorShow);
 
   // Fetch Profile at initial load
   const dispatch = useDispatch();
@@ -37,13 +39,6 @@ function App() {
     mutationFn: fetchProfile,
     onSuccess: (data) => {
       dispatch(setUser(data.data.user));
-      dispatch(
-        showPopup({
-          message: "Logged in successfully!",
-          type: "success",
-          visible: true,
-        })
-      );
     },
     onError: (err) => {
       if (err.code === "ERR_NETWORK") {
@@ -54,6 +49,7 @@ function App() {
             visible: true,
           })
         );
+        dispatch(showError({type: '500', visible: true}))
       }
     },
     retry: false,
@@ -67,9 +63,11 @@ function App() {
     dispatch(setLoading(mutation.isPending));
   }, [mutation.isPending]);
 
+  
   return (
     <div>
       <Header />
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -90,6 +88,16 @@ function App() {
         />
       </Routes>
       <Footer />
+      {errorShow?.visible ? (
+          <ErrorComponent
+            title={errorShow?.title}
+            message={errorShow?.message}
+            onGoBack={errorShow?.onGoBack}
+            onGoHome={errorShow?.onGoHome}
+            onRetry={errorShow?.onRetry}
+            type={errorShow?.type}
+          />
+        ) : null}
 
       {popup?.visible ? (
         <Popup

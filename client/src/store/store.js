@@ -3,7 +3,8 @@ import themeReducer from "./slices/themeSlice";
 import userReducer from "./slices/userSlice";
 import loadingReducer from "./slices/loadingSlice";
 import jobReducer from "./slices/jobSlice";
-import popupReducer from './slices/popupSlice';
+import popupReducer from "./slices/popupSlice";
+import errorReducer from "./slices/errorSlice";
 
 const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ const store = configureStore({
     loading: loadingReducer,
     jobs: jobReducer,
     popup: popupReducer,
+    errorShow: errorReducer,
   },
 });
 
