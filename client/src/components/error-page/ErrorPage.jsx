@@ -163,7 +163,7 @@ const ErrorComponent = ({
             {showRetry && (
               <button
                 onClick={handleRetry}
-                className={`w-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-semibold text-lg transition-all duration-400 transform hover:scale-x-95 cursor-pointer shadow-lg ${colors.button}`}
+                className={`w-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-semibold text-lg transition-all duration-400 transform hover:scale-[0.99] cursor-pointer shadow-lg ${colors.button}`}
               >
                 <RefreshCw className="w-5 h-5" />
                 Try Again
@@ -174,7 +174,7 @@ const ErrorComponent = ({
               {showGoBack && (
                 <button
                   onClick={handleGoBack}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold border transition-all duration-400 transform hover:scale-x-95 cursor-pointer shadow-md ${errorThemeClass.button.secondary}`}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold border transition-all duration-400 transform hover:scale-[0.99] cursor-pointer shadow-md ${errorThemeClass.button.secondary}`}
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Back
@@ -184,7 +184,7 @@ const ErrorComponent = ({
               {showGoHome && (
                 <button
                   onClick={handleGoHome}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold border transition-all duration-400 transform hover:scale-x-95 cursor-pointer shadow-md ${errorThemeClass.button.secondary}`}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold border transition-all duration-400 transform hover:scale-[0.99] cursor-pointer shadow-md ${errorThemeClass.button.secondary}`}
                 >
                   <Home className="w-4 h-4" />
                   {showGoBack ? "Home" : "Go Home"}

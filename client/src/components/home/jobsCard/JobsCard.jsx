@@ -120,7 +120,7 @@ const JobsCard = () => {
             ))}
         </div>
       ) : (
-        <div className="flex gap-3 justify-center items-center mt-20">
+        <div className="flex gap-3 justify-center items-center my-15">
           <div className="text-gray-400 text-3xl font-bold">No Jobs Found!</div>
           <Frown className="text-gray-400 scale-150" />
         </div>

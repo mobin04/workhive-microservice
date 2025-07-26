@@ -26,14 +26,23 @@ function Home() {
     page: "1",
   });
 
-  const { data, isLoading: isPending } = useQuery({
+  const {
+    data,
+    isLoading: isPending,
+    error,
+    isError,
+  } = useQuery({
     queryKey: ["jobs", { filter, url: envVariables.GET_JOB_URL }],
     queryFn: ({ queryKey }) => {
       const { filter, url } = queryKey[1];
-      return fetchJobs(filter, url);
+      return fetchJobs(filter, url, dispatch);
     },
-    enabled: user ? true : false
+    enabled: user ? true : false,
   });
+
+  if (isError) {
+    console.log("error happended" + error.message);
+  }
 
   useEffect(() => {
     if (!data) return;
@@ -43,6 +52,10 @@ function Home() {
   useEffect(() => {
     dispatch(setLoading(isPending));
   }, [isPending, dispatch]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   const applyFilter = useCallback((data) => {
     setFilter({
@@ -60,7 +73,7 @@ function Home() {
       page: data.toString(),
     }));
   };
-  
+
   // Logged In Homepage
   const LoggedInHomepage = () => (
     <div className={`${bodyThemeClasses}`}>
@@ -82,7 +95,7 @@ function Home() {
           </p>
         )}
         {/* Job Listings */}
-        <JobsCard/>
+        <JobsCard />
         {/* Pagination */}
         {jobs && jobs.totalPages > 1 ? (
           <Pagination
