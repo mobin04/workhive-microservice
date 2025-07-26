@@ -158,7 +158,7 @@ describe('JobService - GetSigleJob', () => {
   });
 
   it('Should return job successfully', async () => {
-    mockRepo.GetJobById.mockResolvedValueOnce({
+    mockRepo.GetJobByJobId.mockResolvedValueOnce({
       _id: 'job123',
       title: 'developer',
       location: 'kerala',
@@ -877,5 +877,67 @@ describe('JobService - RPCObserver', () => {
       { correlationId: 'corr-id-4' }
     );
     expect(mockChannel.ack).toHaveBeenCalledWith(msg);
+  });
+});
+
+describe('JobService - RPCAuthObserver', () => {
+  let service;
+  let mockRepo;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    service = new JobService();
+    mockRepo = service.jobRepository;
+  });
+
+  const mockChannel = {
+    assertExchange: jest.fn().mockResolvedValue(true),
+    assertQueue: jest.fn().mockResolvedValue(true),
+    bindQueue: jest.fn(),
+    consume: jest.fn(),
+    sendToQueue: jest.fn(),
+    ack: jest.fn(),
+  };
+
+  it('Should respond with job data when type is jobId', async () => {
+    const fakeJob = { _id: 'job123', title: 'developer' };
+    mockRepo.GetJobByJobId.mockResolvedValue(fakeJob);
+
+    // mock the consume callback
+    let consumeCallback;
+    mockChannel.consume.mockImplementation((queue, cb) => {
+      consumeCallback = cb;
+    });
+
+    await service.RPCAuthObserver(mockChannel);
+
+    // Simulate a message
+    const msg = {
+      content: Buffer.from(JSON.stringify({ type: 'job', id: 'job123' })),
+      properties: {
+        replyTo: 'reply-queue',
+        correlationId: 'corr-id-1',
+      },
+    };
+
+    await consumeCallback(msg);
+
+    expect(mockRepo.GetJobByJobId).toHaveBeenCalledWith({ id: 'job123' });
+    expect(mockChannel.sendToQueue).toHaveBeenCalledWith(
+      'reply-queue',
+      Buffer.from(JSON.stringify(fakeJob)),
+      { correlationId: 'corr-id-1' }
+    );
+    expect(mockChannel.ack).toHaveBeenCalledWith(msg);
+  });
+
+  it('should throw AppError if exchange setup fails', async () => {
+    mockChannel.assertExchange.mockRejectedValueOnce(
+      new Error('Exchange failure')
+    );
+
+    await expect(service.RPCAuthObserver(mockChannel)).rejects.toThrow(
+      'Exchange failure'
+    );
   });
 });

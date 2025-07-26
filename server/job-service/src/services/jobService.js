@@ -3,7 +3,14 @@ const { JobRepository } = require('../database/repository');
 const { AppError, formatData, filteredObject } = require('../utils');
 const { JobConfig } = require('../utils');
 const handleUpload = require('../utils/fileUploads');
-const { EXCHANGE_NAME, QUEUE, BINDING_KEY } = require('../rabbitMqConfig');
+const {
+  EXCHANGE_NAME,
+  QUEUE,
+  BINDING_KEY,
+  AUTH_QUEUE,
+  AUTH_EXCHANGE,
+  AUTH_BINDING_KEY,
+} = require('../rabbitMqConfig');
 
 class JobService {
   constructor(channel) {
@@ -71,7 +78,7 @@ class JobService {
 
   async GetSigleJob(userInput) {
     const { id } = userInput;
-    
+
     try {
       const job = await this.jobRepository.GetJobByJobId({ id });
       if (!job) {
@@ -289,6 +296,38 @@ class JobService {
               id,
               applicationId,
             });
+          }
+
+          channel.sendToQueue(
+            msg.properties.replyTo,
+            Buffer.from(JSON.stringify(job)),
+            {
+              correlationId: msg.properties.correlationId,
+            }
+          );
+
+          channel.ack(msg);
+        }
+      });
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
+  async RPCAuthObserver(channel) {
+    try {
+      await channel.assertExchange(AUTH_EXCHANGE, 'direct', { durable: true });
+      await channel.assertQueue(AUTH_QUEUE, { durable: true });
+      await channel.bindQueue(AUTH_QUEUE, AUTH_EXCHANGE, AUTH_BINDING_KEY);
+
+      channel.consume(AUTH_QUEUE, async (msg) => {
+        let job = null;
+        if (msg !== null) {
+          const message = JSON.parse(msg.content.toString());
+          const { type } = message;
+          if (type === 'job') {
+            const { id } = message;
+            job = await this.jobRepository.GetJobByJobId({ id });
           }
 
           channel.sendToQueue(

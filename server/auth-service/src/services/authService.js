@@ -1,7 +1,12 @@
 const jwt = require('jsonwebtoken');
 const { AuthRepository } = require('../database');
 const handleFileUploads = require('../utils/fileUploads');
-const { EXCHANGE_NAME, QUEUE, BINDING_KEY } = require('../rabbitMqConfig');
+const {
+  EXCHANGE_NAME,
+  QUEUE,
+  BINDING_KEY,
+  AUTH_ROUTING_KEY,
+} = require('../rabbitMqConfig');
 const {
   AppError,
   AuthConfig,
@@ -9,6 +14,7 @@ const {
   formatData,
   filteredObject,
 } = require('../utils');
+const provider = require('../rabbitMqConnection/rabbitMqProvider');
 
 class AuthService {
   constructor() {
@@ -37,7 +43,7 @@ class AuthService {
         authType: 'signup',
       };
 
-      await new Email(user,'', { otpSecret: otpToken }).sendOtpEmail();
+      await new Email(user, '', { otpSecret: otpToken }).sendOtpEmail();
 
       return formatData({ user });
     } catch (err) {
@@ -158,7 +164,7 @@ class AuthService {
         });
 
         await new Email(user, '', '').sendWelcome();
-        return formatData({loggingUser: user});
+        return formatData({ loggingUser: user });
       }
 
       if (mode === 'login') {
@@ -238,10 +244,8 @@ class AuthService {
 
         return formatData({ user, mode });
       }
-      
-      
+
       return formatData(null);
-      
     } catch (err) {
       throw new AppError(err.message, err.statusCode);
     }
@@ -316,6 +320,81 @@ class AuthService {
       const userStats = await this.repository.GetUserStatistics();
       if (userStats.length === 0) throw new AppError('No users found!', 404);
       return formatData(userStats);
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
+  async SaveJob(userInput) {
+    const { userId, jobId } = userInput;
+    try {
+      const user = await this.repository.FindById({ id: userId });
+
+      if (!user) throw new AppError('No user found with that id!', 403);
+
+      if (!['job_seeker'].includes(user.role)) {
+        throw new AppError('Only job seeker can save jobs', 403);
+      }
+
+      const job = await provider(
+        { type: 'job', id: jobId },
+        AUTH_ROUTING_KEY,
+        10000
+      );
+
+      if (!job) {
+        throw new AppError('No job found with that id', 404);
+      }
+
+      if (
+        user.savedJobs.some(
+          (savedId) => savedId.toString() === job._id.toString()
+        )
+      ) {
+        throw new AppError('Already saved this job', 400);
+      }
+
+      const updatedUser = await this.repository.SaveJob({ userId, jobId });
+
+      return formatData(updatedUser);
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
+  async GetSavedJobs(userInput) {
+    const { userId } = userInput;
+    let jobs = [];
+    try {
+      const user = await this.repository.FindById({ id: userId });
+
+      if (!user) throw new AppError('No user found with that id!', 403);
+
+      if (user.savedJobs.length > 0) {
+        const jobPromises = user.savedJobs.map((id) =>
+          provider({ type: 'job', id }, AUTH_ROUTING_KEY, 5000)
+        );
+
+        const results = await Promise.all(jobPromises);
+        jobs = results.filter((job) => job);
+      }
+      return formatData(jobs);
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
+  async RemoveSavedJobs(userInput) {
+    const { jobId, userId } = userInput;
+    try {
+      const user = await this.repository.FindById({ id: userId });
+      if (!user) throw new AppError('User not found!', 400);
+
+      const removeJob = await this.repository.PullSavedJob({ jobId, userId });
+
+      if (!removeJob) throw new AppError('No job found with that job id!', 404);
+
+      return formatData('Job removed successfully!');
     } catch (err) {
       throw new AppError(err.message, err.statusCode);
     }

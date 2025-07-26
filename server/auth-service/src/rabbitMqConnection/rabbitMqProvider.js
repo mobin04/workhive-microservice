@@ -1,6 +1,5 @@
-// const { v4: uuidv4 } = require('uuid');
-const rabbitMQ = require('./rabbitMqConnection');
-const { application_exchange } = require('../rabbitMqConfig');
+const rabbitMQ = require('./rabbitMQ');
+const { AUTH_EXCHANGE } = require('../rabbitMqConfig');
 const { AppError } = require('../utils');
 const { v4: uuidv4 } = require('uuid');
 
@@ -32,7 +31,8 @@ async function provider(
   timeoutMs = 10000,
   useRetry = true
 ) {
-  if (useRetry) { // calling retry
+  if (useRetry) {
+    // Call the retry wrapper
     return providerWithRetry(message, routingKey, timeoutMs);
   }
 
@@ -40,16 +40,15 @@ async function provider(
   const correlationId = uuidv4();
 
   try {
-    
-    await channel.assertExchange(application_exchange, 'direct', {
+    await channel.assertExchange(AUTH_EXCHANGE, 'direct', {
       durable: true,
     });
 
     const { queue } = await channel.assertQueue('', { exclusive: true });
-
+    
     return await new Promise((resolve, reject) => {
       let consumerTag;
-      
+
       const timer = setTimeout(() => {
         console.error(`Timeout: No response received for ${routingKey}`);
         if (consumerTag) channel.cancel(consumerTag);
@@ -68,7 +67,7 @@ async function provider(
           },
           { noAck: true }
         )
-        .then(({ consumerTag: tag }) => { 
+        .then(({ consumerTag: tag }) => {
           consumerTag = tag;
         })
         .catch((err) => {
@@ -78,7 +77,7 @@ async function provider(
 
       try {
         channel.publish(
-          application_exchange,
+          AUTH_EXCHANGE,
           routingKey,
           Buffer.from(JSON.stringify(message)),
           {
@@ -89,7 +88,7 @@ async function provider(
       } catch (pubError) {
         clearTimeout(timer);
         if (consumerTag) channel.cancel(consumerTag);
-        console.log(pubError)
+        console.log(pubError);
         reject(new AppError(pubError.message, pubError.statusCode || 500));
       }
     });
