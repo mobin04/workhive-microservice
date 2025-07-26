@@ -86,7 +86,7 @@ class ApplicationService {
           { session }
         );
 
-        // end transation
+        // End transation
         await session.commitTransaction();
         hasCommitted = true;
         session.endSession();

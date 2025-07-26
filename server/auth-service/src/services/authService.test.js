@@ -10,6 +10,8 @@ jest.mock('../database', () => ({
     updateUser: jest.fn(),
     deleteUser: jest.fn(),
     GetUserStatistics: jest.fn(),
+    SaveJob: jest.fn(),
+    PullSavedJob: jest.fn(),
   })),
 }));
 
@@ -17,9 +19,11 @@ jest.mock('jsonwebtoken');
 jest.mock('../config/firebaseConfig', () => ({}));
 jest.mock('../utils/fileUploads');
 jest.mock('../utils/email');
+jest.mock('../rabbitMqConnection/rabbitMqProvider');
 
 const handleFileUpload = require('../utils/fileUploads');
 const { Email } = require('../utils');
+const provider = require('../rabbitMqConnection/rabbitMqProvider');
 
 describe('AuthService - RequestSignupOTP', () => {
   let service;
@@ -44,7 +48,7 @@ describe('AuthService - RequestSignupOTP', () => {
         password: 'pass',
         role: 'user',
       })
-    ).rejects.toThrow('User already exist please login!');
+    ).rejects.toThrow('Email already exist!');
   });
 
   it('should send OTP email and return formatted data for new user', async () => {
@@ -229,7 +233,7 @@ describe('AuthService - VerifyOTP', () => {
     });
     expect(Email).toHaveBeenCalled();
     expect(result).toHaveProperty('data');
-    expect(result.data).toMatchObject(fakeUser);
+    expect(result.data.loggingUser).toMatchObject(fakeUser);
   });
 
   it('Should throw error if login mode but authType is not login', async () => {
@@ -732,5 +736,187 @@ describe('AuthService - RPCObserver', () => {
       { correlationId: 'corr-id-1' }
     );
     expect(mockChannel.ack).toHaveBeenCalledWith(msg);
+  });
+});
+
+describe('AuthService - SaveJob', () => {
+  let service;
+  let mockRepo;
+  beforeEach(() => {
+    jest.clearAllMocks();
+    service = new AuthService();
+    mockRepo = service.repository;
+  });
+
+  it('Should throw error if no user found with the id', async () => {
+    mockRepo.FindById.mockResolvedValue(null);
+    await expect(service.SaveJob({ userId: 'user123' })).rejects.toThrow(
+      'No user found with that id!'
+    );
+  });
+
+  it('Should throw error if user is not job_seeker', async () => {
+    mockRepo.FindById.mockResolvedValueOnce({
+      name: 'user',
+      id: 'u123',
+      role: 'employer',
+    });
+    await expect(service.SaveJob({ userId: 'u123' })).rejects.toThrow(
+      'Only job seeker can save jobs'
+    );
+  });
+
+  it('Should throw error if job not found', async () => {
+    mockRepo.FindById.mockResolvedValueOnce({
+      name: 'user',
+      id: 'u123',
+      role: 'job_seeker',
+    });
+
+    provider.mockResolvedValue(null);
+
+    expect(service.SaveJob({ userId: 'u123' })).rejects.toThrow(
+      'No job found with that id'
+    );
+  });
+
+  it('Should throw error if user already saved the job', async () => {
+    mockRepo.FindById.mockResolvedValueOnce({
+      name: 'user',
+      id: 'u123',
+      role: 'job_seeker',
+      savedJobs: ['job123'],
+    });
+
+    provider.mockResolvedValueOnce({ title: 'testJob', _id: 'job123' });
+
+    await expect(
+      service.SaveJob({ userId: 'u123', jobId: 'job123' })
+    ).rejects.toThrow('Already saved this job');
+  });
+
+  it('Should return data successfully', async () => {
+    mockRepo.FindById.mockResolvedValueOnce({
+      name: 'user',
+      id: 'u123',
+      role: 'job_seeker',
+      savedJobs: [],
+    });
+
+    provider.mockResolvedValueOnce({ title: 'testJob', _id: 'job123' });
+
+    mockRepo.SaveJob.mockResolvedValueOnce({
+      name: 'user',
+      id: 'u123',
+      role: 'job_seeker',
+      savedJobs: ['job123'],
+    });
+
+    const result = await service.SaveJob({
+      userId: 'u123',
+      jobId: 'job123',
+    });
+
+    expect(result).toHaveProperty('data');
+    expect(provider).toHaveBeenCalled();
+    expect(mockRepo.FindById).toHaveBeenCalled();
+    expect(mockRepo.SaveJob).toHaveBeenCalled();
+    expect(result.data.savedJobs[0]).toBe('job123');
+    expect(result.data).toMatchObject({
+      name: 'user',
+      id: 'u123',
+      role: 'job_seeker',
+      savedJobs: ['job123'],
+    });
+  });
+});
+
+describe('AuthService - GetSavedJobs', () => {
+  let service;
+  let mockRepo;
+  beforeEach(() => {
+    jest.clearAllMocks();
+    service = new AuthService();
+    mockRepo = service.repository;
+  });
+
+  it('Should throw error if user not found with that id', async () => {
+    mockRepo.FindById.mockResolvedValue(null);
+    await expect(service.GetSavedJobs({ userId: 'u123' })).rejects.toThrow(
+      'No user found with that id!'
+    );
+  });
+
+  it('Should return saved jobs successfully', async () => {
+    mockRepo.FindById.mockResolvedValueOnce({
+      _id: 'u123',
+      name: 'john',
+      role: 'job_seeker',
+      savedJobs: ['job123'],
+    });
+
+    provider.mockResolvedValueOnce({ title: 'testjob', _id: 'job123' });
+
+    const result = await service.GetSavedJobs({
+      userId: 'u123',
+      jobId: 'job123',
+    });
+
+    expect(result).toHaveProperty('data');
+    expect(mockRepo.FindById).toHaveBeenCalled();
+    expect(provider).toHaveBeenCalled();
+    expect(result.data).toMatchObject([{ title: 'testjob', _id: 'job123' }]);
+  });
+});
+
+describe('AuthService - RemoveSavedJobs', () => {
+  let service;
+  let mockRepo;
+  beforeEach(() => {
+    jest.clearAllMocks();
+    service = new AuthService();
+    mockRepo = service.repository;
+  });
+
+  it('Should throw error if user not found', async () => {
+    mockRepo.FindById.mockResolvedValue(null);
+    await expect(service.RemoveSavedJobs({ userId: 'u123' })).rejects.toThrow(
+      'User not found!'
+    );
+  });
+
+  it('Should throw error if no job found', async () => {
+    mockRepo.FindById.mockResolvedValueOnce({
+      name: 'john',
+      _id: 'u123',
+      role: 'job_seeker',
+      savedJobs: [],
+    });
+
+    mockRepo.PullSavedJob.mockResolvedValue(null);
+    await expect(
+      service.RemoveSavedJobs({ userId: 'u123', job: 'job123' })
+    ).rejects.toThrow('No job found with that job id!');
+  });
+
+  it('Should remove job successfully', async () => {
+    mockRepo.FindById.mockResolvedValueOnce({
+      name: 'john',
+      _id: 'u123',
+      role: 'job_seeker',
+      savedJobs: [],
+    });
+
+    mockRepo.PullSavedJob.mockResolvedValueOnce(true);
+
+    const result = await service.RemoveSavedJobs({
+      userId: 'u123',
+      jobId: 'job123',
+    });
+
+    expect(result).toHaveProperty('data');
+    expect(result.data).toBe('Job removed successfully!');
+    expect(mockRepo.FindById).toHaveBeenCalled();
+    expect(mockRepo.PullSavedJob).toHaveBeenCalled();
   });
 });

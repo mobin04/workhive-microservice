@@ -32,6 +32,11 @@ const userSchema = new mongoose.Schema(
       default:
         'https://www.shutterstock.com/image-vector/default-avatar-profile-icon-social-600nw-1677509740.jpg',
     },
+    savedJobs: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+      },
+    ],
     createdAt: {
       type: Date,
       default: Date.now,
@@ -39,14 +44,17 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 // Add a virtual id field same as _id
 userSchema.plugin(addIdVirtual);
 
 // Checking provider password is match to user password
-userSchema.methods.isPasswordCorrect = async function (candidatePassword, userPassword) {
+userSchema.methods.isPasswordCorrect = async function (
+  candidatePassword,
+  userPassword
+) {
   return await bycrypt.compare(candidatePassword, userPassword);
 };
 

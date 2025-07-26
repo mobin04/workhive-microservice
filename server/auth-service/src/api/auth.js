@@ -3,6 +3,7 @@ const { catchAsync, AppError } = require('../utils');
 const { authMiddleware } = require('../api/middlewares');
 const { AuthConfig, Email } = require('../utils');
 const { upload } = require('../config');
+const isValidObjectId = require('./middlewares/isValidObjectId');
 
 module.exports = (app, channel) => {
   const service = new AuthService();
@@ -112,6 +113,67 @@ module.exports = (app, channel) => {
 
       authMiddleware.createSendToken(data.user, 201, req, res, 'getRealToken');
     })
+  );
+
+  /**
+   * @swagger
+   * /api/v2/auth/saved-jobs:
+   *   get:
+   *     summary: Get the saved jobs from currently logged in user(job_seeker)
+   *     security:
+   *       - bearerAuth: []
+   *       - jwt: []
+   *     tags:
+   *       - Auth
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: ID of the job to get from the saved list
+   *     responses:
+   *       201:
+   *         description: To get job from saved list using the job id
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                 message:
+   *                   type: string
+   *                 totalJobs: 
+   *                   type: number
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     jobs:
+   *                       type: object
+   *       403:
+   *         description: No user found with that id!
+   */
+
+  // 🔹Get Saved Job
+  app.get(
+    `${baseUrl}/saved-jobs`,
+    authMiddleware.protect,
+    authMiddleware.restrictTo('job_seeker'),
+    async (req, res) => {
+      const userId = req.user._id;
+
+      const { data } = await service.GetSavedJobs({ userId });
+
+      res.status(200).json({
+        status: 'success',
+        message: 'fetched saved jobs successfully',
+        totalJobs: data.length,
+        data: {
+          jobs: data,
+        },
+      });
+    }
   );
 
   /**
@@ -503,7 +565,7 @@ module.exports = (app, channel) => {
       const authConfig = new AuthConfig();
 
       const loggedUserInfo = await authConfig.getLoggedInUserInfo(req);
-// console.log(data.logginUser)
+      // console.log(data.logginUser)
       await new Email(data.loggingUser, '', {
         loggedUserInfo,
       }).sendLoginEmail();
@@ -554,6 +616,71 @@ module.exports = (app, channel) => {
 
   /**
    * @swagger
+   * /api/v2/save-job/{id}:
+   *   post:
+   *     summary: Add a job to the saved list
+   *     security:
+   *       - bearerAuth: []
+   *       - jwt: []
+   *     tags:
+   *       - Save Jobs
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: ID of the job to add to the saved list
+   *     responses:
+   *       200:
+   *         description: Job saved successfully!
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                 message:
+   *                   type: string
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     job:
+   *                       type: object
+   *       400:
+   *         description: Already saved this job
+   *       401:
+   *         description: Unauthorized — user not logged in or token invalid
+   *       403:
+   *         description: Forbidden — user not allowed to perform this action, user type invalid, or user not found
+   *       404:
+   *         description: No job found with that ID
+   */
+
+  // 🔹Save Job
+  app.post(
+    `${baseUrl}/save-job/:id`,
+    authMiddleware.protect,
+    authMiddleware.restrictTo('job_seeker'),
+    async (req, res) => {
+      const userId = req.user._id;
+      const jobId = req.params.id;
+
+      const { data } = await service.SaveJob({ userId, jobId });
+
+      res.status(200).json({
+        status: 'success',
+        message: 'Job saved successfully!',
+        data: {
+          user: data,
+        },
+      });
+    }
+  );
+
+  /**
+   * @swagger
    * /api/v2/auth/profile:
    *   patch:
    *     summary: Update user profile
@@ -595,7 +722,6 @@ module.exports = (app, channel) => {
    *                     user:
    *                       type: object
    */
-
   // 🔹Update profile
   app.patch(
     `${baseUrl}/profile`,
@@ -624,6 +750,64 @@ module.exports = (app, channel) => {
         data: {
           user: data.user,
         },
+      });
+    })
+  );
+
+  /**
+   * @swagger
+   * /api/v2/saved-job/{id}:
+   *   delete:
+   *     summary: Remove a saved job for the authenticated job seeker
+   *     security:
+   *       - bearerAuth: []
+   *       - jwt: []
+   *     tags:
+   *       - Saved Jobs
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: ID of the job to remove from saved list
+   *     responses:
+   *       204:
+   *         description: Saved job removed successfully (no content returned)
+   *       404:
+   *         description: Job ID not found or invalid
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                 message:
+   *                   type: string
+   *       401:
+   *         description: Unauthorized — user not logged in or token invalid
+   *       403:
+   *         description: Forbidden — user not allowed to perform this action
+   *       404:
+   *         description: Not Found — No job found with that job id
+   */
+
+  app.delete(
+    `${baseUrl}/saved-job/:id`,
+    authMiddleware.protect,
+    authMiddleware.restrictTo('job_seeker'),
+    isValidObjectId,
+    catchAsync(async (req, res, next) => {
+      const jobId = req.params.id;
+      const userId = req.user._id;
+      if (!jobId) return next(new AppError('Job id not found!', 404));
+
+      const message = await service.RemoveSavedJobs({ jobId, userId });
+
+      res.status(204).json({
+        status: 'success',
+        message,
       });
     })
   );

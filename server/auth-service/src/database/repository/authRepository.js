@@ -2,7 +2,6 @@ const { User } = require('../models/index');
 const { AppError, catchAsync } = require('../../utils/index');
 
 class AuthRepository {
-  
   async FindByEmail({ email }) {
     try {
       const existingUser = await User.findOne({ email }).lean();
@@ -23,7 +22,7 @@ class AuthRepository {
 
   async FindById({ id }) {
     try {
-      const existingUser = User.findById(id).lean()
+      const existingUser = User.findById(id).lean();
       return existingUser;
     } catch (err) {
       throw new AppError('Unable to find user!', 500);
@@ -35,7 +34,7 @@ class AuthRepository {
       const user = await User.create({ name, email, password, role });
       return user;
     } catch (err) {
-      console.log(err)
+      console.log(err);
       throw new AppError('Unable to create user!', 500);
     }
   }
@@ -47,7 +46,7 @@ class AuthRepository {
         filteredProperty,
         {
           new: true,
-          runValidators: true, 
+          runValidators: true,
         }
       ).lean();
       return updateUser;
@@ -64,6 +63,28 @@ class AuthRepository {
       throw new AppError('Unable to delete user!', 500);
     }
   }
+
+  async SaveJob({ userId, jobId }) {
+    try {
+      const user = await User.findByIdAndUpdate(userId, {
+        $addToSet: { savedJobs: jobId },
+      });
+      return user;
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
+  async PullSavedJob({ jobId, userId }) {
+    try {
+      const user = await User.findByIdAndUpdate(userId, {
+        $pull: { savedJobs: jobId },
+      });
+      if (user) return true;
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  } 
 
   async GetUserStatistics() {
     try {

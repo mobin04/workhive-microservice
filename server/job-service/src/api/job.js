@@ -7,6 +7,7 @@ module.exports = (app, channel) => {
   const service = new JobService(channel);
   const baseUrl = process.env.API_BASE_URL_JOB;
   service.RPCObserver(channel);
+  service.RPCAuthObserver(channel);
 
   /**
    * @swagger
