@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo } from "react";
+import React, { useCallback, useContext, useEffect, useMemo } from "react";
 import { ThemeContext } from "../../contexts/ThemeContext";
 import { useQuery } from "@tanstack/react-query";
 import { envVariables } from "../../config";
@@ -28,12 +28,15 @@ const JobViewer = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   const url = useMemo(() => {
     const jobId = new URLSearchParams(location.search).get("id");
     return `${envVariables.GET_JOB_URL}/${jobId}`;
-  }, [location.search])
-  
+  }, [location.search]);
+
   const { data, isLoading } = useQuery({
     queryKey: ["job", url],
     queryFn: ({ queryKey }) => fetchJobs({}, queryKey[1]),

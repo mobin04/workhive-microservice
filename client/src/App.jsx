@@ -44,12 +44,12 @@ function App() {
       if (err.code === "ERR_NETWORK") {
         dispatch(
           showPopup({
-            message: "Connection failed! Please check your internet connection",
+            message: "Internal server error! Please try again later",
             type: "error",
             visible: true,
           })
         );
-        dispatch(showError({type: '500', visible: true}))
+        dispatch(showError({type: '500', visible: true, onGoHome: false}))
       }
     },
     retry: false,
@@ -92,8 +92,8 @@ function App() {
           <ErrorComponent
             title={errorShow?.title}
             message={errorShow?.message}
-            onGoBack={errorShow?.onGoBack}
-            onGoHome={errorShow?.onGoHome}
+            showGoBack={errorShow?.onGoBack}
+            showGoHome={errorShow?.onGoHome}
             onRetry={errorShow?.onRetry}
             type={errorShow?.type}
           />

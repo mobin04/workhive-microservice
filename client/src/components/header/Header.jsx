@@ -6,7 +6,7 @@ import React, {
   useReducer,
   useState,
 } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ThemeContext } from "../../contexts/ThemeContext";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
@@ -16,9 +16,11 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchJobs } from "../../utils/fetchJobs";
 import { setJobs } from "../../store/slices/jobSlice";
 import { useDebounce } from "../../hooks/useDebounce";
-import { Bell, Briefcase, MapPin, Moon, Search, Sun, X } from "lucide-react";
+import { Bell, Briefcase, Moon, Search, Sun, X } from "lucide-react";
 import { forwardGeocode } from "../../utils/mapbox";
 import { showPopup } from "../../store/slices/popupSlice";
+import SearchBars from "./search-bar/SearchBars";
+import MobileSearchBar from "./mobile-search-bar/MobileSearchBar";
 
 const initialState = {
   search: "",
@@ -28,14 +30,20 @@ const initialState = {
 
 function Header() {
   const navigate = useNavigate();
-  const { isDark, setDark, themeClasses, searchBgClasses } =
-    useContext(ThemeContext);
+  const location = useLocation();
+  const { isDark, setDark, themeClasses } = useContext(ThemeContext);
   const [isJobSearchOpen, setIsJobSearchOpen] = useState(false);
   const [isLocationSearchOpen, setIsLocationSearchOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isHomePage, setIsHomePage] = useState(true);
+
+  useEffect(() => {
+    const isHome = location.pathname === "/";
+    setIsHomePage(isHome);
+  }, [location]);
 
   const { user } = useSelector((state) => state.user);
   const { LOGOUT_URL, GET_JOB_URL } = envVariables;
@@ -125,7 +133,7 @@ function Header() {
     refetch,
     GET_JOB_URL,
     reduxDispatch,
-    user
+    user,
   ]);
 
   // Handle location search
@@ -223,17 +231,17 @@ function Header() {
     dispatch({ name: e.target.name, value: e.target.value });
   };
 
-  const clearSearch = () => {
+  const clearSearch = useCallback(() => {
     dispatch({ name: "search", value: "" });
     dispatch({ name: "location", value: "" });
     dispatch({ name: "locationCoords", value: null });
     setSuggestions([]);
-  };
+  }, []);
 
   return (
     <>
       <header
-        className={`${themeClasses} border-b shadow-lg flex items-center justify-center relative`}
+        className={`${themeClasses} border-b shadow-sm flex items-center justify-center relative`}
       >
         <div className="max-w-7xl w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-18 md:h-20">
@@ -251,129 +259,24 @@ function Header() {
             </div>
 
             {/* Desktop Search Section */}
-            {user ? (
-              <div className="hidden lg:flex flex-1 max-w-2xl mx-8 space-x-4">
-                {/* Job Search */}
-                <div className="relative flex-1 dropdown-container">
-                  <div
-                    className={`${searchBgClasses} border rounded-lg px-4 py-2 flex items-center space-x-2 cursor-pointer hover:border-blue-400 transition-colors`}
-                    onClick={() => {
-                      setIsJobSearchOpen(!isJobSearchOpen);
-                      setIsLocationSearchOpen(false);
-                    }}
-                  >
-                    <Search className="h-4 w-4 text-blue-600" />
-                    <input
-                      type="text"
-                      value={state.search}
-                      name="search"
-                      onChange={handleSearchInputChange}
-                      placeholder="Search jobs, category, companies..."
-                      className={`flex-1 bg-transparent outline-none ${
-                        isDark ? "placeholder-gray-400" : "placeholder-gray-500"
-                      }`}
-                    />
-                    {state.search && (
-                      <button onClick={clearSearch} className="p-1">
-                        <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
-                      </button>
-                    )}
-                    {isLoading && (
-                      <div
-                        className={`animate-spin rounded-full h-5 w-5 border-4 ${
-                          isDark
-                            ? "border-r-blue-300 border-b-blue-400 border-l-blue-500"
-                            : "border-r-blue-300 border-b-blue-400 border-l-blue-500"
-                        } border-t-transparent`}
-                      />
-                    )}
-                  </div>
-
-                  {isJobSearchOpen && (
-                    <div
-                      className={`absolute top-full left-0 right-0 mt-2 ${themeClasses} border rounded-lg shadow-xl z-50 p-4`}
-                    >
-                      <div className="space-y-3">
-                        <div className="flex items-center space-x-2 text-sm font-medium text-blue-600">
-                          <Briefcase className="h-4 w-4" />
-                          <span>Popular Searches</span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          {staticData.popularSearches.map((item, i) => (
-                            <div
-                              key={i}
-                              onClick={() => selectPopularSearch(item)}
-                              className={`p-2 rounded ${
-                                isDark
-                                  ? "hover:bg-gray-700"
-                                  : "hover:bg-blue-50"
-                              } cursor-pointer transition-colors`}
-                            >
-                              {item}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Location Search */}
-                <div className="relative w-64 dropdown-container">
-                  <div
-                    className={`${searchBgClasses} border rounded-lg px-4 py-2 flex items-center space-x-2 cursor-pointer hover:border-blue-400 transition-colors`}
-                    onClick={() => {
-                      setIsLocationSearchOpen(!isLocationSearchOpen);
-                      setIsJobSearchOpen(false);
-                    }}
-                  >
-                    <MapPin className="h-4 w-4 text-blue-600" />
-                    <input
-                      type="text"
-                      placeholder="Location"
-                      value={state.location}
-                      onChange={handleLocationInputChange}
-                      className={`flex-1 bg-transparent outline-none ${
-                        isDark ? "placeholder-gray-400" : "placeholder-gray-500"
-                      }`}
-                    />
-                    {isSearching && (
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-400 border-t-transparent" />
-                    )}
-                  </div>
-
-                  {isLocationSearchOpen && suggestions.length > 0 && (
-                    <div
-                      className={`absolute top-full left-0 right-0 mt-2 ${themeClasses} border rounded-lg shadow-xl z-50 p-4 max-h-64 overflow-y-auto`}
-                    >
-                      <div className="space-y-2">
-                        <div className="text-sm font-medium text-blue-600 mb-2">
-                          Suggestions
-                        </div>
-                        <div className="space-y-1">
-                          {suggestions.map((item, idx) => (
-                            <div
-                              key={idx}
-                              onClick={() => selectLocation(item)}
-                              className={`p-2 rounded cursor-pointer transition-colors flex items-center space-x-2 ${
-                                isDark
-                                  ? "hover:bg-gray-700"
-                                  : "hover:bg-blue-50"
-                              }`}
-                            >
-                              <MapPin className="h-3 w-3 text-gray-400" />
-                              <span className="truncate">
-                                {item.place_name}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : null}
+            {isHomePage && (
+              <SearchBars
+                clearSearch={clearSearch}
+                handleLocationInputChange={handleLocationInputChange}
+                handleSearchInputChange={handleSearchInputChange}
+                isJobSearchOpen={isJobSearchOpen}
+                isLoading={isLoading}
+                isLocationSearchOpen={isLocationSearchOpen}
+                isSearching={isSearching}
+                selectLocation={selectLocation}
+                selectPopularSearch={selectPopularSearch}
+                setIsJobSearchOpen={setIsJobSearchOpen}
+                setIsLocationSearchOpen={setIsLocationSearchOpen}
+                state={state}
+                suggestions={suggestions}
+                isMobileSearchOpen={isMobileSearchOpen}
+              />
+            )}
 
             {/* Right Section */}
             {user ? (
@@ -527,115 +430,23 @@ function Header() {
       </header>
 
       {/* Mobile Search Overlay */}
-      {user && isMobileSearchOpen && (
-        <div
-          className={`lg:hidden ${themeClasses} border-b shadow-lg px-4 py-4 space-y-4`}
-        >
-          {/* Job Search */}
-          <div className="relative dropdown-container">
-            <div
-              className={`${searchBgClasses} border rounded-lg px-4 py-3 flex items-center space-x-2 cursor-pointer hover:border-blue-400 transition-colors`}
-              onClick={() => {
-                setIsJobSearchOpen(!isJobSearchOpen);
-                setIsLocationSearchOpen(false);
-              }}
-            >
-              <Search className="h-4 w-4 text-blue-600" />
-              <input
-                type="text"
-                name="search"
-                value={state.search}
-                onChange={handleSearchInputChange}
-                placeholder="Search jobs, category, companies..."
-                className={`flex-1 bg-transparent outline-none ${
-                  isDark ? "placeholder-gray-400" : "placeholder-gray-500"
-                }`}
-              />
-              {state.search && (
-                <button onClick={clearSearch} className="p-1">
-                  <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
-                </button>
-              )}
-            </div>
-
-            {isJobSearchOpen && (
-              <div
-                className={`absolute top-full left-0 right-0 mt-2 ${themeClasses} border rounded-lg shadow-xl z-50 p-4`}
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-2 text-sm font-medium text-blue-600">
-                    <Briefcase className="h-4 w-4" />
-                    <span>Popular Searches</span>
-                  </div>
-                  <div className="space-y-2">
-                    {staticData.popularSearches.map((item, i) => (
-                      <div
-                        key={i}
-                        onClick={() => selectPopularSearch(item)}
-                        className={`p-3 rounded ${
-                          isDark ? "hover:bg-gray-700" : "hover:bg-blue-50"
-                        } cursor-pointer transition-colors`}
-                      >
-                        {item}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Location Search */}
-          <div className="relative dropdown-container">
-            <div
-              className={`${searchBgClasses} border rounded-lg px-4 py-3 flex items-center space-x-2 cursor-pointer hover:border-blue-400 transition-colors`}
-              onClick={() => {
-                setIsLocationSearchOpen(!isLocationSearchOpen);
-                setIsJobSearchOpen(false);
-              }}
-            >
-              <MapPin className="h-4 w-4 text-blue-600" />
-              <input
-                type="text"
-                placeholder="Location"
-                value={state.location}
-                onChange={handleLocationInputChange}
-                className={`flex-1 bg-transparent outline-none ${
-                  isDark ? "placeholder-gray-400" : "placeholder-gray-500"
-                }`}
-              />
-              {isSearching && (
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-400 border-t-transparent" />
-              )}
-            </div>
-
-            {isLocationSearchOpen && suggestions.length > 0 && (
-              <div
-                className={`absolute top-full left-0 right-0 mt-2 ${themeClasses} border rounded-lg shadow-xl z-50 p-4 max-h-64 overflow-y-auto`}
-              >
-                <div className="space-y-2">
-                  <div className="text-sm font-medium text-blue-600 mb-2">
-                    Suggestions
-                  </div>
-                  <div className="space-y-1">
-                    {suggestions.map((item, idx) => (
-                      <div
-                        key={idx}
-                        onClick={() => selectLocation(item)}
-                        className={`p-3 rounded cursor-pointer transition-colors flex items-center space-x-2 ${
-                          isDark ? "hover:bg-gray-700" : "hover:bg-blue-50"
-                        }`}
-                      >
-                        <MapPin className="h-3 w-3 text-gray-400" />
-                        <span className="truncate">{item.place_name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+      {isHomePage && (
+        <MobileSearchBar
+          clearSearch={clearSearch}
+          handleLocationInputChange={handleLocationInputChange}
+          handleSearchInputChange={handleSearchInputChange}
+          isJobSearchOpen={isJobSearchOpen}
+          isLocationSearchOpen={isLocationSearchOpen}
+          isMobileSearchOpen={isMobileSearchOpen}
+          isSearching={isSearching}
+          selectLocation={selectLocation}
+          selectPopularSearch={selectPopularSearch}
+          setIsJobSearchOpen={setIsJobSearchOpen}
+          setIsLocationSearchOpen={setIsLocationSearchOpen}
+          state={state}
+          staticData={staticData}
+          suggestions={suggestions}
+        />
       )}
     </>
   );

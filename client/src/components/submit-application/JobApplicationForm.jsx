@@ -8,16 +8,14 @@ import Loading from "../loader/Loading";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import ApplicationSuccessMessage from "./SuccessMessage";
+import { useDispatch } from "react-redux";
+import { showPopup } from "../../store/slices/popupSlice";
 
 const applyJob = async (formData) => {
-  try {
-    const res = await axios.post(envVariables.APPLY_JOB_URL, formData, {
-      withCredentials: true,
-    });
-    return res?.data;
-  } catch (error) {
-    console.log(error);
-  }
+  const res = await axios.post(envVariables.APPLY_JOB_URL, formData, {
+    withCredentials: true,
+  });
+  if (res?.data) return res?.data;
 };
 
 const JobApplicationForm = () => {
@@ -27,6 +25,7 @@ const JobApplicationForm = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+  const dispatch = useDispatch();
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -38,6 +37,10 @@ const JobApplicationForm = () => {
   }, [location.search]);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
     if (!url) {
       navigate("/");
     }
@@ -45,7 +48,7 @@ const JobApplicationForm = () => {
 
   const { data, isLoading } = useQuery({
     queryKey: ["job", url],
-    queryFn: ({ queryKey }) => fetchJobs({}, queryKey[1]),
+    queryFn: ({ queryKey }) => fetchJobs({}, queryKey[1], dispatch),
     refetchOnWindowFocus: false,
   });
 
@@ -99,8 +102,14 @@ const JobApplicationForm = () => {
         console.log(data);
       },
       onError: (error) => {
-        console.log(error);
-        setUploadError(error.message);
+        dispatch(
+          showPopup({
+            message: error?.response?.data?.message || "Failed to apply job",
+            type: "error",
+            visible: true,
+          })
+        );
+        setUploadError(error?.response?.data?.message || 'Failed to submit application! Please try again after sometime');
       },
     });
   };
@@ -146,7 +155,7 @@ const JobApplicationForm = () => {
               Apply for Position
             </h1>
             <p className={applyJobThemeClass.text.secondary}>
-              Submit your application for {jobData.title} at {jobData.company}
+              Submit your application for {jobData?.title} at {jobData?.company}
             </p>
           </div>
         </div>
@@ -158,7 +167,7 @@ const JobApplicationForm = () => {
           <div className="flex items-center gap-3">
             <img
               src={jobData?.companyLogo}
-              alt={`${jobData?.company} logo`}
+              alt="logo"
               className="w-12 h-12 rounded-lg object-cover"
             />
             <div>
