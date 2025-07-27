@@ -26,8 +26,6 @@ export const fetchJobs = async (filter = {}, url, dispatch = null) => {
         })
       );
     }
-    console.log(err.response);
-    console.log(err.data.response)
     console.error("Failed to fetch jobs:", err);
     throw new Error();
   }

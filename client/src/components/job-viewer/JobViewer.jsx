@@ -1,8 +1,8 @@
-import React, { useCallback, useContext, useEffect, useMemo } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 import { ThemeContext } from "../../contexts/ThemeContext";
 import { useQuery } from "@tanstack/react-query";
 import { envVariables } from "../../config";
-import { fetchJobs } from "../../utils/fetchJobs";
+import { fetchJobs } from "../../server/fetchJobs";
 
 import {
   MapPin,
@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Loading from "../loader/Loading";
+import useFormatSalary from "../../hooks/useFormatSalary";
+import useFormatDate from "../../hooks/useFormatDate";
 
 const JobViewer = () => {
   const {
@@ -45,26 +47,8 @@ const JobViewer = () => {
 
   const jobData = data?.data?.job;
 
-  const formatSalary = useCallback((min, max) => {
-    const formatNumber = (num) => {
-      if (num >= 100000) {
-        return `₹${(num / 100000).toFixed(1)}L`;
-      } else if (num >= 1000) {
-        return `₹${(num / 1000).toFixed(1)}K`;
-      } else {
-        return `₹${num}`;
-      }
-    };
-    return `${formatNumber(min)} - ${formatNumber(max)}`;
-  }, []);
-
-  const formatDate = useCallback((dateString) => {
-    return new Date(dateString).toLocaleDateString("en-IN", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  }, []);
+  const formatSalary = useFormatSalary();
+  const formatDate = useFormatDate();
 
   if (isLoading) return <Loading />;
 
@@ -305,6 +289,12 @@ const JobViewer = () => {
             className={`px-6 py-3 rounded-lg font-semibold border transition-colors cursor-pointer ${jobViewerThemeClass.button.secondary}`}
           >
             Share
+          </button>
+          <button
+            onClick={() => navigate("/")}
+            className={`px-6 py-3 rounded-lg font-semibold border transition-colors cursor-pointer ${jobViewerThemeClass.button.secondary}`}
+          >
+            Cancel
           </button>
         </div>
       </div>
