@@ -9,7 +9,7 @@ import JobsCard from "./jobsCard/JobsCard";
 import Pagination from "./pagination/Pagination";
 import { setLoading } from "../../store/slices/loadingSlice";
 import Loading from "../loader/Loading";
-import { fetchJobs } from "../../utils/fetchJobs";
+import { fetchJobs } from "../../server/fetchJobs";
 import { setJobs } from "../../store/slices/jobSlice";
 
 function Home() {
@@ -73,6 +73,8 @@ function Home() {
       page: data.toString(),
     }));
   };
+  
+  
 
   // Logged In Homepage
   const LoggedInHomepage = () => (

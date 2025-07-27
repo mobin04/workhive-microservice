@@ -1,24 +1,80 @@
-import React, { memo, useContext } from "react";
+import React, { memo, useContext, useEffect, useState } from "react";
 import { ThemeContext } from "../../../contexts/ThemeContext";
-import { Building2, Clock, Frown, MapPin, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import usePostedDate from "../../../hooks/usePostedDate";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { envVariables } from "../../../config";
+import { fetchJobs } from "../../../server/fetchJobs";
+import { toSaveJob } from "../../../store/slices/jobSlice";
+import saveJobToSaveList from "../../../server/saveJob";
+import { Bookmark, Building2, Clock, Frown, MapPin } from "lucide-react";
+import removeJobFromSaved from "../../../server/removeJobFromSaved";
 
 const JobsCard = () => {
   const navigate = useNavigate();
-  const { jobs } = useSelector((state) => state.jobs);
-  const posted = (timeString) => {
-    const postedDateInMs = new Date(timeString).getTime();
-    const timeDifferents = Date.now() - postedDateInMs;
-    const msInDays = 1000 * 60 * 60 * 24;
-    const daysAgo = timeDifferents / msInDays;
-    if (Math.round(daysAgo) === 0) {
-      return "Today";
+  const dispatch = useDispatch();
+  const { jobs, savedJobs } = useSelector((state) => state.jobs);
+  const [pendingJobs, setPendingJobs] = useState({});
+
+  const {
+    isDark,
+    dynamicFontColor,
+    themeClasses,
+    getJobTypeColor,
+    getJobLevelColor,
+  } = useContext(ThemeContext);
+
+  const { data, refetch } = useQuery({
+    queryKey: ["saved-jobs"],
+    queryFn: () => fetchJobs({}, envVariables.GET_SAVED_JOBS, null),
+    enabled: false,
+  });
+
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
+
+  useEffect(() => {
+    if (data) {
+      dispatch(toSaveJob(data?.data?.jobs));
     }
-    return `${Math.round(daysAgo)} days ago`;
+  }, [data, dispatch]);
+
+  const posted = usePostedDate();
+
+  const useSaveJob = (url, handleSaveJobs) => {
+    return useMutation({
+      mutationFn: (id) => handleSaveJobs(url, id),
+    });
   };
 
-  const { isDark, dynamicFontColor, themeClasses } = useContext(ThemeContext);
+  const mutations = {
+    saveJob: useSaveJob(envVariables.SAVE_JOB, saveJobToSaveList),
+    removeJob: useSaveJob(envVariables.REMOVE_SAVED_JOB, removeJobFromSaved),
+  };
+
+  const { mutateAsync: mutateAsyncSaveJob } = mutations.saveJob;
+  const { mutateAsync: mutateAsyncRemove } = mutations.removeJob;
+
+  const handleSave = async (id, mutateFn) => {
+    setPendingJobs((prev) => ({ ...prev, [id]: true }));
+    try {
+      await mutateFn(id);
+      await refetch();
+    } catch (err) {
+      console.error("failed:", err);
+    } finally {
+      setPendingJobs((prev) => ({ ...prev, [id]: false }));
+    }
+  };
+
+  const isJobSaved = (id) => {
+    const is = savedJobs?.some((saveJob) => saveJob._id === id);
+    if (is) return true;
+    return false;
+  };
+
   return (
     <div>
       {jobs && jobs?.data?.jobs.length !== 0 ? (
@@ -60,30 +116,27 @@ const JobsCard = () => {
                         </span>
                       </div>
                       <div className="flex flex-wrap gap-2 mt-3">
-                        <span
-                          className={`px-3 py-2 flex justify-center items-center ${
-                            isDark
-                              ? "text-white bg-blue-700"
-                              : "text-white bg-blue-500"
-                          } rounded text-sm`}
+                        <div
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getJobTypeColor(
+                            job.jobType
+                          )}`}
                         >
-                          {job.jobType.split("_").join(" ").toUpperCase()}
-                        </span>
-                        <span
-                          className={`px-3 py-2 flex justify-center items-center ${
-                            isDark
-                              ? "text-white bg-red-700"
-                              : "text-white bg-red-500"
-                          } rounded text-sm`}
+                          {job.jobType.replace("_", " ")}
+                        </div>
+
+                        <div
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getJobLevelColor(
+                            job.jobLevel
+                          )}`}
                         >
-                          {job.jobLevel.split("_").join(" ").toUpperCase()}
-                        </span>
+                          {job.jobLevel.replace("_", " ")}
+                        </div>
                         {job.salaryMinPerMonth && (
-                          <span
-                            className={`px-3 py-2 flex justify-center items-center ${
+                          <div
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border  ${
                               isDark
-                                ? "text-white bg-green-700"
-                                : "text-white bg-green-600"
+                                ? "bg-gray-700 text-gray-200 border-gray-500"
+                                : "bg-gray-200 text-gray-800 border-gray-400"
                             } rounded text-sm`}
                           >
                             {`${
@@ -95,19 +148,40 @@ const JobsCard = () => {
                                 ? Math.floor(job.salaryMaxPerMonth / 1000) + "k"
                                 : job.salaryMaxPerMonth
                             } / M`}
-                          </span>
+                          </div>
                         )}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3 mt-4 md:mt-0">
-                    <button
-                      className={`p-2 rounded-lg ${
-                        isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
-                      } transition-colors`}
-                    >
-                      <Star className="h-5 w-5" />
-                    </button>
+                    {isJobSaved(job._id) ? (
+                      <button
+                        onClick={() => handleSave(job?._id, mutateAsyncRemove)}
+                        className={`p-2 rounded-lg cursor-pointer ${
+                          isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                        } transition-colors`}
+                      >
+                        {pendingJobs[job._id] ? (
+                          <div className="animate-spin rounded-full w-4 h-4 border-2 border-b-transparent border-blue-500"></div>
+                        ) : (
+                          <Bookmark className="h-5 w-5 text-red-600 fill-red-600" />
+                        )}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleSave(job?._id, mutateAsyncSaveJob)}
+                        className={`p-2 rounded-lg cursor-pointer ${
+                          isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                        } transition-colors`}
+                      >
+                        {pendingJobs[job._id] ? (
+                          <div className="animate-spin rounded-full w-4 h-4 border-2 border-b-transparent border-red-500"></div>
+                        ) : (
+                          <Bookmark className="h-5 w-5" />
+                        )}
+                      </button>
+                    )}
+
                     <button
                       onClick={() => navigate(`/job?id=${job._id}`)}
                       className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"

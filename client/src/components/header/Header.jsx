@@ -13,7 +13,7 @@ import axios from "axios";
 import { envVariables } from "../../config";
 import { setUser } from "../../store/slices/userSlice";
 import { useQuery } from "@tanstack/react-query";
-import { fetchJobs } from "../../utils/fetchJobs";
+import { fetchJobs } from "../../server/fetchJobs";
 import { setJobs } from "../../store/slices/jobSlice";
 import { useDebounce } from "../../hooks/useDebounce";
 import { Bell, Briefcase, Moon, Search, Sun, X } from "lucide-react";
@@ -94,7 +94,7 @@ function Header() {
 
   const searchQuery = createSearchQuery();
 
-  // React Query for fetching jobs
+  // fetching jobs
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["jobs", searchQuery],
     queryFn: ({ queryKey }) => fetchJobs(queryKey[1], GET_JOB_URL),
@@ -109,7 +109,6 @@ function Header() {
     }
   }, [data, reduxDispatch]);
 
-  // Trigger search when search parameters change
   useEffect(() => {
     const shouldSearch =
       (debouncedSearch && debouncedSearch.trim().length >= 2) ||
@@ -200,7 +199,7 @@ function Header() {
         reduxDispatch(setUser(null));
         reduxDispatch(
           showPopup({
-            message: "Logged out successfully!",
+            message: "Sign out successfully!",
             type: "success",
             visible: true,
           })
@@ -372,10 +371,13 @@ function Header() {
                         My Applications
                       </a>
                       <a
-                        href="#"
+                        onClick={() => {
+                          navigate("/saved-jobs");
+                          setProfileDropdownOpen(false);
+                        }}
                         className={`block px-4 py-2 ${
                           isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
-                        } transition-colors`}
+                        } transition-colors cursor-pointer`}
                       >
                         Saved Jobs
                       </a>
@@ -388,7 +390,10 @@ function Header() {
                           className={`w-full text-left px-4 py-2 text-red-600 ${
                             isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
                           } transition-colors`}
-                          onClick={signOut}
+                          onClick={() => {
+                            signOut();
+                            setProfileDropdownOpen(false);
+                          }}
                         >
                           Sign Out
                         </button>

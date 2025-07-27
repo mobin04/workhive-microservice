@@ -28,4 +28,9 @@ export const envVariables = {
   // 🔹Submit Application (apply job)
   APPLY_JOB_URL: `${import.meta.env.VITE_API_URL}/applications`,
   // APPLY_JOB_URL: `http://localhost:8004/api/v2/applications`
+  
+  // 🔹Save Jobs
+  GET_SAVED_JOBS: `${import.meta.env.VITE_API_URL}/auth/saved-jobs`,
+  SAVE_JOB: `${import.meta.env.VITE_API_URL}/auth/save-job`,
+  REMOVE_SAVED_JOB: `${import.meta.env.VITE_API_URL}/auth/saved-job`,
 };

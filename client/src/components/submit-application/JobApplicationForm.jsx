@@ -3,7 +3,7 @@ import { ThemeContext } from "../../contexts/ThemeContext";
 import { Upload, X, Check, AlertCircle, FileImage, User } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { envVariables } from "../../config";
-import { fetchJobs } from "../../utils/fetchJobs";
+import { fetchJobs } from "../../server/fetchJobs";
 import Loading from "../loader/Loading";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";

@@ -254,6 +254,29 @@ export function ThemeContextProvider({ children }) {
     [isDark]
   );
 
+  const saveJobThemes = useMemo(
+    () => ({
+      themeClasses: isDark
+        ? "bg-gray-900 text-white"
+        : "bg-gray-50 text-gray-900",
+
+      cardClasses: isDark
+        ? "bg-gray-800 border-gray-700 hover:bg-gray-750"
+        : "bg-white border-gray-200 hover:bg-gray-50",
+
+      inputClasses: isDark
+        ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500",
+      activeStatusClasses: isDark
+        ? "bg-green-900 text-green-200 border-green-700"
+        : "bg-green-100 text-green-800 border-green-300",
+      closeStatusClasses: isDark
+        ? "bg-red-900 text-red-200 border-red-700"
+        : "bg-red-100 text-red-800 border-red-300",
+    }),
+    [isDark]
+  );
+
   const themeContextValue = useMemo(
     () => ({
       isDark,
@@ -272,6 +295,7 @@ export function ThemeContextProvider({ children }) {
       applyJobThemeClass,
       errorColorSchemes,
       errorThemeClass,
+      saveJobThemes,
     }),
     [
       isDark,
@@ -290,6 +314,7 @@ export function ThemeContextProvider({ children }) {
       applyJobThemeClass,
       errorColorSchemes,
       errorThemeClass,
+      saveJobThemes,
     ]
   );
 

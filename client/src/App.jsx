@@ -19,6 +19,7 @@ import ErrorComponent from "./components/error-page/ErrorPage";
 import Popup from "./components/info-popup/Popup";
 import { showPopup } from "./store/slices/popupSlice";
 import { showError } from "./store/slices/errorSlice";
+import SavedJobs from "./components/saved-jobs/SavedJobs";
 
 function App() {
   const { popup } = useSelector((state) => state.popup);
@@ -75,6 +76,7 @@ function App() {
         <Route path="/magic-login" element={<VerifyMagicLogin />} />
         <Route path="/job" element={<JobViewer />} />
         <Route path="/apply" element={<JobApplicationForm />} />
+        <Route path="/saved-jobs" element={<SavedJobs/>} />
         <Route
           path="*"
           element={
