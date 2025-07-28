@@ -3,7 +3,15 @@ import { ThemeContext } from "../../contexts/ThemeContext";
 import { useQuery } from "@tanstack/react-query";
 import { envVariables } from "../../config";
 import { fetchJobs } from "../../server/fetchJobs";
-
+import { useLocation, useNavigate } from "react-router-dom";
+import Loading from "../loader/Loading";
+import useFormatSalary from "../../hooks/useFormatSalary";
+import useFormatDate from "../../hooks/useFormatDate";
+import useSaveAndRemoveJob from "../../hooks/useSaveAndRemoveJob";
+import saveJobToSaveList from "../../server/saveJob";
+import removeJobFromSaved from "../../server/removeJobFromSaved";
+import { useSelector } from "react-redux";
+import useFetchSavedJobs from "../../hooks/useFetchSavedJobs";
 import {
   MapPin,
   Calendar,
@@ -14,11 +22,8 @@ import {
   Tag,
   CheckCircle,
   XCircle,
+  Bookmark,
 } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
-import Loading from "../loader/Loading";
-import useFormatSalary from "../../hooks/useFormatSalary";
-import useFormatDate from "../../hooks/useFormatDate";
 
 const JobViewer = () => {
   const {
@@ -29,6 +34,7 @@ const JobViewer = () => {
   } = useContext(ThemeContext);
   const location = useLocation();
   const navigate = useNavigate();
+  const { savedJobs } = useSelector((state) => state.jobs);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -49,6 +55,27 @@ const JobViewer = () => {
 
   const formatSalary = useFormatSalary();
   const formatDate = useFormatDate();
+
+  const { refetch } = useFetchSavedJobs();
+
+  // Handle save job
+  const { handleSave, pendingJobs: savePending } = useSaveAndRemoveJob(
+    (id) => saveJobToSaveList(envVariables.SAVE_JOB, id),
+    refetch
+  );
+
+  // Hanlde remove job from saved list
+  const { handleSave: handleRemove, pendingJobs: removePending } =
+    useSaveAndRemoveJob(
+      (id) => removeJobFromSaved(envVariables.REMOVE_SAVED_JOB, id),
+      refetch
+    );
+
+  const isJobSaved = (id) => {
+    const is = savedJobs?.some((saveJob) => saveJob._id === id);
+    if (is) return true;
+    return false;
+  };
 
   if (isLoading) return <Loading />;
 
@@ -275,18 +302,46 @@ const JobViewer = () => {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3">
           <button
-            onClick={() => navigate(`/apply?id=${jobData._id}`)}
+            onClick={() => navigate(`/apply?id=${jobData?._id}`)}
             className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-colors cursor-pointer ${jobViewerThemeClass.button.primary}`}
           >
             Apply Now
           </button>
+
+          {isJobSaved(jobData?._id) ? (
+            <button
+              onClick={() => handleRemove(jobData?._id)}
+              disabled={removePending[jobData?._id]}
+              className={`min-h-14 min-w-30 flex justify-center items-center px-6 py-3 rounded-lg font-semibold border transition-colors cursor-pointer ${jobViewerThemeClass.button.secondary}`}
+            >
+              {removePending[jobData?._id] ? (
+                <div className="animate-spin rounded-full w-5 h-5 border-3 border-b-transparent border-blue-500"></div>
+              ) : (
+                <div className="flex justify-center items-center gap-1 ">
+                  <Bookmark className="text-red-600 fill-red-600" />
+                  saved
+                </div>
+              )}
+            </button>
+          ) : (
+            <button
+              onClick={() => handleSave(jobData?._id)}
+              disabled={savePending[jobData._id]}
+              className={`min-h-14 min-w-30 flex justify-center items-center px-6 py-3 rounded-lg font-semibold border transition-colors cursor-pointer ${jobViewerThemeClass.button.secondary}`}
+            >
+              {savePending[jobData._id] ? (
+                <div className="animate-spin rounded-full w-5 h-5 border-3 border-b-transparent border-red-500"></div>
+              ) : (
+                <div className="flex justify-center items-center gap-1 ">
+                  <Bookmark className="h-5 w-5" />
+                  save
+                </div>
+              )}
+            </button>
+          )}
+
           <button
-            className={`px-6 py-3 rounded-lg font-semibold border transition-colors cursor-pointer ${jobViewerThemeClass.button.secondary}`}
-          >
-            Save Job
-          </button>
-          <button
-            className={`px-6 py-3 rounded-lg font-semibold border transition-colors cursor-pointer ${jobViewerThemeClass.button.secondary}`}
+            className={` px-6 py-3 rounded-lg font-semibold border transition-colors cursor-pointer ${jobViewerThemeClass.button.secondary}`}
           >
             Share
           </button>
