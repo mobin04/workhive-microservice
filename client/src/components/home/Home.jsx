@@ -74,8 +74,6 @@ function Home() {
     }));
   };
   
-  
-
   // Logged In Homepage
   const LoggedInHomepage = () => (
     <div className={`${bodyThemeClasses}`}>

@@ -1,18 +1,30 @@
 import React, { memo, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { ThemeContext } from "../../../contexts/ThemeContext";
-import { Bookmark, Building2, Clock, Frown, MapPin } from "lucide-react";
+import {
+  Bookmark,
+  Building2,
+  Clock,
+  Frown,
+  MapPin,
+  ThumbsUp,
+} from "lucide-react";
 import usePostedDate from "../../../hooks/usePostedDate";
 import { envVariables } from "../../../config";
 import saveJobToSaveList from "../../../server/saveJob";
 import removeJobFromSaved from "../../../server/removeJobFromSaved";
 import useSaveAndRemoveJob from "../../../hooks/useSaveAndRemoveJob";
 import useFetchSavedJobs from "../../../hooks/useFetchSavedJobs";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import useFormatSalary from "../../../hooks/useFormatSalary";
+import { likeJob, undoLikeJob } from "../../../store/slices/jobSlice";
+import { likeJobApi, undoLikeJobApi } from "../../../server/likeJob";
 
 const JobsCard = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { jobs, savedJobs } = useSelector((state) => state.jobs);
+  const { user } = useSelector((state) => state.user);
 
   const {
     isDark,
@@ -22,7 +34,7 @@ const JobsCard = () => {
     getJobLevelColor,
   } = useContext(ThemeContext);
 
-  const {refetch} = useFetchSavedJobs();
+  const { refetch } = useFetchSavedJobs();
 
   const posted = usePostedDate();
 
@@ -44,6 +56,32 @@ const JobsCard = () => {
     if (is) return true;
     return false;
   };
+
+  const handleAddLike = async (jobId) => {
+    dispatch(likeJob({ userId: user?._id, jobId }));
+    try {
+      await likeJobApi(jobId);
+    } catch (err) {
+      console.log("ERROR LIKE" + err);
+      dispatch(undoLikeJob({ userId: user?._id, jobId }));
+    }
+  };
+
+  const handleUndoLike = async (jobId) => {
+    dispatch(undoLikeJob({ userId: user?._id, jobId }));
+    try {
+      await undoLikeJobApi(jobId);
+    } catch (err) {
+      console.log("ERROR UNDO LIKE" + err);
+      dispatch(likeJob({ userId: user?._id, jobId }));
+    }
+  };
+
+  const hasLiked = (job) => {
+    return job.likes?.includes(user?._id);
+  };
+
+  const formatSalary = useFormatSalary();
 
   return (
     <div>
@@ -84,6 +122,12 @@ const JobsCard = () => {
                           <Clock className="h-4 w-4" />
                           <span>{posted(job.createdAt)}</span>
                         </span>
+                        {job?.likes?.length > 0 ? (
+                          <span className="flex items-center space-x-1 text-blue-400">
+                            <ThumbsUp className="h-4 w-4" />
+                            <span className="">{job?.likes?.length}</span>
+                          </span>
+                        ) : null}
                       </div>
                       <div className="flex flex-wrap gap-2 mt-3">
                         <div
@@ -109,21 +153,36 @@ const JobsCard = () => {
                                 : "bg-gray-200 text-gray-800 border-gray-400"
                             } rounded text-sm`}
                           >
-                            {`${
-                              job.salaryMinPerMonth > 1000
-                                ? Math.floor(job.salaryMinPerMonth / 1000) + "k"
-                                : job.salaryMinPerMonth
-                            } - ${
-                              job.salaryMaxPerMonth > 1000
-                                ? Math.floor(job.salaryMaxPerMonth / 1000) + "k"
-                                : job.salaryMaxPerMonth
-                            } / M`}
+                            {formatSalary(
+                              job?.salaryMinPerMonth,
+                              job?.salaryMaxPerMonth
+                            )}
                           </div>
                         )}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3 mt-4 md:mt-0">
+                    {hasLiked(job) ? (
+                      <button
+                        onClick={() => handleUndoLike(job?._id)}
+                        className={`group flex justify-center items-center p-2 min-w-10 rounded-lg cursor-pointer ${
+                          isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                        } transition-colors`}
+                      >
+                        <ThumbsUp className="h-5 w-5 group-hover:-rotate-6 group-hover:scale-110  text-blue-500 transition-all duration-200" />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleAddLike(job?._id)}
+                        className={`group flex justify-center items-center p-2 min-w-10 rounded-lg cursor-pointer ${
+                          isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                        } transition-colors`}
+                      >
+                        <ThumbsUp className="h-5 w-5 group-hover:-rotate-6 group-hover:scale-110 group-hover:text-blue-500 transition-all duration-200" />
+                      </button>
+                    )}
+
                     {isJobSaved(job._id) ? (
                       <button
                         onClick={() => handleRemove(job?._id)}

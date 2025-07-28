@@ -33,4 +33,8 @@ export const envVariables = {
   GET_SAVED_JOBS: `${import.meta.env.VITE_API_URL}/auth/saved-jobs`,
   SAVE_JOB: `${import.meta.env.VITE_API_URL}/auth/save-job`,
   REMOVE_SAVED_JOB: `${import.meta.env.VITE_API_URL}/auth/saved-job`,
+  
+  // 🔹Handle like job
+  ADD_LIKE_URL: `${import.meta.env.VITE_API_URL}/jobs/like`,
+  UNDO_LIKE_URL: `${import.meta.env.VITE_API_URL}/jobs`
 };
