@@ -17,6 +17,8 @@ jest.mock('../database/repository', () => ({
     GetJobByJobId: jest.fn(),
     PushApplication: jest.fn(),
     PullApplication: jest.fn(),
+    AddLike: jest.fn(),
+    RemoveLike: jest.fn(),
   })),
 }));
 
@@ -939,5 +941,131 @@ describe('JobService - RPCAuthObserver', () => {
     await expect(service.RPCAuthObserver(mockChannel)).rejects.toThrow(
       'Exchange failure'
     );
+  });
+});
+
+describe('JobService - AddLike', () => {
+  let service;
+  let mockRepo;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    service = new JobService();
+    mockRepo = service.jobRepository;
+  });
+
+  it('Should throw error if no job found with the specific id', async () => {
+    mockRepo.GetJobByJobId.mockResolvedValue(false);
+    await expect(
+      service.AddLike({ userId: 'u123', jobId: 'job123' })
+    ).rejects.toThrow('No job found with that id!');
+  });
+
+  it('Should throw error if user already like that job', async () => {
+    mockRepo.GetJobByJobId.mockResolvedValueOnce({
+      title: 'job123',
+      likes: ['user123'],
+    });
+
+    await expect(
+      service.AddLike({ userId: 'user123', jobId: 'job123' })
+    ).rejects.toThrow('User already liked this job!');
+  });
+
+  it('Should throw internal server error if add like is failed', async () => {
+    mockRepo.GetJobByJobId.mockResolvedValueOnce({
+      title: 'job123',
+      likes: ['user123'],
+    });
+
+    mockRepo.AddLike.mockResolvedValue(false);
+
+    await expect(
+      service.AddLike({ userId: 'user456', jobId: 'job123' })
+    ).rejects.toThrow('Failed to like job!');
+  });
+
+  it('Should return add like message successfully', async () => {
+    mockRepo.GetJobByJobId.mockResolvedValueOnce({
+      title: 'job123',
+      likes: ['user123'],
+    });
+
+    mockRepo.AddLike.mockResolvedValue(true);
+
+    const result = await service.AddLike({
+      userId: 'user456',
+      jobId: 'job123',
+    });
+
+    expect(result).toHaveProperty('data');
+    expect(result.data).toBe('Job liked successfully!');
+    expect(mockRepo.AddLike).toHaveBeenCalled();
+    expect(mockRepo.GetJobByJobId).toHaveBeenCalled();
+  });
+});
+
+describe('JobService - RemoveLike', () => {
+  let service;
+  let mockRepo;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    service = new JobService();
+    mockRepo = service.jobRepository;
+  });
+
+  it('Should throw error if no job was found', async () => {
+    mockRepo.GetJobByJobId.mockResolvedValue(null);
+    await expect(
+      service.RemoveLike({ userId: 'u123', jobId: 'j123' })
+    ).rejects.toThrow('No job found with that id!');
+  });
+
+  it('Should throw error if user not liked the job', async () => {
+    mockRepo.GetJobByJobId.mockResolvedValueOnce({
+      title: 'job',
+      likes: ['not-included-123'],
+      _id: 'j123',
+    });
+
+    await expect(
+      service.RemoveLike({ userId: 'u123', jobId: 'j123' })
+    ).rejects.toThrow(
+      `You can't remove like! Since you are not liked this job`
+    );
+  });
+
+  it('Should throw internal server error if remove like is failed ', async () => {
+    mockRepo.GetJobByJobId.mockResolvedValueOnce({
+      title: 'job',
+      likes: ['u123'],
+      _id: 'j123',
+    });
+
+    mockRepo.RemoveLike.mockResolvedValue(null);
+
+    await expect(
+      service.RemoveLike({ userId: 'u123', jobId: 'j123' })
+    ).rejects.toThrow(`Failed to remove like`);
+  });
+
+  it('Should return remove like message successfully', async () => {
+    mockRepo.GetJobByJobId.mockResolvedValueOnce({
+      title: 'job123',
+      likes: ['user123'],
+    });
+
+    mockRepo.RemoveLike.mockResolvedValue(true);
+
+    const result = await service.RemoveLike({
+      userId: 'user123',
+      jobId: 'job123',
+    });
+
+    expect(result).toHaveProperty('data');
+    expect(result.data).toBe('Like removed successfully!');
+    expect(mockRepo.RemoveLike).toHaveBeenCalled();
+    expect(mockRepo.GetJobByJobId).toHaveBeenCalled();
   });
 });

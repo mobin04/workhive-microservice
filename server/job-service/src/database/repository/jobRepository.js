@@ -47,7 +47,7 @@ class JobRepository {
   }
 
   async GetJobById(input) {
-    const {id} = input;
+    const { id } = input;
     try {
       const job = await Job.findOne({ applications: id });
       return job;
@@ -229,7 +229,37 @@ class JobRepository {
       });
 
       if (!job) return false;
-      
+
+      return true;
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
+  async AddLike(input) {
+    const { userId, jobId } = input;
+    try {
+      const job = await Job.findByIdAndUpdate(jobId, {
+        $addToSet: { likes: userId },
+      });
+
+      if (!job) return false;
+
+      return true;
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
+  async RemoveLike(input) {
+    const { userId, jobId } = input;
+    try {
+      const job = await Job.findByIdAndUpdate(jobId, {
+        $pull: { likes: userId },
+      });
+
+      if (!job) return false;
+
       return true;
     } catch (err) {
       throw new AppError(err.message, err.statusCode);
@@ -242,7 +272,7 @@ class JobRepository {
       const job = await Job.findByIdAndUpdate(id, {
         $pull: { applications: applicationId },
       });
-      
+
       if (!job) return false;
 
       return true;

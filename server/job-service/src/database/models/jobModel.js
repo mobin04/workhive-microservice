@@ -96,6 +96,7 @@ const jobSchema = new mongoose.Schema(
       },
       required: true,
     },
+    likes: [{ type: mongoose.Schema.Types.ObjectId }],
     status: {
       type: String,
       enum: {
