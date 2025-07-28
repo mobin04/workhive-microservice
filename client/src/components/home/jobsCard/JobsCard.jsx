@@ -1,21 +1,18 @@
-import React, { memo, useContext, useEffect, useState } from "react";
-import { ThemeContext } from "../../../contexts/ThemeContext";
+import React, { memo, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import usePostedDate from "../../../hooks/usePostedDate";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { envVariables } from "../../../config";
-import { fetchJobs } from "../../../server/fetchJobs";
-import { toSaveJob } from "../../../store/slices/jobSlice";
-import saveJobToSaveList from "../../../server/saveJob";
+import { ThemeContext } from "../../../contexts/ThemeContext";
 import { Bookmark, Building2, Clock, Frown, MapPin } from "lucide-react";
+import usePostedDate from "../../../hooks/usePostedDate";
+import { envVariables } from "../../../config";
+import saveJobToSaveList from "../../../server/saveJob";
 import removeJobFromSaved from "../../../server/removeJobFromSaved";
+import useSaveAndRemoveJob from "../../../hooks/useSaveAndRemoveJob";
+import useFetchSavedJobs from "../../../hooks/useFetchSavedJobs";
+import { useSelector } from "react-redux";
 
 const JobsCard = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const { jobs, savedJobs } = useSelector((state) => state.jobs);
-  const [pendingJobs, setPendingJobs] = useState({});
 
   const {
     isDark,
@@ -25,49 +22,22 @@ const JobsCard = () => {
     getJobLevelColor,
   } = useContext(ThemeContext);
 
-  const { data, refetch } = useQuery({
-    queryKey: ["saved-jobs"],
-    queryFn: () => fetchJobs({}, envVariables.GET_SAVED_JOBS, null),
-    enabled: false,
-  });
-
-  useEffect(() => {
-    refetch();
-  }, [refetch]);
-
-  useEffect(() => {
-    if (data) {
-      dispatch(toSaveJob(data?.data?.jobs));
-    }
-  }, [data, dispatch]);
+  const {refetch} = useFetchSavedJobs();
 
   const posted = usePostedDate();
 
-  const useSaveJob = (url, handleSaveJobs) => {
-    return useMutation({
-      mutationFn: (id) => handleSaveJobs(url, id),
-    });
-  };
+  // Handle save job
+  const { handleSave, pendingJobs: savePending } = useSaveAndRemoveJob(
+    (id) => saveJobToSaveList(envVariables.SAVE_JOB, id),
+    refetch
+  );
 
-  const mutations = {
-    saveJob: useSaveJob(envVariables.SAVE_JOB, saveJobToSaveList),
-    removeJob: useSaveJob(envVariables.REMOVE_SAVED_JOB, removeJobFromSaved),
-  };
-
-  const { mutateAsync: mutateAsyncSaveJob } = mutations.saveJob;
-  const { mutateAsync: mutateAsyncRemove } = mutations.removeJob;
-
-  const handleSave = async (id, mutateFn) => {
-    setPendingJobs((prev) => ({ ...prev, [id]: true }));
-    try {
-      await mutateFn(id);
-      await refetch();
-    } catch (err) {
-      console.error("failed:", err);
-    } finally {
-      setPendingJobs((prev) => ({ ...prev, [id]: false }));
-    }
-  };
+  // Hanlde remove job from saved list
+  const { handleSave: handleRemove, pendingJobs: removePending } =
+    useSaveAndRemoveJob(
+      (id) => removeJobFromSaved(envVariables.REMOVE_SAVED_JOB, id),
+      refetch
+    );
 
   const isJobSaved = (id) => {
     const is = savedJobs?.some((saveJob) => saveJob._id === id);
@@ -156,12 +126,13 @@ const JobsCard = () => {
                   <div className="flex items-center space-x-3 mt-4 md:mt-0">
                     {isJobSaved(job._id) ? (
                       <button
-                        onClick={() => handleSave(job?._id, mutateAsyncRemove)}
-                        className={`p-2 rounded-lg cursor-pointer ${
+                        onClick={() => handleRemove(job?._id)}
+                        disabled={removePending[job._id]}
+                        className={`flex justify-center items-center p-2 min-w-10 rounded-lg cursor-pointer ${
                           isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
                         } transition-colors`}
                       >
-                        {pendingJobs[job._id] ? (
+                        {removePending[job._id] ? (
                           <div className="animate-spin rounded-full w-4 h-4 border-2 border-b-transparent border-blue-500"></div>
                         ) : (
                           <Bookmark className="h-5 w-5 text-red-600 fill-red-600" />
@@ -169,12 +140,13 @@ const JobsCard = () => {
                       </button>
                     ) : (
                       <button
-                        onClick={() => handleSave(job?._id, mutateAsyncSaveJob)}
-                        className={`p-2 rounded-lg cursor-pointer ${
+                        onClick={() => handleSave(job?._id)}
+                        disabled={savePending[job._id]}
+                        className={`flex justify-center items-center p-2 min-w-10 rounded-lg cursor-pointer ${
                           isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
                         } transition-colors`}
                       >
-                        {pendingJobs[job._id] ? (
+                        {savePending[job._id] ? (
                           <div className="animate-spin rounded-full w-4 h-4 border-2 border-b-transparent border-red-500"></div>
                         ) : (
                           <Bookmark className="h-5 w-5" />

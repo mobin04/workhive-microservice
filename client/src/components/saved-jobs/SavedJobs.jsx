@@ -9,6 +9,9 @@ import Loading from "../loader/Loading";
 import { fetchJobs } from "../../server/fetchJobs";
 import { useDispatch, useSelector } from "react-redux";
 import { toSaveJob } from "../../store/slices/jobSlice";
+import useSaveAndRemoveJob from "../../hooks/useSaveAndRemoveJob";
+import removeJobFromSaved from "../../server/removeJobFromSaved";
+import { useNavigate } from "react-router-dom";
 import {
   Search,
   MapPin,
@@ -22,6 +25,8 @@ import {
 
 const SavedJobs = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
+  
   const { savedJobs } = useSelector((state) => state.jobs);
   const dispatch = useDispatch();
   const { isDark, getJobTypeColor, getJobLevelColor, saveJobThemes } =
@@ -60,6 +65,13 @@ const SavedJobs = () => {
   const formatSalary = useFormatSalary();
   const formatDate = useFormatDate();
   const posted = usePostedDate();
+
+  // Hanlde remove job from saved list
+  const { handleSave: handleRemove, pendingJobs: removePending } =
+    useSaveAndRemoveJob(
+      (id) => removeJobFromSaved(envVariables.REMOVE_SAVED_JOB, id),
+      refetch
+    );
 
   if (isLoading) return <Loading />;
   return (
@@ -207,7 +219,7 @@ const SavedJobs = () => {
                           </div>
                           <span
                             className={`mt-3 md:mt-0 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${
-                              job.status === "active"
+                              job?.status === "open"
                                 ? saveJobThemes.activeStatusClasses
                                 : saveJobThemes.closeStatusClasses
                             }`}
@@ -236,6 +248,7 @@ const SavedJobs = () => {
                           {/* Action Buttons */}
                           <div className="flex items-center space-x-2">
                             <button
+                              onClick={() => navigate(`/job?id=${job?._id}`)}
                               className={`p-2 rounded-lg ${
                                 isDark
                                   ? "hover:bg-gray-700"
@@ -245,13 +258,18 @@ const SavedJobs = () => {
                               <ExternalLink className="h-4 w-4" />
                             </button>
                             <button
+                              onClick={() => handleRemove(job._id)}
                               className={`p-2 cursor-pointer rounded-lg ${
                                 isDark
                                   ? "hover:bg-gray-700"
                                   : "hover:bg-red-200"
                               } text-red-500 transition-colors`}
                             >
-                              <Trash2 className="h-4 w-4" />
+                              {removePending[job._id] ? (
+                                <div className="animate-spin rounded-full w-4 h-4 border-2 border-b-transparent border-blue-500"></div>
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
                             </button>
                           </div>
                         </div>
