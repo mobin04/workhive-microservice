@@ -309,12 +309,19 @@ const JobApplicationForm = () => {
           </div>
 
           {/* Submit Button */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex justify-between gap-3 pt-4">
+            <button
+              type="button"
+              onClick={() => navigate(`/job?id=${jobData?._id}`)}
+              className={`px-6 py-3 cursor-pointer rounded-lg font-semibold border transition-colors ${applyJobThemeClass.button.secondary}`}
+            >
+              Cancel
+            </button>
             <button
               type="button"
               onClick={handleSubmit}
               disabled={!resumeFile || isPending}
-              className={`flex-1 ${
+              className={`flex ${
                 isDark
                   ? "disabled:bg-gray-800 disabled:text-gray-600"
                   : "disabled:bg-gray-300 disabled:text-gray-400"
@@ -333,13 +340,6 @@ const JobApplicationForm = () => {
                   Submit Application
                 </>
               )}
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate(`/job?id=${jobData?._id}`)}
-              className={`px-6 py-3 cursor-pointer rounded-lg font-semibold border transition-colors ${applyJobThemeClass.button.secondary}`}
-            >
-              Cancel
             </button>
           </div>
         </div>
