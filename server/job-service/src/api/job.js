@@ -429,6 +429,62 @@ module.exports = (app, channel) => {
 
   /**
    * @swagger
+   * /api/v2/jobs/like/{id}:
+   *   patch:
+   *     summary: Like the job
+   *     security:
+   *       - bearerAuth: []
+   *       - jwt: []
+   *     tags:
+   *       - Job
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Job ID
+   *     responses:
+   *       201:
+   *         description: Job liked successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                 message:
+   *                   type: string
+   *       204:
+   *          description: No job found with that id
+   *       400:
+   *          description: User already liked this job
+   *       500:
+   *          description: Failed to like job
+   */
+
+  // 🔹Like job
+  app.post(
+    `${baseUrl}/like/:id`,
+    authMiddleware.protect,
+    authMiddleware.restrictTo('job_seeker'),
+    catchAsync(async (req, res, next) => {
+      const userId = req.user._id;
+      const jobId = req.params.id;
+      if (!jobId) return next(new AppError('Job id not found!', 400));
+
+      const { data } = await service.AddLike({ userId, jobId });
+
+      res.status(200).json({
+        status: 'success',
+        message: data,
+      });
+    })
+  );
+
+  /**
+   * @swagger
    * /api/v2/jobs/{id}/renew:
    *   patch:
    *     summary: Renew job expiration (employer or admin)
@@ -485,6 +541,60 @@ module.exports = (app, channel) => {
         data: {
           renewedJob: data,
         },
+      });
+    })
+  );
+
+  /**
+   * @swagger
+   * /api/v2/jobs/{id}/like:
+   *   patch:
+   *     summary: Remove like for logged in job seekers
+   *     security:
+   *       - bearerAuth: []
+   *       - jwt: []
+   *     tags:
+   *       - Job
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Job ID
+   *     responses:
+   *      201:
+   *         description: Like removed successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                 message:
+   *                   type: string
+   *      400:
+   *        description: Job id not found!, You can't remove like! Since you are not liked this job
+   *      404: 
+   *        description: No job found with that id
+   *      500:
+   *        description: Failed to remove like
+   *      
+   */            
+
+  app.patch(
+    `${baseUrl}/:id/like`,
+    authMiddleware.protect,
+    authMiddleware.restrictTo('job_seeker'),
+    catchAsync(async (req, res, next) => {
+      const userId = req.user._id;
+      const jobId = req.params.id;
+      if (!jobId) return next(new AppError('Job id not found!', 400));
+      const { data } = await service.RemoveLike({ userId, jobId });
+      res.status(200).json({
+        status: 'success',
+        message: data,
       });
     })
   );

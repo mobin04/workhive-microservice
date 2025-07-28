@@ -265,6 +265,48 @@ class JobService {
     }
   }
 
+  async AddLike(userInput) {
+    const { userId, jobId } = userInput;
+    try {
+      const job = await this.jobRepository.GetJobByJobId({ id: jobId });
+      if (!job) throw new AppError('No job found with that id!', 404);
+
+      const isLiked = job.likes.some((like) => like.toString() === userId);
+
+      if (isLiked) throw new AppError('User already liked this job!', 400);
+
+      const likeJob = await this.jobRepository.AddLike({ userId, jobId });
+      if (!likeJob) throw new AppError('Failed to like job!', 500);
+      return formatData('Job liked successfully!');
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
+  async RemoveLike(userInput) {
+    const { userId, jobId } = userInput;
+    try {
+      const job = await this.jobRepository.GetJobByJobId({ id: jobId });
+      if (!job) throw new AppError('No job found with that id!', 404);
+
+      const isLiked = job.likes.some((like) => like.toString() === userId);
+
+      if (!isLiked)
+        throw new AppError(
+          `You can't remove like! Since you are not liked this job`, 
+          400
+        );
+
+      const removeLike = await this.jobRepository.RemoveLike({ userId, jobId });
+
+      if (!removeLike) throw new AppError('Failed to remove like!', 500);
+
+      return formatData('Like removed successfully!');
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
   // RabbitMQ
   async RPCObserver(channel) {
     try {
