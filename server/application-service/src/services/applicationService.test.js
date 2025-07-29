@@ -507,79 +507,151 @@ describe('ApplicationService - GetWithdrawnedApplication', () => {
     mockRepo = service.applicationRepo;
   });
 
-  it('Should return false if no applications found', async () => {
+  it('should return false if no applications are found', async () => {
     mockRepo.WithdrawedApplication.mockResolvedValue({
       application: null,
-      applicationCount: 0,
     });
-    const result = await service.GetWithdrawnedApplication({ reqQuery: {} });
+
+    const result = await service.GetWithdrawnedApplication({
+      reqQuery: {},
+      applicantId: 'user1',
+    });
+
     expect(result).toBe(false);
   });
 
-  it('should return formatted data if applications found', async () => {
-    // Mock application data
+  it('should return formatted application info with job details', async () => {
+    const mockApplication = [{ _id: 'app1', applicant: 'user1', job: 'job1' }];
+
     mockRepo.WithdrawedApplication.mockResolvedValue({
-      application: [{ _id: 'app1', applicant: 'user1', job: 'job1' }],
-      applicationCount: 1,
+      application: mockApplication,
     });
 
-    ProvideMessage.mockResolvedValueOnce({
-      _id: 'user1',
-      name: 'User1',
-      email: 'user1@ex.com',
-      coverImage: 'img1',
-    }) // applicant
-      .mockResolvedValueOnce({
-        _id: 'job1',
-        company: 'Company',
-        title: 'Title',
-        location: 'Loc',
-        employer: 'emp1',
-      }) // job
-      .mockResolvedValueOnce({
-        _id: 'emp1',
-        name: 'Employer',
-        email: 'emp@ex.com',
-        coverImage: 'img2',
-      }); // employer
+    const mockJob = {
+      _id: 'job1',
+      company: 'Company',
+      title: 'Title',
+      location: 'Location',
+      employer: 'employer1',
+    };
 
-    const result = await service.GetWithdrawnedApplication({ reqQuery: {} });
+    ProvideMessage.mockResolvedValueOnce(mockJob);
+
+    const result = await service.GetWithdrawnedApplication({
+      reqQuery: {},
+      applicantId: 'user1',
+    });
 
     expect(result).toHaveProperty('data.applicationInfo');
     expect(result.data.applicationInfo[0]).toMatchObject({
       _id: 'app1',
-      applicant: {
-        id: 'user1',
-        name: 'User1',
-        email: 'user1@ex.com',
-        coverImage: 'img1',
-      },
       jobDetails: {
-        id: 'job1',
-        company: 'Company',
-        title: 'Title',
-        location: 'Loc',
-        employer: {
-          id: 'emp1',
-          name: 'Employer',
-          email: 'emp@ex.com',
-          coverImage: 'img2',
-        },
+        job: mockJob,
       },
     });
-    expect(result.data.applicationCount).toBe(1);
   });
 
-  it('should throw AppError if ProvideMessage throws', async () => {
+  it('should throw AppError if ProvideMessage fails', async () => {
+    const mockApplication = [{ _id: 'app1', applicant: 'user1', job: 'job1' }];
+
     mockRepo.WithdrawedApplication.mockResolvedValue({
-      application: [{ _id: 'app1', applicant: 'user1', job: 'job1' }],
-      applicationCount: 1,
+      application: mockApplication,
     });
 
-    ProvideMessage.mockRejectedValueOnce(new Error('RPC error'));
+    ProvideMessage.mockRejectedValueOnce(new Error('RPC failure'));
 
     await expect(
-      service.GetWithdrawnedApplication({ reqQuery: {} })
-    ).rejects.toThrow('RPC error');
+      service.GetWithdrawnedApplication({
+        reqQuery: {},
+        applicantId: 'user1',
+      })
+    ).rejects.toThrow('RPC failure');
   });
 });
+
+// describe('ApplicationService - GetWithdrawnedApplication', () => {
+//   let service;
+//   let mockRepo;
+
+//   beforeEach(() => {
+//     jest.clearAllMocks();
+//     service = new ApplicationService();
+//     mockRepo = service.applicationRepo;
+//   });
+
+//   it('Should return false if no applications found', async () => {
+//     mockRepo.WithdrawedApplication.mockResolvedValue({
+//       application: null,
+//       applicationCount: 0,
+//     });
+//     const result = await service.GetWithdrawnedApplication({ reqQuery: {} });
+//     expect(result).toBe(false);
+//   });
+
+//   it('should return formatted data if applications found', async () => {
+//     // Mock application data
+//     mockRepo.WithdrawedApplication.mockResolvedValue({
+//       application: [{ _id: 'app1', applicant: 'user1', job: 'job1' }],
+//       applicationCount: 1,
+//     });
+
+//     ProvideMessage.mockResolvedValueOnce({
+//       _id: 'user1',
+//       name: 'User1',
+//       email: 'user1@ex.com',
+//       coverImage: 'img1',
+//     }) // applicant
+//       .mockResolvedValueOnce({
+//         _id: 'job1',
+//         company: 'Company',
+//         title: 'Title',
+//         location: 'Loc',
+//         employer: 'emp1',
+//       }) // job
+//       .mockResolvedValueOnce({
+//         _id: 'emp1',
+//         name: 'Employer',
+//         email: 'emp@ex.com',
+//         coverImage: 'img2',
+//       }); // employer
+
+//     const result = await service.GetWithdrawnedApplication({ reqQuery: {} });
+
+//     expect(result).toHaveProperty('data.applicationInfo');
+//     expect(result.data.applicationInfo[0]).toMatchObject({
+//       _id: 'app1',
+//       applicant: {
+//         id: 'user1',
+//         name: 'User1',
+//         email: 'user1@ex.com',
+//         coverImage: 'img1',
+//       },
+//       jobDetails: {
+//         id: 'job1',
+//         company: 'Company',
+//         title: 'Title',
+//         location: 'Loc',
+//         employer: {
+//           id: 'emp1',
+//           name: 'Employer',
+//           email: 'emp@ex.com',
+//           coverImage: 'img2',
+//         },
+//       },
+//     });
+//     expect(result.data.applicationCount).toBe(1);
+//   });
+
+//   it('should throw AppError if ProvideMessage throws', async () => {
+//     mockRepo.WithdrawedApplication.mockResolvedValue({
+//       application: [{ _id: 'app1', applicant: 'user1', job: 'job1' }],
+//       applicationCount: 1,
+//     });
+
+//     ProvideMessage.mockRejectedValueOnce(new Error('RPC error'));
+
+//     await expect(
+//       service.GetWithdrawnedApplication({ reqQuery: {} })
+//     ).rejects.toThrow('RPC error');
+//   });
+// });

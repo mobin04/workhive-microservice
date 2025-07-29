@@ -335,26 +335,29 @@ class ApplicationService {
   }
 
   async GetWithdrawnedApplication(userInput) {
-    const { reqQuery } = userInput;
-    const routing_key_user = 'user.request';
+    const { reqQuery, applicantId } = userInput;
+    // const routing_key_user = 'user.request';
     const routing_key_job = 'job_request';
     try {
-      const apiFeatures = new ApiFeatures(reqQuery).paginate().sort();
+      // const apiFeatures = new ApiFeatures(reqQuery).paginate().sort();
 
-      const { application, applicationCount } =
-        await this.applicationRepo.WithdrawedApplication({ apiFeatures });
+      const { application } = await this.applicationRepo.WithdrawedApplication({
+        // apiFeatures,
+        applicantId,
+      });
 
-      if (!application || applicationCount === 0) return false;
+      // if (!application || applicationCount === 0) return false;
+      if (!application) return false;
 
       let applicationInfo = [];
       applicationInfo = await Promise.all(
         application.map(async (application) => {
           // Fetch applicant
-          const applicant = await ProvideMessage(
-            { type: 'userId', id: application.applicant },
-            routing_key_user,
-            10000
-          );
+          // const applicant = await ProvideMessage(
+          //   { type: 'userId', id: application.applicant },
+          //   routing_key_user,
+          //   10000
+          // );
           // Fetch job
           const job = await ProvideMessage(
             { type: 'jobId', id: application.job },
@@ -362,31 +365,32 @@ class ApplicationService {
             10000
           );
           // Fetch employer
-          const employer = await ProvideMessage(
-            { type: 'userId', id: job.employer },
-            routing_key_user,
-            10000
-          );
+          // const employer = await ProvideMessage(
+          //   { type: 'userId', id: job.employer },
+          //   routing_key_user,
+          //   10000
+          // );
           // Formated data
           const details = {
             ...application,
-            applicant: {
-              id: applicant._id || null,
-              name: applicant.name || null,
-              email: applicant.email || null,
-              coverImage: applicant.coverImage || null,
-            },
+            // applicant: {
+            //   id: applicant._id || null,
+            //   name: applicant.name || null,
+            //   email: applicant.email || null,
+            //   coverImage: applicant.coverImage || null,
+            // },
             jobDetails: {
-              id: job._id || null,
-              company: job.company || null,
-              title: job.title || null,
-              location: job.location || null,
-              employer: {
-                id: employer._id || null,
-                name: employer.name || null,
-                email: employer.email || null,
-                coverImage: employer.coverImage || null,
-              },
+              job,
+              // id: job._id || null,
+              // company: job.company || null,
+              // title: job.title || null,
+              // location: job.location || null,
+              // employer: {
+              //   id: employer._id || null,
+              //   name: employer.name || null,
+              //   email: employer.email || null,
+              //   coverImage: employer.coverImage || null,
+              // },
             },
           };
 
@@ -394,7 +398,7 @@ class ApplicationService {
         })
       );
 
-      return formatData({ applicationInfo, applicationCount });
+      return formatData({ applicationInfo });
     } catch (err) {
       // console.log(`❌ ERROR OCCOUR ${err}`);
       throw new AppError(err.message, err.statusCode);
