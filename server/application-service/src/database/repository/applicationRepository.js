@@ -16,17 +16,17 @@ class ApplicationRepository {
     }
   }
 
-  async GetApplicationById(input){
-    const {id} = input;
-    try{
+  async GetApplicationById(input) {
+    const { id } = input;
+    try {
       const application = await Application.findById(id);
-      if(!application) return false;
+      if (!application) return false;
       return application;
-    }catch(err){
-      throw new AppError(err.message, err.statusCode)
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
     }
   }
-  
+
   async UploadResumeUrl(input) {
     const { application, resumeUrl } = input;
     try {
@@ -53,9 +53,7 @@ class ApplicationRepository {
   async GetApplicationsByApplicantId(input) {
     const { id } = input;
     try {
-      const application = await Application.find({ applicant: id }).select(
-        '-job'
-      );
+      const application = await Application.find({ applicant: id });
       return application;
     } catch (err) {
       throw new AppError(err.message, err.statusCode);
@@ -132,24 +130,22 @@ class ApplicationRepository {
   }
 
   async WithdrawedApplication(input) {
-    const { apiFeatures } = input;
+    const { applicantId } = input;
     try {
       const application = await Application.find({
         activeStatus: 'withdrawn',
+        applicant: applicantId,
         expiresAt: { $exists: true },
-      })
-        .sort(apiFeatures.sorting)
-        .skip(apiFeatures.pagination.skip)
-        .limit(apiFeatures.pagination.limit)
-        .lean();
+      }).lean();
 
       if (!application) return false;
 
-      const applicationCount = await Application.countDocuments({
-        activeStatus: 'withdrawn',
-      });
-      
-      return {application, applicationCount}
+      // const applicationCount = await Application.countDocuments({
+      //   activeStatus: 'withdrawn',
+      // });
+
+      // return { application, applicationCount };
+      return { application, applicationCount };
     } catch (err) {
       throw new AppError(err.message, err.statusCode);
     }

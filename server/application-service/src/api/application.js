@@ -10,38 +10,37 @@ module.exports = (app) => {
 
   /**
    * @swagger
-   * /api/v2/application/withdrawn:
+   * /api/v1/application/withdrawn:
    *   get:
-   *     summary: Get all withdrawn applications (admin only)
+   *     summary: Get all withdrawn job applications for a specific user
+   *     tags:
+   *       - Applications
    *     security:
    *       - bearerAuth: []
-   *       - jwt: []
-   *     tags:
-   *       - Application
    *     parameters:
    *       - in: query
    *         name: page
    *         schema:
    *           type: integer
-   *         description: Page 1 default
+   *         description: Page number for pagination
    *       - in: query
    *         name: limit
    *         schema:
    *           type: integer
-   *         description: Items per page, 10 default
-   *       - in: query
-   *         name: sort
-   *         schema:
-   *           type: string
-   *         description: sort, default createdAt
-   *       - in: query
-   *         name: order
-   *         schema:
-   *           type: string
-   *         description: order will be asc or dsc, default dsc
+   *         description: Number of applications per page
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               applicantId:
+   *                 type: string
+   *                 description: The ID of the job seeker
    *     responses:
    *       200:
-   *         description: List of withdrawn applications
+   *         description: Withdrawn applications fetched successfully
    *         content:
    *           application/json:
    *             schema:
@@ -53,10 +52,6 @@ module.exports = (app) => {
    *                   type: string
    *                 totalApplication:
    *                   type: integer
-   *                 currentPage:
-   *                   type: integer
-   *                 totalPages:
-   *                   type: integer
    *                 data:
    *                   type: object
    *                   properties:
@@ -64,18 +59,27 @@ module.exports = (app) => {
    *                       type: array
    *                       items:
    *                         type: object
+   *       403:
+   *         description: Forbidden - user not authorized
+   *       500:
+   *         description: Internal server error
    */
 
-  // 🔹Get withdrawned application (for admin);
+  // 🔹Get withdrawned application
   app.get(
     `${baseUrl}/withdrawn`,
     authMiddleware.protect,
-    authMiddleware.restrictTo('admin'),
+    authMiddleware.restrictTo('admin', 'job_seeker'),
     async (req, res, next) => {
       const reqQuery = req.query;
+      const { applicantId } = req.body;
+
       try {
-        const { data } = await service.GetWithdrawnedApplication({ reqQuery });
-        if (data.applicationCount === 0) {
+        const { data } = await service.GetWithdrawnedApplication({
+          reqQuery,
+          applicantId,
+        });
+        if (data.length === 0) {
           return res.status(200).json({
             status: 'success',
             message: 'No withdrawned application found!',
@@ -87,10 +91,10 @@ module.exports = (app) => {
           status: 'success',
           message: 'Withdrawn applications fetched successfully!',
           totalApplication: data.applicationInfo.length,
-          currentPage: parseInt(req.query.page) || 1,
-          totalPages: Math.ceil(
-            data.applicationCount / (req.query.limit || 10)
-          ),
+          // currentPage: parseInt(req.query.page) || 1,
+          // totalPages: Math.ceil(
+          //   data.applicationCount / (req.query.limit || 10)
+          // ),
           data: {
             applications: data.applicationInfo,
           },
