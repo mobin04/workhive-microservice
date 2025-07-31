@@ -109,7 +109,10 @@ const JobApplicationForm = () => {
             visible: true,
           })
         );
-        setUploadError(error?.response?.data?.message || 'Failed to submit application! Please try again after sometime');
+        setUploadError(
+          error?.response?.data?.message ||
+            "Failed to submit application! Please try again after sometime"
+        );
       },
     });
   };
@@ -169,6 +172,11 @@ const JobApplicationForm = () => {
               src={jobData?.companyLogo}
               alt="logo"
               className="w-12 h-12 rounded-lg object-cover"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src =
+                  "https://www.svgrepo.com/download/382706/picture-photo-image.svg";
+              }}
             />
             <div>
               <h3

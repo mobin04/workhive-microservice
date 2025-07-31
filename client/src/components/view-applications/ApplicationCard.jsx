@@ -9,7 +9,7 @@ import {
   ExternalLink,
   FileText,
   Building2,
-  Shredder,
+  Shredder, 
 } from "lucide-react";
 
 const ApplicationCard = ({ app, setIsWithdrawPopup, setWithDrawnId }) => {
@@ -39,6 +39,11 @@ const ApplicationCard = ({ app, setIsWithdrawPopup, setWithDrawnId }) => {
             src={app.job.companyLogo}
             alt={`${app.job.company} logo`}
             className="w-12 h-12 rounded-lg overflow-hidden object-cover border border-gray-200"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src =
+                "https://www.svgrepo.com/download/382706/picture-photo-image.svg";
+            }}
           />
 
           <div className="flex-1 min-w-0">
