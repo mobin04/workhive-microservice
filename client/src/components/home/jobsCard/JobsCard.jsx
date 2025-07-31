@@ -1,14 +1,6 @@
-import React, { memo, useContext } from "react";
+import React, { memo, useCallback, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { ThemeContext } from "../../../contexts/ThemeContext";
-import {
-  Bookmark,
-  Building2,
-  Clock,
-  Frown,
-  MapPin,
-  ThumbsUp,
-} from "lucide-react";
 import usePostedDate from "../../../hooks/usePostedDate";
 import { envVariables } from "../../../config";
 import saveJobToSaveList from "../../../server/saveJob";
@@ -19,8 +11,17 @@ import { useSelector, useDispatch } from "react-redux";
 import useFormatSalary from "../../../hooks/useFormatSalary";
 import { likeJob, undoLikeJob } from "../../../store/slices/jobSlice";
 import { likeJobApi, undoLikeJobApi } from "../../../server/likeJob";
+import { useMergeWithdrawnApp } from "../../../hooks/useMergeWithdrawnApp";
+import {
+  Bookmark,
+  Building2,
+  Clock,
+  Frown,
+  MapPin,
+  ThumbsUp,
+} from "lucide-react";
 
-const JobsCard = () => {
+const JobsCard = ({ isAppLoading, isWithdrawLoading }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { jobs, savedJobs } = useSelector((state) => state.jobs);
@@ -35,6 +36,8 @@ const JobsCard = () => {
   } = useContext(ThemeContext);
 
   const { refetch } = useFetchSavedJobs();
+
+  const fixedApplications = useMergeWithdrawnApp();
 
   const posted = usePostedDate();
 
@@ -82,6 +85,16 @@ const JobsCard = () => {
   };
 
   const formatSalary = useFormatSalary();
+
+  const getApplications = useCallback(
+    (id) => {
+      if (fixedApplications) {
+        const getApp = fixedApplications.filter((app) => app?.job?._id === id);
+        return getApp;
+      }
+    },
+    [fixedApplications]
+  );
 
   return (
     <div>
@@ -170,7 +183,7 @@ const JobsCard = () => {
                           isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
                         } transition-colors`}
                       >
-                        <ThumbsUp className="h-5 w-5 group-hover:-rotate-6 group-hover:scale-110  text-blue-500 transition-all duration-200" />
+                        <ThumbsUp className="h-5 w-5 group-hover:-rotate-6 group-hover:scale-110 text-blue-500 transition-all duration-200" />
                       </button>
                     ) : (
                       <button
@@ -179,7 +192,7 @@ const JobsCard = () => {
                           isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
                         } transition-colors`}
                       >
-                        <ThumbsUp className="h-5 w-5 group-hover:-rotate-6 group-hover:scale-110 group-hover:text-blue-500 transition-all duration-200" />
+                        <ThumbsUp className="h-5 w-5 group-hover:-rotate-6 group-hover:scale-110 transition-all duration-200" />
                       </button>
                     )}
 
@@ -213,12 +226,33 @@ const JobsCard = () => {
                       </button>
                     )}
 
-                    <button
-                      onClick={() => navigate(`/job?id=${job._id}`)}
-                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
-                    >
-                      Apply Now
-                    </button>
+                    {isAppLoading || isWithdrawLoading ? (
+                      <div className="animate-spin border-4 border-b-transparent rounded-full w-5 h-5"></div>
+                    ) : (
+                      <>
+                        {getApplications(job?._id)?.[0]?.application ? (
+                          <div>
+                            <button
+                              onClick={() => navigate('/applications')}
+                              className={` ${
+                                isDark
+                                  ? "bg-gray-800 border-gray-400 hover:bg-gray-700"
+                                  : "bg-gray-100 border-gray-400 hover:bg-gray-200"
+                              } border rounded-lg px-6 py-2 transition-colors cursor-pointer`}
+                            >
+                              View Application
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => navigate(`/job?id=${job._id}`)}
+                            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
+                          >
+                            Apply Now
+                          </button>
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

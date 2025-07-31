@@ -277,6 +277,42 @@ export function ThemeContextProvider({ children }) {
     [isDark]
   );
 
+  const applicationThemeClasses = useMemo(
+    () => ({
+      themeClasses: isDark
+        ? "bg-gray-900 text-white"
+        : "bg-gray-50 text-gray-900",
+      cardClasses: isDark
+        ? "bg-gray-800 border-gray-700 hover:bg-gray-750"
+        : "bg-white border-gray-200 hover:shadow-lg",
+      inputClasses: isDark
+        ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500",
+    }),
+    [isDark]
+  );
+
+  const getApplicationStatusClr = useCallback(
+    (status) => {
+      const colors = {
+        pending: isDark
+          ? "bg-yellow-900 text-yellow-300 border-yellow-700"
+          : "bg-yellow-100 text-yellow-700 border-yellow-300",
+        withdrawn: isDark
+          ? "bg-red-900 text-red-300 border-red-700"
+          : "bg-red-100 text-red-700 border-red-300",
+        accepted: isDark
+          ? "bg-green-900 text-green-300 border-green-700"
+          : "bg-green-100 text-green-700 border-green-200",
+        rejected: isDark
+          ? "bg-red-900 text-red-300 border-red-700"
+          : "bg-red-100 text-red-700 border-red-200",
+      };
+      return colors[status] || colors.pending;
+    },
+    [isDark]
+  );
+
   const themeContextValue = useMemo(
     () => ({
       isDark,
@@ -296,6 +332,8 @@ export function ThemeContextProvider({ children }) {
       errorColorSchemes,
       errorThemeClass,
       saveJobThemes,
+      applicationThemeClasses,
+      getApplicationStatusClr,
     }),
     [
       isDark,
@@ -315,6 +353,8 @@ export function ThemeContextProvider({ children }) {
       errorColorSchemes,
       errorThemeClass,
       saveJobThemes,
+      applicationThemeClasses,
+      getApplicationStatusClr,
     ]
   );
 

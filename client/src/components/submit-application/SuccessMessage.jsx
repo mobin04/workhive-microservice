@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { ThemeContext } from "../../contexts/ThemeContext";
 import {
   CheckCircle,
@@ -22,13 +22,13 @@ const ApplicationSuccessMessage = ({ jobData, applicationId = null }) => {
   };
 
   const handleViewJob = () => {
+    setIsVisible(false)
     navigate(`/job?id=${jobData?._id}`);
-    handleClose();
   };
 
   const handleViewApplications = () => {
-    navigate(`/job?id=${applicationId}`);
-    handleClose();
+    setIsVisible(false)
+    navigate("/applications");
   };
 
   const themeClasses = {
@@ -166,7 +166,11 @@ const ApplicationSuccessMessage = ({ jobData, applicationId = null }) => {
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className={`w-6 h-6 ${isDark ? 'bg-green-900/30' : 'bg-green-100'} rounded-full flex items-center justify-center flex-shrink-0`}>
+                  <div
+                    className={`w-6 h-6 ${
+                      isDark ? "bg-green-900/30" : "bg-green-100"
+                    } rounded-full flex items-center justify-center flex-shrink-0`}
+                  >
                     <Calendar className="w-3 h-3 text-green-600" />
                   </div>
                   <p className={`text-sm ${themeClasses.text.secondary}`}>
@@ -181,14 +185,14 @@ const ApplicationSuccessMessage = ({ jobData, applicationId = null }) => {
           <div className="px-6 pb-6 space-y-3">
             <button
               onClick={handleViewApplications}
-              className={`w-full px-4 py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 ${themeClasses.button.primary}`}
+              className={`w-full cursor-pointer px-4 py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 ${themeClasses.button.primary}`}
             >
               View My Applications
               <ArrowRight className="w-4 h-4" />
             </button>
             <button
               onClick={handleViewJob}
-              className={`w-full px-4 py-3 rounded-xl font-semibold border transition-colors ${themeClasses.button.secondary}`}
+              className={`w-full cursor-pointer px-4 py-3 rounded-xl font-semibold border transition-colors ${themeClasses.button.secondary}`}
             >
               Back to Job Details
             </button>

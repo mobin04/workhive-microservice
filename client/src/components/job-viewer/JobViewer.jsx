@@ -1,8 +1,6 @@
 import React, { useContext, useEffect, useMemo } from "react";
 import { ThemeContext } from "../../contexts/ThemeContext";
-import { useQuery } from "@tanstack/react-query";
 import { envVariables } from "../../config";
-import { fetchJobs } from "../../server/fetchJobs";
 import { useLocation, useNavigate } from "react-router-dom";
 import Loading from "../loader/Loading";
 import useFormatSalary from "../../hooks/useFormatSalary";
@@ -24,6 +22,7 @@ import {
   XCircle,
   Bookmark,
 } from "lucide-react";
+import useFetchJobByJobId from "../../hooks/useFetchJobByJobId";
 
 const JobViewer = () => {
   const {
@@ -45,11 +44,7 @@ const JobViewer = () => {
     return `${envVariables.GET_JOB_URL}/${jobId}`;
   }, [location.search]);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["job", url],
-    queryFn: ({ queryKey }) => fetchJobs({}, queryKey[1]),
-    refetchOnWindowFocus: false,
-  });
+  const { data, isLoading } = useFetchJobByJobId(url);
 
   const jobData = data?.data?.job;
 
