@@ -352,6 +352,7 @@ class ApplicationService {
       let applicationInfo = [];
       applicationInfo = await Promise.all(
         application.map(async (application) => {
+          const applicationDetails = { application, job: null };
           // Fetch applicant
           // const applicant = await ProvideMessage(
           //   { type: 'userId', id: application.applicant },
@@ -359,7 +360,7 @@ class ApplicationService {
           //   10000
           // );
           // Fetch job
-          const job = await ProvideMessage(
+          applicationDetails.job = await ProvideMessage(
             { type: 'jobId', id: application.job },
             routing_key_job,
             10000
@@ -371,30 +372,28 @@ class ApplicationService {
           //   10000
           // );
           // Formated data
-          const details = {
-            ...application,
-            // applicant: {
-            //   id: applicant._id || null,
-            //   name: applicant.name || null,
-            //   email: applicant.email || null,
-            //   coverImage: applicant.coverImage || null,
-            // },
-            jobDetails: {
-              job,
-              // id: job._id || null,
-              // company: job.company || null,
-              // title: job.title || null,
-              // location: job.location || null,
-              // employer: {
-              //   id: employer._id || null,
-              //   name: employer.name || null,
-              //   email: employer.email || null,
-              //   coverImage: employer.coverImage || null,
-              // },
-            },
-          };
+          // const details = {
+          //   ...application,
+          // applicant: {
+          //   id: applicant._id || null,
+          //   name: applicant.name || null,
+          //   email: applicant.email || null,
+          //   coverImage: applicant.coverImage || null,
+          // },
+          // job,
+          // id: job._id || null,
+          // company: job.company || null,
+          // title: job.title || null,
+          // location: job.location || null,
+          // employer: {
+          //   id: employer._id || null,
+          //   name: employer.name || null,
+          //   email: employer.email || null,
+          //   coverImage: employer.coverImage || null,
+          // },
+          // };
 
-          return details;
+          return applicationDetails;
         })
       );
 

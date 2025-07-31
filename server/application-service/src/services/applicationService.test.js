@@ -544,10 +544,8 @@ describe('ApplicationService - GetWithdrawnedApplication', () => {
 
     expect(result).toHaveProperty('data.applicationInfo');
     expect(result.data.applicationInfo[0]).toMatchObject({
-      _id: 'app1',
-      jobDetails: {
-        job: mockJob,
-      },
+      application: { _id: 'app1', applicant: 'user1', job: 'job1' },
+      job: mockJob,
     });
   });
 
