@@ -10,7 +10,7 @@ module.exports = (app) => {
 
   /**
    * @swagger
-   * /api/v1/application/withdrawn:
+   * /api/v1/application/{id}/withdrawn:
    *   get:
    *     summary: Get all withdrawn job applications for a specific user
    *     tags:
@@ -28,16 +28,6 @@ module.exports = (app) => {
    *         schema:
    *           type: integer
    *         description: Number of applications per page
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             type: object
-   *             properties:
-   *               applicantId:
-   *                 type: string
-   *                 description: The ID of the job seeker
    *     responses:
    *       200:
    *         description: Withdrawn applications fetched successfully
@@ -67,12 +57,12 @@ module.exports = (app) => {
 
   // 🔹Get withdrawned application
   app.get(
-    `${baseUrl}/withdrawn`,
+    `${baseUrl}/:id/withdrawn`,
     authMiddleware.protect,
     authMiddleware.restrictTo('admin', 'job_seeker'),
     async (req, res, next) => {
       const reqQuery = req.query;
-      const { applicantId } = req.body;
+      const  applicantId  = req.params.id;
 
       try {
         const { data } = await service.GetWithdrawnedApplication({
@@ -96,7 +86,7 @@ module.exports = (app) => {
           //   data.applicationCount / (req.query.limit || 10)
           // ),
           data: {
-            applications: data.applicationInfo,
+            application: data.applicationInfo,
           },
         });
       } catch (err) {

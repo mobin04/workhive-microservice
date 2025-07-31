@@ -145,7 +145,7 @@ class ApplicationRepository {
       // });
 
       // return { application, applicationCount };
-      return { application, applicationCount };
+      return { application };
     } catch (err) {
       throw new AppError(err.message, err.statusCode);
     }
