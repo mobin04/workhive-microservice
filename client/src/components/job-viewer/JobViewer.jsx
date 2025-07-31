@@ -1,4 +1,11 @@
-import React, { useContext, useEffect, useMemo } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { ThemeContext } from "../../contexts/ThemeContext";
 import { envVariables } from "../../config";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -8,8 +15,12 @@ import useFormatDate from "../../hooks/useFormatDate";
 import useSaveAndRemoveJob from "../../hooks/useSaveAndRemoveJob";
 import saveJobToSaveList from "../../server/saveJob";
 import removeJobFromSaved from "../../server/removeJobFromSaved";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import useFetchSavedJobs from "../../hooks/useFetchSavedJobs";
+import useFetchJobByJobId from "../../hooks/useFetchJobByJobId";
+import { useMergeWithdrawnApp } from "../../hooks/useMergeWithdrawnApp";
+import useFetchApplications from "../../hooks/useFetchApplications";
+import useFetchWithdrawnApp from "../../hooks/useFetchWithdrawnApp";
 import {
   MapPin,
   Calendar,
@@ -21,19 +32,31 @@ import {
   CheckCircle,
   XCircle,
   Bookmark,
+  ClipboardCheck,
+  Clipboard,
+  ClipboardList,
 } from "lucide-react";
-import useFetchJobByJobId from "../../hooks/useFetchJobByJobId";
+import { showPopup } from "../../store/slices/popupSlice";
 
 const JobViewer = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { savedJobs } = useSelector((state) => state.jobs);
+  const dispatch = useDispatch();
+  const [isLinkCopied, setIsLinkCopied] = useState(false);
   const {
     getJobTypeColor,
     getJobLevelColor,
     jobViewerThemeClass,
     getStatusColor,
   } = useContext(ThemeContext);
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { savedJobs } = useSelector((state) => state.jobs);
+
+  // Fetch application
+  const { isLoading: isAppLoading } = useFetchApplications();
+  const { isLoading: isWithdrawLoading } = useFetchWithdrawnApp();
+
+  // Fix and merge withdrawn and active applications
+  const fixedApplications = useMergeWithdrawnApp();
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -71,6 +94,48 @@ const JobViewer = () => {
     if (is) return true;
     return false;
   };
+
+  const getApplications = useCallback(
+    (id) => {
+      if (fixedApplications) {
+        const getApp = fixedApplications.filter((app) => app?.job?._id === id);
+        return getApp;
+      }
+    },
+    [fixedApplications]
+  );
+
+  const timeoutRef = useRef();
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setIsLinkCopied(true);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      setIsLinkCopied(false);
+      timeoutRef.current = null;
+    }, 2000);
+
+    dispatch(
+      showPopup({
+        message: "Link copied to clipboard!",
+        type: "success",
+        visible: true,
+      })
+    );
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   if (isLoading) return <Loading />;
 
@@ -296,12 +361,32 @@ const JobViewer = () => {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3">
-          <button
-            onClick={() => navigate(`/apply?id=${jobData?._id}`)}
-            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-colors cursor-pointer ${jobViewerThemeClass.button.primary}`}
-          >
-            Apply Now
-          </button>
+          {isAppLoading || isWithdrawLoading ? (
+            <button
+              className={`flex-1 flex gap-2 items-center justify-center px-6 py-3 rounded-lg font-semibold transition-colors cursor-pointer ${jobViewerThemeClass.button.secondary}`}
+            >
+              <div className="w-5 h-5 animate-spin border-4 border-b-transparent rounded-full"></div>
+              <span>Loading...</span>
+            </button>
+          ) : (
+            <>
+              {getApplications(jobData?._id)?.[0]?.application ? (
+                <button
+                  onClick={() => navigate("/applications")}
+                  className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-colors cursor-pointer ${jobViewerThemeClass.button.secondary}`}
+                >
+                  View Application
+                </button>
+              ) : (
+                <button
+                  onClick={() => navigate(`/apply?id=${jobData?._id}`)}
+                  className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-colors cursor-pointer ${jobViewerThemeClass.button.primary}`}
+                >
+                  Apply Now
+                </button>
+              )}
+            </>
+          )}
 
           {isJobSaved(jobData?._id) ? (
             <button
@@ -336,9 +421,20 @@ const JobViewer = () => {
           )}
 
           <button
+            onClick={copyLink}
             className={` px-6 py-3 rounded-lg font-semibold border transition-colors cursor-pointer ${jobViewerThemeClass.button.secondary}`}
           >
-            Share
+            {isLinkCopied ? (
+              <div className="flex transition-all duration-500 gap-2 justify-center items-center text-green-600">
+                <ClipboardCheck/>
+                <span>Link copied</span>
+              </div>
+            ) : (
+              <div className="flex gap-2 transition-all duration-500 justify-center items-center">
+                <ClipboardList/>
+                <span>Copy Link</span>
+              </div>
+            )}
           </button>
           <button
             onClick={() => navigate("/")}
