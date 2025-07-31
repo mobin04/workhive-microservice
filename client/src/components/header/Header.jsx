@@ -310,7 +310,7 @@ function Header() {
 
                 {/* Notifications */}
                 <button
-                  className={`relative p-2 rounded-lg ${
+                  className={`relative p-2 rounded-lg cursor-pointer ${
                     isDark ? "hover:bg-gray-700" : "hover:bg-blue-50"
                   } transition-colors hidden sm:block`}
                 >
@@ -323,7 +323,7 @@ function Header() {
                 {/* Profile Dropdown */}
                 <div className="relative dropdown-container">
                   <button
-                    className={`flex items-center space-x-2 p-2 rounded-lg transition-colors ${
+                    className={`flex items-center cursor-pointer space-x-2 p-2 rounded-lg transition-colors ${
                       isDark ? "hover:bg-gray-700" : "hover:bg-blue-50"
                     }`}
                     onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
@@ -363,8 +363,11 @@ function Header() {
                         My Profile
                       </a>
                       <a
-                        href="#"
-                        className={`block px-4 py-2 ${
+                        onClick={() => {
+                          navigate("/applications");
+                          setProfileDropdownOpen(false);
+                        }}
+                        className={`block cursor-pointer px-4 py-2 ${
                           isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
                         } transition-colors`}
                       >
@@ -387,7 +390,7 @@ function Header() {
                         } mt-1 pt-1`}
                       >
                         <button
-                          className={`w-full text-left px-4 py-2 text-red-600 ${
+                          className={`w-full cursor-pointer text-left px-4 py-2 text-red-600 ${
                             isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
                           } transition-colors`}
                           onClick={() => {

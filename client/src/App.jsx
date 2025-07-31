@@ -20,6 +20,7 @@ import Popup from "./components/info-popup/Popup";
 import { showPopup } from "./store/slices/popupSlice";
 import { showError } from "./store/slices/errorSlice";
 import SavedJobs from "./components/saved-jobs/SavedJobs";
+import ViewApplications from "./components/view-applications/ViewApplications";
 
 function App() {
   const { popup } = useSelector((state) => state.popup);
@@ -50,7 +51,7 @@ function App() {
             visible: true,
           })
         );
-        dispatch(showError({type: '500', visible: true, onGoHome: false}))
+        dispatch(showError({ type: "500", visible: true, onGoHome: false }));
       }
     },
     retry: false,
@@ -64,7 +65,6 @@ function App() {
     dispatch(setLoading(mutation.isPending));
   }, [mutation.isPending]);
 
-  
   return (
     <div>
       <Header />
@@ -76,7 +76,8 @@ function App() {
         <Route path="/magic-login" element={<VerifyMagicLogin />} />
         <Route path="/job" element={<JobViewer />} />
         <Route path="/apply" element={<JobApplicationForm />} />
-        <Route path="/saved-jobs" element={<SavedJobs/>} />
+        <Route path="/saved-jobs" element={<SavedJobs />} />
+        <Route path="/applications" element={<ViewApplications />} />
         <Route
           path="*"
           element={
@@ -91,15 +92,15 @@ function App() {
       </Routes>
       <Footer />
       {errorShow?.visible ? (
-          <ErrorComponent
-            title={errorShow?.title}
-            message={errorShow?.message}
-            showGoBack={errorShow?.onGoBack}
-            showGoHome={errorShow?.onGoHome}
-            onRetry={errorShow?.onRetry}
-            type={errorShow?.type}
-          />
-        ) : null}
+        <ErrorComponent
+          title={errorShow?.title}
+          message={errorShow?.message}
+          showGoBack={errorShow?.onGoBack}
+          showGoHome={errorShow?.onGoHome}
+          onRetry={errorShow?.onRetry}
+          type={errorShow?.type}
+        />
+      ) : null}
 
       {popup?.visible ? (
         <Popup

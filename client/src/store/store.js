@@ -5,6 +5,7 @@ import loadingReducer from "./slices/loadingSlice";
 import jobReducer from "./slices/jobSlice";
 import popupReducer from "./slices/popupSlice";
 import errorReducer from "./slices/errorSlice";
+import applicationReducer from "./slices/applicationSlice";
 
 const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ const store = configureStore({
     jobs: jobReducer,
     popup: popupReducer,
     errorShow: errorReducer,
+    applications: applicationReducer,
   },
 });
 

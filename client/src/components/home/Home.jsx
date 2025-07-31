@@ -11,6 +11,8 @@ import { setLoading } from "../../store/slices/loadingSlice";
 import Loading from "../loader/Loading";
 import { fetchJobs } from "../../server/fetchJobs";
 import { setJobs } from "../../store/slices/jobSlice";
+import useFetchApplications from "../../hooks/useFetchApplications";
+import useFetchWithdrawnApp from "../../hooks/useFetchWithdrawnApp";
 
 function Home() {
   const { isDark, bodyThemeClasses } = useContext(ThemeContext);
@@ -25,6 +27,10 @@ function Home() {
     limit: "10",
     page: "1",
   });
+
+  // Fetch applications
+  const { isLoading: isAppLoading } = useFetchApplications();
+  const { isLoading: isWithdrawLoading } = useFetchWithdrawnApp();
 
   const {
     data,
@@ -45,9 +51,10 @@ function Home() {
   }
 
   useEffect(() => {
-    if (!data) return;
-    dispatch(setJobs(data));
-  }, [data, dispatch]);
+    if (data && user) {
+      dispatch(setJobs(data));
+    }
+  }, [data, dispatch, user]);
 
   useEffect(() => {
     dispatch(setLoading(isPending));
@@ -73,7 +80,7 @@ function Home() {
       page: data.toString(),
     }));
   };
-  
+
   // Logged In Homepage
   const LoggedInHomepage = () => (
     <div className={`${bodyThemeClasses}`}>
@@ -95,7 +102,10 @@ function Home() {
           </p>
         )}
         {/* Job Listings */}
-        <JobsCard />
+        <JobsCard
+          isAppLoading={isAppLoading}
+          isWithdrawLoading={isWithdrawLoading}
+        />
         {/* Pagination */}
         {jobs && jobs.totalPages > 1 ? (
           <Pagination
