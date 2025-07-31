@@ -113,6 +113,10 @@ const JobsCard = ({ isAppLoading, isWithdrawLoading }) => {
                         src={job.companyLogo}
                         alt={`${job.company} logo`}
                         className="w-20 h-20 rounded-lg object-cover border-2 border-gray-200"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = 'https://www.svgrepo.com/download/382706/picture-photo-image.svg';
+                        }}
                       />
                     </div>
 
@@ -233,7 +237,7 @@ const JobsCard = ({ isAppLoading, isWithdrawLoading }) => {
                         {getApplications(job?._id)?.[0]?.application ? (
                           <div>
                             <button
-                              onClick={() => navigate('/applications')}
+                              onClick={() => navigate("/applications")}
                               className={` ${
                                 isDark
                                   ? "bg-gray-800 border-gray-400 hover:bg-gray-700"
