@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchJobs } from "../server/fetchJobs";
+import { fetchData } from "../server/fetchData";
 import { envVariables } from "../config";
 import { useDispatch } from "react-redux";
 import { toSaveJob } from "../store/slices/jobSlice";
@@ -9,7 +9,7 @@ const useFetchSavedJobs = () => {
   const dispatch = useDispatch();
   const { data, refetch } = useQuery({
     queryKey: ["saved-jobs"],
-    queryFn: () => fetchJobs({}, envVariables.GET_SAVED_JOBS, null),
+    queryFn: () => fetchData({}, envVariables.GET_SAVED_JOBS, null),
     enabled: false,
   });
 

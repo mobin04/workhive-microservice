@@ -13,7 +13,7 @@ import axios from "axios";
 import { envVariables } from "../../config";
 import { setUser } from "../../store/slices/userSlice";
 import { useQuery } from "@tanstack/react-query";
-import { fetchJobs } from "../../server/fetchJobs";
+import { fetchData } from "../../server/fetchData";
 import { setJobs } from "../../store/slices/jobSlice";
 import { useDebounce } from "../../hooks/useDebounce";
 import { Bell, Briefcase, Moon, Search, Sun, X } from "lucide-react";
@@ -97,7 +97,7 @@ function Header() {
   // fetching jobs
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["jobs", searchQuery],
-    queryFn: ({ queryKey }) => fetchJobs(queryKey[1], GET_JOB_URL),
+    queryFn: ({ queryKey }) => fetchData(queryKey[1], GET_JOB_URL),
     enabled: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
     cacheTime: 10 * 60 * 1000, // 10 minutes
@@ -118,7 +118,7 @@ function Header() {
       refetch();
     } else if (debouncedSearch === "" && !state.locationCoords && user) {
       // fetch all jobs when search is cleared
-      fetchJobs({}, GET_JOB_URL)
+      fetchData({}, GET_JOB_URL)
         .then((res) => {
           reduxDispatch(setJobs(res));
         })
@@ -331,7 +331,7 @@ function Header() {
                     <img
                       src={user.coverImage}
                       alt="Profile"
-                      className="h-8 w-8 rounded-full object-cover"
+                      className="h-9 w-9 border-2 border-white rounded-full object-cover"
                     />
                     <span className="hidden md:block font-medium">
                       {user?.name?.split(" ")[0]?.toUpperCase()}
@@ -355,8 +355,11 @@ function Header() {
                         </div>
                       </div>
                       <a
-                        href="#"
-                        className={`block px-4 py-2 ${
+                        onClick={() => {
+                          navigate("/profile");
+                          setProfileDropdownOpen(false);
+                        }}
+                        className={`block px-4 py-2 cursor-pointer ${
                           isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
                         } transition-colors`}
                       >

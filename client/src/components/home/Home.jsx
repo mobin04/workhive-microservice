@@ -9,7 +9,7 @@ import JobsCard from "./jobsCard/JobsCard";
 import Pagination from "./pagination/Pagination";
 import { setLoading } from "../../store/slices/loadingSlice";
 import Loading from "../loader/Loading";
-import { fetchJobs } from "../../server/fetchJobs";
+import { fetchData } from "../../server/fetchData";
 import { setJobs } from "../../store/slices/jobSlice";
 import useFetchApplications from "../../hooks/useFetchApplications";
 import useFetchWithdrawnApp from "../../hooks/useFetchWithdrawnApp";
@@ -41,7 +41,7 @@ function Home() {
     queryKey: ["jobs", { filter, url: envVariables.GET_JOB_URL }],
     queryFn: ({ queryKey }) => {
       const { filter, url } = queryKey[1];
-      return fetchJobs(filter, url, dispatch);
+      return fetchData(filter, url, dispatch);
     },
     enabled: user ? true : false,
   });

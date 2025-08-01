@@ -18,6 +18,7 @@ export const envVariables = {
 
   // 🔹Get Profile
   GET_PROFILE_URL: `${import.meta.env.VITE_API_URL}/auth/profile`,
+  UPDATA_PROFILE_URL: `${import.meta.env.VITE_API_URL}/auth/profile`,
 
   // 🔹Jobs
   GET_JOB_URL: `${import.meta.env.VITE_API_URL}/jobs`,

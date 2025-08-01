@@ -1,69 +1,36 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useCallback, useEffect } from "react";
+import React, { useEffect } from "react";
 import Header from "./components/header/Header";
 import Home from "./components/home/Home";
 import { Route, Routes } from "react-router-dom";
 import Login from "./components/login/Login";
 import Footer from "./components/footer/Footer";
 import VerifyMagicLogin from "./components/login/VerifyMagicLogin";
-import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { setUser } from "./store/slices/userSlice";
-import { envVariables } from "./config";
 import { setLoading } from "./store/slices/loadingSlice";
 import Signup from "./components/sign-up/SignUp";
 import JobViewer from "./components/job-viewer/JobViewer";
 import JobApplicationForm from "./components/submit-application/JobApplicationForm";
 import ErrorComponent from "./components/error-page/ErrorPage";
 import Popup from "./components/info-popup/Popup";
-import { showPopup } from "./store/slices/popupSlice";
-import { showError } from "./store/slices/errorSlice";
 import SavedJobs from "./components/saved-jobs/SavedJobs";
 import ViewApplications from "./components/view-applications/ViewApplications";
+import ViewProfile from "./components/view-profile/Profile";
+import useFetchProfile from "./hooks/useFetchProfile";
 
 function App() {
   const { popup } = useSelector((state) => state.popup);
   const { errorShow } = useSelector((state) => state.errorShow);
-
-  // Fetch Profile at initial load
   const dispatch = useDispatch();
-  const { GET_PROFILE_URL } = envVariables;
-
-  const fetchProfile = useCallback(async () => {
-    const response = await axios.get(GET_PROFILE_URL, {
-      withCredentials: true,
-    });
-    return response.data;
-  }, [GET_PROFILE_URL]);
-
-  const mutation = useMutation({
-    mutationFn: fetchProfile,
-    onSuccess: (data) => {
-      dispatch(setUser(data.data.user));
-    },
-    onError: (err) => {
-      if (err.code === "ERR_NETWORK") {
-        dispatch(
-          showPopup({
-            message: "Internal server error! Please try again later",
-            type: "error",
-            visible: true,
-          })
-        );
-        dispatch(showError({ type: "500", visible: true, onGoHome: false }));
-      }
-    },
-    retry: false,
-  });
+  const { mutate, isPending} = useFetchProfile();
 
   useEffect(() => {
-    mutation.mutate();
+    mutate();
   }, []);
 
   useEffect(() => {
-    dispatch(setLoading(mutation.isPending));
-  }, [mutation.isPending]);
+    dispatch(setLoading(isPending));
+  }, [isPending]);
 
   return (
     <div>
@@ -78,6 +45,7 @@ function App() {
         <Route path="/apply" element={<JobApplicationForm />} />
         <Route path="/saved-jobs" element={<SavedJobs />} />
         <Route path="/applications" element={<ViewApplications />} />
+        <Route path="/profile" element={<ViewProfile />} />
         <Route
           path="*"
           element={
