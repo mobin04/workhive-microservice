@@ -120,7 +120,7 @@ To run tests for a service (example: auth-service):
 ```sh
 cd auth-service
 npm install
-npm test
+npm run test
 ```
 
 Coverage reports are generated in the `coverage/` folder.
@@ -138,13 +138,13 @@ Coverage reports are generated in the `coverage/` folder.
 
 ## Contributors
 
-- [mobin Mathew](https://github.com/mobin04)
+- [Mobin Mathew](https://github.com/mobin04)
 
 ---
 
 ## Support
 
-For issues, open a GitHub issue or contact the maintainer.
+For issues, open a GitHub issue.
 
 ---
 
