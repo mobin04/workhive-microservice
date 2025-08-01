@@ -6,7 +6,7 @@ import usePostedDate from "../../hooks/usePostedDate";
 import { useQuery } from "@tanstack/react-query";
 import { envVariables } from "../../config";
 import Loading from "../loader/Loading";
-import { fetchJobs } from "../../server/fetchJobs";
+import { fetchData } from "../../server/fetchData";
 import { useDispatch, useSelector } from "react-redux";
 import { toSaveJob } from "../../store/slices/jobSlice";
 import useSaveAndRemoveJob from "../../hooks/useSaveAndRemoveJob";
@@ -26,7 +26,7 @@ import {
 const SavedJobs = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
-  
+
   const { savedJobs } = useSelector((state) => state.jobs);
   const dispatch = useDispatch();
   const { isDark, getJobTypeColor, getJobLevelColor, saveJobThemes } =
@@ -34,7 +34,7 @@ const SavedJobs = () => {
 
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["saved-jobs"],
-    queryFn: () => fetchJobs({}, envVariables.GET_SAVED_JOBS, dispatch),
+    queryFn: () => fetchData({}, envVariables.GET_SAVED_JOBS, dispatch),
     enabled: false,
   });
 

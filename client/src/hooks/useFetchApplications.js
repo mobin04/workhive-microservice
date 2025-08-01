@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchJobs } from "../server/fetchJobs";
+import { fetchData } from "../server/fetchData";
 import { envVariables } from "../config";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,7 +15,11 @@ const useFetchApplications = () => {
   } = useQuery({
     queryKey: ["applications"],
     queryFn: () =>
-      fetchJobs({}, `${envVariables.GET_APPLICATIONS_URL}/${user?._id}`, dispatch),
+      fetchData(
+        {},
+        `${envVariables.GET_APPLICATIONS_URL}/${user?._id}`,
+        dispatch
+      ),
     enabled: false,
   });
 
@@ -30,7 +34,7 @@ const useFetchApplications = () => {
       dispatch(setApplications(applicationDetails?.data?.application));
     }
   }, [applicationDetails, dispatch]);
-  
+
   return {
     applicationDetails,
     isLoading,

@@ -3,7 +3,7 @@ import { ThemeContext } from "../../contexts/ThemeContext";
 import { Upload, X, Check, AlertCircle, FileImage, User } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { envVariables } from "../../config";
-import { fetchJobs } from "../../server/fetchJobs";
+import { fetchData } from "../../server/fetchData";
 import Loading from "../loader/Loading";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -48,7 +48,7 @@ const JobApplicationForm = () => {
 
   const { data, isLoading } = useQuery({
     queryKey: ["job", url],
-    queryFn: ({ queryKey }) => fetchJobs({}, queryKey[1], dispatch),
+    queryFn: ({ queryKey }) => fetchData({}, queryKey[1], dispatch),
     refetchOnWindowFocus: false,
   });
 

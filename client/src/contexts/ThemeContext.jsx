@@ -113,7 +113,7 @@ export function ThemeContextProvider({ children }) {
         primary: "bg-blue-600 hover:bg-blue-700 text-white",
         secondary: isDark
           ? "bg-gray-700 hover:bg-gray-600 text-gray-200 border-gray-600"
-          : "bg-white hover:bg-gray-50 text-gray-700 border-gray-300",
+          : "bg-gray-100 hover:bg-gray-50 text-gray-700 border-gray-300",
       },
     }),
     [isDark]
@@ -313,6 +313,18 @@ export function ThemeContextProvider({ children }) {
     [isDark]
   );
 
+  const profileThemeClasses = useMemo(
+    () => ({
+      cardClasses: isDark
+        ? "bg-gray-800 border-gray-700"
+        : "bg-white border-gray-200",
+      inputClasses: isDark
+        ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+        : "bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500",
+    }),
+    [isDark]
+  );
+
   const themeContextValue = useMemo(
     () => ({
       isDark,
@@ -334,6 +346,7 @@ export function ThemeContextProvider({ children }) {
       saveJobThemes,
       applicationThemeClasses,
       getApplicationStatusClr,
+      profileThemeClasses,
     }),
     [
       isDark,
@@ -355,6 +368,7 @@ export function ThemeContextProvider({ children }) {
       saveJobThemes,
       applicationThemeClasses,
       getApplicationStatusClr,
+      profileThemeClasses,
     ]
   );
 

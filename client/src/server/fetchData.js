@@ -2,7 +2,7 @@
 import axios from "axios";
 import { showPopup } from "../store/slices/popupSlice";
 
-export const fetchJobs = async (filter = {}, url, dispatch = null) => {
+export const fetchData = async (filter = {}, url, dispatch = null) => {
   const cleanedFilter = Object.fromEntries(
     Object.entries(filter).filter(
       ([_, value]) => value?.toString().trim().toLowerCase() !== "all"
@@ -26,7 +26,7 @@ export const fetchJobs = async (filter = {}, url, dispatch = null) => {
         })
       );
     }
-    console.error("Failed to fetch jobs:", err);
+    console.error("Failed to fetch details:", err);
     throw new Error();
   }
 };

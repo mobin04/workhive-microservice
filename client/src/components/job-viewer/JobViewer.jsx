@@ -382,7 +382,7 @@ const JobViewer = () => {
                 {getApplications(jobData?._id)?.[0]?.application ? (
                   <button
                     onClick={() => navigate("/applications")}
-                    className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-colors cursor-pointer ${jobViewerThemeClass.button.secondary}`}
+                    className={`flex-1 px-6 py-3 border rounded-lg font-semibold transition-colors cursor-pointer ${jobViewerThemeClass.button.secondary}`}
                   >
                     View Application
                   </button>

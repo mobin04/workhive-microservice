@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchJobs } from "../server/fetchJobs";
+import { fetchData } from "../server/fetchData";
 import { envVariables } from "../config";
 import { useEffect } from "react";
 import { setWithdrawnApp } from "../store/slices/applicationSlice";
@@ -15,13 +15,13 @@ const useFetchWithdrawnApp = () => {
   } = useQuery({
     queryKey: ["withdrawn-apps"],
     queryFn: () =>
-      fetchJobs(
+      fetchData(
         {},
         `${envVariables.WITHDRAW_APPLICATION_URL}/${user?._id}/withdrawn`,
         dispatch
       ),
     enabled: false,
-    retry: 1
+    retry: 1,
   });
 
   useEffect(() => {
