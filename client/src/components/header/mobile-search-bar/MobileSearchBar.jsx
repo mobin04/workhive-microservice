@@ -28,7 +28,7 @@ const MobileSearchBar = ({
     <>
       {user && isMobileSearchOpen && (
         <div
-          className={`lg:hidden ${themeClasses} border-b shadow-lg px-4 py-4 space-y-4`}
+          className={`lg:hidden ${themeClasses} border-b shadow-lg px-4 py-4 space-y-4 fixed mt-15 w-full`}
         >
           {/* Job Search */}
           <div className="relative dropdown-container">
