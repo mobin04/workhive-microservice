@@ -274,7 +274,29 @@ class AuthService {
     const { reqObj, file, id } = userInput;
 
     try {
-      const filteredProperty = filteredObject(reqObj, 'name', 'email');
+      const filteredProperty = filteredObject(
+        reqObj,
+        'name',
+        'email',
+        'phone',
+        'location',
+        'website',
+        'bio',
+        'skills',
+        'experience',
+        'education'
+      );
+
+      if (
+        filteredProperty.skills &&
+        typeof filteredProperty.skills === 'string'
+      ) {
+        try {
+          filteredProperty.skills = JSON.parse(filteredProperty.skills);
+        } catch (err) {
+          throw new AppError('Invalid skills format', 400);
+        }
+      }
 
       if (file) {
         await handleFileUploads.deleteImage('coverImage', id);

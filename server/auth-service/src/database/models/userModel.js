@@ -36,7 +36,26 @@ const userSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
       },
-    ],
+    ], // Additionaly included (optional)
+    phone: {
+      type: String,
+    },
+    location: {
+      type: String,
+    },
+    website: {
+      type: String,
+    },
+    bio: {
+      type: String,
+    },
+    skills: [String],
+    experience: {
+      type: String,
+    },
+    education: {
+      type: String,
+    },
     createdAt: {
       type: Date,
       default: Date.now,
