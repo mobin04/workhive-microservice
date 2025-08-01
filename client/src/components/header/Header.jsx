@@ -281,7 +281,7 @@ function Header() {
             {user ? (
               <div className="flex items-center space-x-2 sm:space-x-4">
                 {/* Mobile Search Button */}
-                <button
+                { isHomePage && <button
                   onClick={toggleMobileSearch}
                   className={`lg:hidden p-2 rounded-lg ${
                     isDark ? "hover:bg-gray-700" : "hover:bg-blue-50"
@@ -292,7 +292,7 @@ function Header() {
                   ) : (
                     <Search className="h-5 w-5 text-blue-600" />
                   )}
-                </button>
+                </button>}
 
                 {/* Theme Toggle */}
                 <button
@@ -340,7 +340,7 @@ function Header() {
 
                   {profileDropdownOpen && (
                     <div
-                      className={`absolute top-full right-0 mt-2 w-64 ${
+                      className={`absolute top-full right-0 mt-2 w-50 md:w-64 ${
                         isDark ? "bg-gray-900/95" : "bg-white/95"
                       } backdrop-blur-md border rounded-lg shadow-xl z-50 py-2`}
                     >

@@ -19,6 +19,8 @@ import {
   BookOpen,
   Bookmark,
   List,
+  CircleCheck,
+  CircleCheckBig,
 } from "lucide-react";
 
 const ViewProfile = () => {
@@ -98,11 +100,10 @@ const ViewProfile = () => {
         formData.append(key, isObject ? JSON.stringify(value) : value);
       }
     }
-    
+
     // API call
     mutate(formData);
-    
-    
+
     setIsEditing(false);
     setPreviewImg(null);
   };
@@ -154,7 +155,12 @@ const ViewProfile = () => {
                     isDark ? "text-white" : "text-gray-900"
                   }`}
                 >
-                  {userData?.name?.toUpperCase()}
+                  <span className="hidden md:block">
+                    Hi, {userData?.name?.toUpperCase()}
+                  </span>
+                  <span className="block md:hidden">
+                    Hi, {userData?.name?.toUpperCase().split(" ")[0]}
+                  </span>
                 </h1>
                 <p
                   className={`mt-2 ${
@@ -173,7 +179,7 @@ const ViewProfile = () => {
               className={`${profileThemeClasses.cardClasses} rounded-xl shadow-lg border overflow-hidden`}
             >
               {/* Cover Image */}
-              <div className="relative h-32 bg-gradient-to-r from-blue-500 to-blue-600">
+              <div className="relative h-22 md:h-32 bg-gradient-to-r from-blue-500 to-blue-600">
                 <div className="absolute inset-0 bg-black/20 overflow-hidden">
                   {[...Array(20)].map((_, i) => {
                     return (
@@ -236,17 +242,17 @@ const ViewProfile = () => {
               {/* Profile Content */}
               <div className="relative px-6 pb-6">
                 {/* Avatar Section */}
-                <div className="flex items-end -mt-16 mb-6">
+                <div className="flex items-end -mt-8 md:-mt-16 mb-6">
                   <div className="relative">
                     {isPending || fetchProfilePending ? (
-                      <div className="flex justify-center items-center h-32 w-32 rounded-full border-2 border-white shadow-lg bg-white">
-                        <div className="animate-spin w-25 h-25 border-8 border-blue-600 border-b-transparent rounded-full"></div>
+                      <div className="flex justify-center items-center w-25 h-25 md:h-32 md:w-32 rounded-full border-2 border-white shadow-lg bg-white">
+                        <div className="animate-spin w-12 h-12 md:w-25 md:h-25 border-8 border-blue-600 border-b-transparent rounded-full"></div>
                       </div>
                     ) : (
                       <img
                         src={previewImg || userData.coverImage}
                         alt={userData.name}
-                        className="h-32 w-32 object-cover rounded-full border-2 border-white shadow-lg bg-white"
+                        className="w-25 h-25 md:h-32 md:w-32 object-cover rounded-full border-2 border-white shadow-lg bg-white"
                       />
                     )}
                     {isEditing && (
@@ -269,7 +275,7 @@ const ViewProfile = () => {
                     )}
                   </div>
 
-                  <div className="ml-6 pb-4">
+                  <div className="ml-4 md:ml-6 pb-4">
                     <div className="flex items-center space-x-3">
                       <span
                         className={`px-3 py-1 rounded-full text-sm font-medium ${
@@ -282,7 +288,7 @@ const ViewProfile = () => {
                       </span>
                       <span
                         onClick={() => navigate("/saved-jobs")}
-                        className={`flex cursor-pointer justify-center items-center px-3 py-1 rounded-full text-sm ${
+                        className={`md:flex hidden cursor-pointer justify-center items-center px-3 py-1 rounded-full text-sm ${
                           isDark
                             ? "bg-gray-700 text-gray-300"
                             : "bg-gray-100 text-gray-600"
@@ -294,7 +300,7 @@ const ViewProfile = () => {
                       {applications && applications?.length > 0 && (
                         <span
                           onClick={() => navigate("/applications")}
-                          className={`flex cursor-pointer justify-center items-center px-3 py-1 rounded-full text-sm ${
+                          className={`hidden md:flex cursor-pointer justify-center items-center px-3 py-1 rounded-full text-sm ${
                             isDark
                               ? "bg-gray-700 text-gray-300"
                               : "bg-gray-100 text-gray-600"
@@ -367,7 +373,8 @@ const ViewProfile = () => {
                           >
                             <Mail className="h-4 w-4 text-blue-600" />
                             <span>{userData.email}</span>
-                            <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded">
+                            <span className="flex justify-center items-center gap-1 text-xs bg-green-600 text-white px-2 py-1 rounded">
+                              <CircleCheckBig className="w-4 h-4" />
                               Verified
                             </span>
                           </div>
