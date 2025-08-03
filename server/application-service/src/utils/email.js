@@ -99,9 +99,9 @@ class Email {
         statusIcon: status.icon,
         statusText: status.text,
         userName: this.firstName,
-        jobTitle: this.applicationStatus.job.title || this.jobDetails.title,
+        jobTitle: this.applicationStatus?.job?.title || this.jobDetails.title,
         companyName:
-          this.applicationStatus.job.company || this.jobDetails.company,
+          this.applicationStatus?.job?.company || this.jobDetails.company,
         applicationDate: new Date(
           this.applicationStatus.application.createdAt
         ).toLocaleDateString(),

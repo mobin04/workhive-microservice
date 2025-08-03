@@ -15,15 +15,15 @@ const initSocket = (server) => {
   return io;
 };
 
-const notifyApplicant = async (userId, status) => {
-  const message = `Your application has been ${status}`;
+const notifyApplicant = async (userId, status, jobDetails) => {
+  const message = `${jobDetails?.company} has ${status} your application for ${jobDetails?.title}.`;
   if (io) {
     const notification = await ProvideMessage(
-      { type: 'notificationCreate', userId, message },
+      { type: 'notificationCreate', userId, message, jobDetails },
       routing_key_notification,
       10000
     );
- 
+
     if (notification) {
       io.emit(`notification:${userId}`, {
         id: notification._id,
@@ -34,12 +34,12 @@ const notifyApplicant = async (userId, status) => {
   }
 };
 
-const notifyEmployer = async (employerId, jobTitle) => {
-  const message = `A new application was submitted for your job: ${jobTitle}`;
+const notifyEmployer = async (employerId, jobTitle, jobDetails) => {
+  const message = `A new application was submitted for your job ${jobTitle}`;
 
   if (io) {
     const notification = await ProvideMessage(
-      { type: 'notificationCreate', userId: employerId, message},
+      { type: 'notificationCreate', userId: employerId, message, jobDetails },
       routing_key_notification,
       10000
     );

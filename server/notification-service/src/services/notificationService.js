@@ -34,15 +34,58 @@ class NotificationService {
           'You are not allowed to deleted this notification',
           403
         );
-        
+
       const notification = await this.notificationRepository.DeleteNotification(
         { id }
       );
-      
+
       if (!notification) {
         throw new AppError('Notification not found!');
       }
       return formatData(notification);
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
+  async ReadAllNotificatiton(userInput) {
+    const { userId } = userInput;
+    try {
+      const updatedNotification =
+        await this.notificationRepository.ReadAllNotification({ userId });
+
+      if (!updatedNotification)
+        throw new AppError('Failed to update notification!', 500);
+
+      const allNotification =
+        await this.notificationRepository.GetAllNotification({ id: userId });
+
+      if (!allNotification)
+        throw new AppError('Falied to fetch all notifications', 500);
+
+      return formatData(allNotification);
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
+  async ReadNotification(userInput) {
+    const { notifId, userId } = userInput;
+    try {
+      const notification = await this.notificationRepository.ReadNotification({
+        id: notifId,
+      });
+
+      if (!notification)
+        throw new AppError('Failed to update notification', 500);
+      
+      const allNotification =
+        await this.notificationRepository.GetAllNotification({ id: userId });
+        
+      if (!allNotification)
+        throw new AppError('Failed to fetch all notifications', 500);
+
+      return formatData(allNotification);
     } catch (err) {
       throw new AppError(err.message, err.statusCode);
     }
@@ -60,9 +103,9 @@ class NotificationService {
           const { type } = content;
 
           if (type === 'notificationCreate') {
-            const { userId, message } = content;
+            const { userId, message, jobDetails } = content;
             notification = await this.notificationRepository.CreateNotification(
-              { userId, message }
+              { userId, message, jobDetails }
             );
           }
         }

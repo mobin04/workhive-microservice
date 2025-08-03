@@ -38,18 +38,38 @@ class NotificationRepository {
       const notification = await Notification.findByIdAndUpdate(id, {
         status: 'read',
       });
-      return notification;
+      if (!notification) return false;
+      
+      return true;
+      
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
+  async ReadAllNotification(input) {
+    const { userId } = input;
+    try {
+      const notification = await Notification.updateMany(
+        { userId, status: 'unread' },
+        { $set: { status: 'read' } }
+      );
+      if (!notification) return false;
+      return true;
     } catch (err) {
       throw new AppError(err.message, err.statusCode);
     }
   }
 
   async CreateNotification(input) {
-    const { userId, message } = input;
+    const { userId, message, jobDetails } = input;
+    console.log(jobDetails);
     try {
       const notification = await Notification.create({
         userId,
         message,
+        jobTitle: jobDetails.title,
+        company: jobDetails.company,
       });
       if (!notification) return false;
       return notification;

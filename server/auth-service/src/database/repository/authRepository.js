@@ -34,7 +34,7 @@ class AuthRepository {
       const user = await User.create({ name, email, password, role });
       return user;
     } catch (err) {
-      console.log(err);
+      // console.log(err);
       throw new AppError('Unable to create user!', 500);
     }
   }

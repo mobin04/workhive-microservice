@@ -144,7 +144,7 @@ module.exports = (app, channel) => {
    *                   type: string
    *                 message:
    *                   type: string
-   *                 totalJobs: 
+   *                 totalJobs:
    *                   type: number
    *                 data:
    *                   type: object
@@ -773,7 +773,7 @@ module.exports = (app, channel) => {
    *         description: ID of the job to remove from saved list
    *     responses:
    *       204:
-   *         description: Saved job removed successfully (no content returned)
+   *         description: Saved job removed successfully (no content returned) or description: Not Found — No job found with that job id
    *       404:
    *         description: Job ID not found or invalid
    *         content:
@@ -789,8 +789,6 @@ module.exports = (app, channel) => {
    *         description: Unauthorized — user not logged in or token invalid
    *       403:
    *         description: Forbidden — user not allowed to perform this action
-   *       404:
-   *         description: Not Found — No job found with that job id
    */
 
   app.delete(

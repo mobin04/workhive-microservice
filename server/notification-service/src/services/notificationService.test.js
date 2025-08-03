@@ -7,6 +7,7 @@ jest.mock('../database/repository', () => ({
     DeleteNotification: jest.fn(),
     ReadNotification: jest.fn(),
     CreateNotification: jest.fn(),
+    ReadAllNotification: jest.fn(),
   })),
 }));
 
@@ -174,5 +175,126 @@ describe('NotificationService - RPCObserver', () => {
       { correlationId: 'corr-id-1' }
     );
     expect(mockChannel.ack).toHaveBeenCalledWith(msg);
+  });
+});
+
+describe('NotificationService - ReadAllNotificatiton', () => {
+  let service;
+  let mockRepo;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    service = new NotificationService();
+    mockRepo = service.notificationRepository;
+  });
+
+  it('Should throw error if failed to update notification', async () => {
+    mockRepo.ReadAllNotification.mockResolvedValue(null);
+    await expect(
+      service.ReadAllNotificatiton({ userId: 'u123' })
+    ).rejects.toThrow('Failed to update notification!');
+  });
+
+  it('Should throw error if failed to fetch notifications', async () => {
+    mockRepo.ReadAllNotification.mockResolvedValueOnce(true);
+    mockRepo.GetAllNotification.mockResolvedValueOnce(null);
+    await expect(
+      service.ReadAllNotificatiton({ userId: 'u123' })
+    ).rejects.toThrow('Falied to fetch all notifications');
+  });
+
+  it('Should return notifications successfully', async () => {
+    mockRepo.ReadAllNotification.mockResolvedValueOnce(true);
+    mockRepo.GetAllNotification.mockResolvedValueOnce([
+      { userId: 'u123', status: 'read' },
+      { userId: 'u123', status: 'read' },
+      { userId: 'u123', status: 'read' },
+    ]);
+
+    const result = await service.ReadAllNotificatiton({ userId: 'u123' });
+
+    expect(result).toHaveProperty('data');
+    expect(mockRepo.ReadAllNotification).toHaveBeenCalled();
+    expect(mockRepo.GetAllNotification).toHaveBeenCalled();
+    expect(result.data.length).toBe(3);
+    expect(result.data).toMatchObject([
+      { userId: 'u123', status: 'read' },
+      { userId: 'u123', status: 'read' },
+      { userId: 'u123', status: 'read' },
+    ]);
+  });
+});
+
+describe('NotificationService - ReadNotification', () => {
+  let service;
+  let mockRepo;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    service = new NotificationService();
+    mockRepo = service.notificationRepository;
+  });
+
+  it('Should throw error if notification failed to update notification', async () => {
+    mockRepo.ReadNotification.mockResolvedValue(false);
+    await expect(
+      service.ReadNotification({ notifId: 'not123', userId: 'u123' })
+    ).rejects.toThrow('Failed to update notification');
+  });
+
+  it('Should throw error if notification is failed to fetch', async () => {
+    mockRepo.ReadNotification.mockResolvedValue(true);
+    mockRepo.GetAllNotification.mockResolvedValue(false);
+    await expect(
+      service.ReadNotification({ notifId: 'not123', userId: 'u123' })
+    ).rejects.toThrow('Failed to fetch all notifications');
+  });
+
+  it('Should return all notification successfully', async () => {
+    mockRepo.ReadNotification.mockResolvedValue(true);
+    mockRepo.GetAllNotification.mockResolvedValueOnce([
+      {
+        userId: 'u123',
+        id: 'not123',
+        status: 'read',
+      },
+      {
+        userId: 'u123',
+        id: 'not345',
+        status: 'read',
+      },
+      {
+        userId: 'u123',
+        id: 'not678',
+        status: 'unread',
+      },
+    ]);
+
+    const result = await service.ReadNotification({
+      notifId: 'not123',
+      userId: 'u123',
+    });
+
+    expect(result).toHaveProperty('data');
+    expect(mockRepo.ReadNotification).toHaveBeenCalled();
+    expect(mockRepo.GetAllNotification).toHaveBeenCalled();
+    expect(result.data.length).toBe(3);
+    expect(result.data).toMatchObject([
+      {
+        userId: 'u123',
+        id: 'not123',
+        status: 'read',
+      },
+      {
+        userId: 'u123',
+        id: 'not345',
+        status: 'read',
+      },
+      {
+        userId: 'u123',
+        id: 'not678',
+        status: 'unread',
+      },
+    ]);
   });
 });
