@@ -68,6 +68,112 @@ module.exports = (app, channel) => {
 
   /**
    * @swagger
+   * /api/v2/notifications/read-all:
+   *   patch:
+   *     summary: Read all notification for logged in user
+   *     security:
+   *       - bearerAuth: []
+   *       - jwt: []
+   *     tags:
+   *       - Notification
+   *     responses:
+   *       200:
+   *         description: All notifications are successfully read
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                 message:
+   *                   type: string
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     notification:
+   *                       type: array
+   *                       items:
+   *                         type: object
+   *       500:
+   *          description: Failed to update notification
+   */
+
+  app.patch(
+    `${baseUrl}/read-all`,
+    authMiddleware.protect,
+    catchAsync(async (req, res, next) => {
+      const userId = req.user._id;
+      if (!userId) return next(new AppError('Failed to fetch user id', 500));
+
+      const { data } = await service.ReadAllNotificatiton({ userId });
+
+      res.status(200).json({
+        status: 'success',
+        message: 'All notifications are successfully read',
+        data: {
+          notification: data,
+        },
+      });
+    })
+  );
+
+  /**
+   * @swagger
+   * /api/v2/notifications/read/{id}:
+   *   patch:
+   *     summary: Read notification based on the notification ID for logged in user
+   *     security:
+   *       - bearerAuth: []
+   *       - jwt: []
+   *     tags:
+   *       - Notification
+   *     responses:
+   *       200:
+   *         description: Notification read successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                 message:
+   *                   type: string
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     notification:
+   *                       type: array
+   *                       items:
+   *                         type: object
+   *       500:
+   *          description: Failed to update notification
+   */
+
+  app.patch(
+    `${baseUrl}/read/:id`,
+    authMiddleware.protect,
+    catchAsync(async (req, res, next) => {
+      const { notifId } = req.params;
+      const { userId } = req.user._id;
+      if (!notifId)
+        return next(new AppError('Notification id is not found!', 404));
+
+      const notification = await service.ReadNotification({ notifId, userId });
+
+      res.status(200).json({
+        status: 'success',
+        message: 'Notification read successfully',
+        data: {
+          notification,
+        },
+      });
+    })
+  );
+
+  /**
+   * @swagger
    * /api/v2/notifications/{id}:
    *   delete:
    *     summary: Delete a notification by ID

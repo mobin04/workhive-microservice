@@ -127,7 +127,11 @@ class ApplicationService {
           application: applicationInfo,
         }).sendApplicationStatusUpdate();
 
-        notifyEmployer(applicationInfo.job.employer, applicationInfo.job.title);
+        notifyEmployer(
+          applicationInfo.job.employer,
+          applicationInfo.job.title,
+          { title: job?.title, company: job?.company }
+        );
         // console.log(applicationInfo.job.title)
 
         return formatData(applicationInfo);
@@ -272,12 +276,15 @@ class ApplicationService {
 
       // Send email
       await new Email(applicant, '', {
-        application: updatedApplication,
+        application: { application: updatedApplication },
         jobDetails: job,
       }).sendApplicationStatusUpdate();
 
       // Notify applicant
-      notifyApplicant(applicant._id, updatedApplication.status);
+      notifyApplicant(applicant._id, updatedApplication.status, {
+        title: job?.title,
+        company: job?.company,
+      });
 
       return formatData({ updatedApplication: updatedApplication, applicant });
     } catch (err) {
