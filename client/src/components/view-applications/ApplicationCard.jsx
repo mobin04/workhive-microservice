@@ -153,7 +153,7 @@ const ApplicationCard = ({ app, setIsWithdrawPopup, setWithDrawnId }) => {
                 <span>View Job</span>
               </div>
             </button>
-            {app?.application?.status !== "withdrawn" ? (
+            {app?.application?.status === "pending" ? (
               <button
                 onClick={() => {
                   setIsWithdrawPopup(true);

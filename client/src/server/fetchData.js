@@ -23,6 +23,7 @@ export const fetchData = async (filter = {}, url, dispatch = null) => {
           message: err.response?.data?.message || 'Something went wrong',
           type: "error",
           visible: true,
+          popupId: Date.now(),
         })
       );
     }

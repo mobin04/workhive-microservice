@@ -21,6 +21,7 @@ import { forwardGeocode } from "../../utils/mapbox";
 import { showPopup } from "../../store/slices/popupSlice";
 import SearchBars from "./search-bar/SearchBars";
 import MobileSearchBar from "./mobile-search-bar/MobileSearchBar";
+import NotificationDropdown from "../notification/Notification";
 
 const initialState = {
   search: "",
@@ -32,14 +33,16 @@ function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isDark, setDark, themeClasses } = useContext(ThemeContext);
-  const [isJobSearchOpen, setIsJobSearchOpen] = useState(false);
+  const { allNotifications } = useSelector((state) => state.notification);
   const [isLocationSearchOpen, setIsLocationSearchOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
-  const [suggestions, setSuggestions] = useState([]);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isJobSearchOpen, setIsJobSearchOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [isHomePage, setIsHomePage] = useState(true);
-
+  const [suggestions, setSuggestions] = useState([]);
+  
   useEffect(() => {
     const isHome = location.pathname === "/";
     setIsHomePage(isHome);
@@ -70,7 +73,7 @@ function Header() {
     []
   );
 
-  // Create search query based on current state
+  // search query based on current state
   const createSearchQuery = useCallback(() => {
     const query = {};
 
@@ -202,6 +205,7 @@ function Header() {
             message: "Sign out successfully!",
             type: "success",
             visible: true,
+            popupId: Date.now,
           })
         );
         navigate("/");
@@ -281,18 +285,20 @@ function Header() {
             {user ? (
               <div className="flex items-center space-x-2 sm:space-x-4">
                 {/* Mobile Search Button */}
-                { isHomePage && <button
-                  onClick={toggleMobileSearch}
-                  className={`lg:hidden p-2 rounded-lg ${
-                    isDark ? "hover:bg-gray-700" : "hover:bg-blue-50"
-                  } transition-colors`}
-                >
-                  {isMobileSearchOpen ? (
-                    <X className="h-5 w-5" />
-                  ) : (
-                    <Search className="h-5 w-5 text-blue-600" />
-                  )}
-                </button>}
+                {isHomePage && (
+                  <button
+                    onClick={toggleMobileSearch}
+                    className={`lg:hidden p-2 rounded-lg ${
+                      isDark ? "hover:bg-gray-700" : "hover:bg-blue-50"
+                    } transition-colors`}
+                  >
+                    {isMobileSearchOpen ? (
+                      <X className="h-5 w-5" />
+                    ) : (
+                      <Search className="h-5 w-5 text-blue-600" />
+                    )}
+                  </button>
+                )}
 
                 {/* Theme Toggle */}
                 <button
@@ -309,7 +315,34 @@ function Header() {
                 </button>
 
                 {/* Notifications */}
-                <button
+
+                {/* Notifications */}
+                <div className="relative dropdown-container">
+                  <button
+                    onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                    className={`relative p-2 rounded-lg cursor-pointer ${
+                      isDark ? "hover:bg-gray-700" : "hover:bg-blue-50"
+                    } transition-colors hidden sm:block`}
+                  >
+                    {allNotifications?.filter(
+                      (notifs) => notifs?.status === "unread"
+                    )?.length > 0 ? (
+                      <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                       { allNotifications?.filter( (notifs) => notifs?.status ===
+                        "unread" )?.length}
+                      </span>
+                    ) : null}
+                    <Bell className="h-5 w-5" />
+                  </button>
+
+                  <NotificationDropdown
+                    isOpen={isNotificationOpen}
+                    onClose={() => setIsNotificationOpen(false)}
+                    isDark={isDark}
+                  />
+                </div>
+
+                {/* <button
                   className={`relative p-2 rounded-lg cursor-pointer ${
                     isDark ? "hover:bg-gray-700" : "hover:bg-blue-50"
                   } transition-colors hidden sm:block`}
@@ -318,7 +351,7 @@ function Header() {
                   <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
                     3
                   </span>
-                </button>
+                </button> */}
 
                 {/* Profile Dropdown */}
                 <div className="relative dropdown-container">
@@ -364,6 +397,17 @@ function Header() {
                         } transition-colors`}
                       >
                         My Profile
+                      </a>
+                      <a
+                        onClick={() => {
+                          setIsNotificationOpen(!isNotificationOpen);
+                          setProfileDropdownOpen(false);
+                        }}
+                        className={`block sm:hidden px-4 py-2 cursor-pointer ${
+                          isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                        } transition-colors`}
+                      >
+                        Notifications
                       </a>
                       <a
                         onClick={() => {
@@ -459,7 +503,7 @@ function Header() {
           suggestions={suggestions}
         />
       )}
-       <div className="h-[60px] sm:h-[72px]"/>
+      <div className="h-[60px] sm:h-[72px]" />
     </>
   );
 }

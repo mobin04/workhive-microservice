@@ -5,7 +5,7 @@ const initialState = {
     message: "",
     type: "info",
     visible: false,
-    _nonce: null,
+    popupId: "",
   },
 };
 
@@ -18,6 +18,7 @@ const popupSlice = createSlice({
       state.popup.type = action.payload.type || "info";
       state.popup.visible = true;
       state.popup._nonce = Date.now();
+      state.popup.popupId = action.payload.popupId || Date.now();
     },
     hidePopup: (state) => {
       state.visible = false;

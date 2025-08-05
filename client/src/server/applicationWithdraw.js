@@ -16,6 +16,7 @@ export const withDrawnApplicationApi = async (id, dispatch = null) => {
           message: "Your application withdrawned successfully!",
           type: "success",
           visible: true,
+          popupId: Date.now(),
         })
       );
     }
@@ -30,6 +31,7 @@ export const withDrawnApplicationApi = async (id, dispatch = null) => {
             "Error occour while withdrawing application! Please try again later",
           type: "error",
           visible: true,
+          popupId: Date.now(),
         })
       );
     }

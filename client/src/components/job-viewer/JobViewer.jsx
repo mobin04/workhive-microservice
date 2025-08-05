@@ -35,6 +35,7 @@ import {
   ClipboardCheck,
   Clipboard,
   ClipboardList,
+  ServerCrash,
 } from "lucide-react";
 import { showPopup } from "../../store/slices/popupSlice";
 
@@ -125,6 +126,7 @@ const JobViewer = () => {
         message: "Link copied to clipboard!",
         type: "success",
         visible: true,
+        popupId: Date.now(),
       })
     );
   };
@@ -141,7 +143,7 @@ const JobViewer = () => {
 
   return (
     <div className={`w-full  ${jobViewerThemeClass.container}`}>
-      {jobData && (
+      {jobData ? (
         <div
           className={`max-w-7xl w-full mx-auto p-6 rounded-lg  shadow-lg ${jobViewerThemeClass.container}`}
         >
@@ -434,12 +436,12 @@ const JobViewer = () => {
               className={` px-6 py-3 rounded-lg font-semibold border transition-colors cursor-pointer ${jobViewerThemeClass.button.secondary}`}
             >
               {isLinkCopied ? (
-                <div className="flex transition-all duration-500 gap-2 justify-center items-center text-green-600">
+                <div className="flex transition-all duration-200 gap-2 justify-center items-center text-green-600">
                   <ClipboardCheck />
                   <span>Link copied</span>
                 </div>
               ) : (
-                <div className="flex gap-2 transition-all duration-500 justify-center items-center">
+                <div className="flex gap-2 transition-all duration-200 justify-center items-center">
                   <ClipboardList />
                   <span>Copy Link</span>
                 </div>
@@ -451,6 +453,15 @@ const JobViewer = () => {
             >
               Cancel
             </button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex gap-4 justify-center items-center min-h-screen">
+          <div className="flex gap-4 justify-center items-center p-5">
+            <ServerCrash className="scale-150 text-gray-500" />
+            <div className="text-gray-500 overflow-clip text-2xl md:text-4xl">
+              Failed to fetch job please try again later :(
+            </div>
           </div>
         </div>
       )}
