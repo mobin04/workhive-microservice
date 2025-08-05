@@ -17,12 +17,23 @@ import SavedJobs from "./components/saved-jobs/SavedJobs";
 import ViewApplications from "./components/view-applications/ViewApplications";
 import ViewProfile from "./components/view-profile/Profile";
 import useFetchProfile from "./hooks/useFetchProfile";
+import NotificationPopup from "./components/notification-popup/NotificationPopup";
+import useNotificationListen from "./hooks/useNotificationListen";
+import useFetchNotifications from "./hooks/useFetchNotifications";
 
 function App() {
   const { popup } = useSelector((state) => state.popup);
+  const { user } = useSelector((state) => state.user);
   const { errorShow } = useSelector((state) => state.errorShow);
+  const { isVisible, notification } = useSelector(
+    (state) => state.notification
+  );
+  const {refetch} = useFetchNotifications()
+
+  useNotificationListen(user?._id, refetch);
+  
   const dispatch = useDispatch();
-  const { mutate, isPending} = useFetchProfile();
+  const { mutate, isPending } = useFetchProfile();
 
   useEffect(() => {
     mutate();
@@ -75,7 +86,12 @@ function App() {
           message={popup.message}
           type={popup.type}
           isVisible={popup.visible}
+          popupId={popup.popupId}
         />
+      ) : null}
+
+      {isVisible && notification ? (
+        <NotificationPopup isVisible={isVisible} notification={notification} />
       ) : null}
     </div>
   );

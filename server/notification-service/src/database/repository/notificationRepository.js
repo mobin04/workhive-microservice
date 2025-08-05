@@ -5,7 +5,9 @@ class NotificationRepository {
   async GetAllNotification(input) {
     const { id } = input;
     try {
-      const notification = await Notification.find({ userId: id });
+      const notification = await Notification.find({ userId: id }).sort({
+        createdAt: -1,
+      });
       return notification;
     } catch (err) {
       throw new AppError(err.message, err.statusCode);
@@ -39,9 +41,8 @@ class NotificationRepository {
         status: 'read',
       });
       if (!notification) return false;
-      
+
       return true;
-      
     } catch (err) {
       throw new AppError(err.message, err.statusCode);
     }

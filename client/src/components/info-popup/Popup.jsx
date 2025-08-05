@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { CheckCircle, AlertCircle, XCircle, Info, X } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { showPopup } from "../../store/slices/popupSlice";
 
 const Popup = ({
   message = "Notification message",
@@ -8,8 +10,27 @@ const Popup = ({
   onClose,
   autoClose = true,
   duration = 4000,
+  popupId,
 }) => {
   const [show, setShow] = useState(isVisible);
+  const dispatch = useDispatch();
+
+  const handleClose = () => {
+    setShow(false);
+    if (onClose) {
+      setTimeout(() => {
+        onClose();
+        dispatch(
+          showPopup({
+            message: "",
+            type: "",
+            visible: false,
+            popupId: Date.now(),
+          })
+        );
+      }, 300);
+    }
+  };
 
   useEffect(() => {
     setShow(isVisible);
@@ -18,17 +39,9 @@ const Popup = ({
       const timer = setTimeout(() => {
         handleClose();
       }, duration);
-
       return () => clearTimeout(timer);
     }
-  }, [isVisible, autoClose, duration]);
-
-  const handleClose = () => {
-    setShow(false);
-    if (onClose) {
-      setTimeout(() => onClose(), 300);
-    }
-  };
+  }, [isVisible, autoClose, duration, dispatch, popupId]);
 
   const getNotificationConfig = () => {
     switch (type) {

@@ -1,11 +1,15 @@
 import React from "react";
 import axios from "axios";
 import { showPopup } from "../store/slices/popupSlice";
+import { envVariables } from "../config";
 
-const saveJobToSaveList = async (url, id, dispatch = null) => {
+const deleteNoficationApi = async (id, dispatch = null) => {
   try {
-    const res = await axios.post(`${url}/${id}`, "", {withCredentials: true});
-    if (res?.data?.data?.status === "success") return true;
+    const res = await axios.delete(
+      `${envVariables.DELETE_NOTIFICATION_URL}/${id}`,
+      { withCredentials: true }
+    );
+    return res?.data;
   } catch (err) {
     console.log(err);
     if (dispatch) {
@@ -22,4 +26,4 @@ const saveJobToSaveList = async (url, id, dispatch = null) => {
   }
 };
 
-export default saveJobToSaveList;
+export default deleteNoficationApi;

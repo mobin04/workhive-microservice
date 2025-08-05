@@ -53,7 +53,9 @@ class ApplicationRepository {
   async GetApplicationsByApplicantId(input) {
     const { id } = input;
     try {
-      const application = await Application.find({ applicant: id });
+      const application = await Application.find({ applicant: id }).sort({
+        createdAt: -1,
+      });
       return application;
     } catch (err) {
       throw new AppError(err.message, err.statusCode);
@@ -128,7 +130,7 @@ class ApplicationRepository {
       throw new AppError(err.message, err.statusCode);
     }
   }
-
+ 
   async WithdrawedApplication(input) {
     const { applicantId } = input;
     try {

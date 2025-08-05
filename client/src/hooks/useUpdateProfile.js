@@ -18,6 +18,7 @@ const useUpdateProfile = () => {
           message: "Profile updated successfully",
           type: "success",
           visible: true,
+          popupId: Date.now(),
         })
       );
     },
@@ -30,6 +31,7 @@ const useUpdateProfile = () => {
               "Failed to update your profile! Please try again after some time",
             type: "error",
             visible: true,
+            popupId: Date.now(),
           })
         );
       }

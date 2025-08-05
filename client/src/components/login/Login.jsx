@@ -69,6 +69,7 @@ const Login = () => {
               message: "logged in successfully!",
               type: "success",
               visible: true,
+              popupId: Date.now(),
             })
           );
           navigate("/");

@@ -107,6 +107,7 @@ const JobApplicationForm = () => {
             message: error?.response?.data?.message || "Failed to apply job",
             type: "error",
             visible: true,
+            popupId: Date.now(),
           })
         );
         setUploadError(

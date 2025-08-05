@@ -19,6 +19,7 @@ const useFetchProfile = () => {
             message: "Internal server error! Please try again later",
             type: "error",
             visible: true,
+            popupId: Date.now(),
           })
         );
         dispatch(showError({ type: "500", visible: true, onGoHome: false }));

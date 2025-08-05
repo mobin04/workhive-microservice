@@ -16,6 +16,7 @@ const removeJobFromSaved = async (url, id, dispatch = null) => {
             err.response?.data?.message || "Error occour while saving job",
           type: "error",
           visible: true,
+          popupId: Date.now(),
         })
       );
     }

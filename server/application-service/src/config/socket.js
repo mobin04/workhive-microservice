@@ -5,7 +5,13 @@ const routing_key_notification = 'notification_create_request';
 let io;
 
 const initSocket = (server) => {
-  io = socketIo(server, { cors: { origin: '*' } });
+  io = socketIo(server, {
+    cors: {
+      origin: [process.env.FRONTEND_URL],
+      methods: ['GET', 'POST'],
+      credentials: true,
+    },
+  });
   io.on('connection', (socket) => {
     console.log(`User connected: ${socket.id}`);
     socket.on('disconnect', (socket) => {

@@ -35,4 +35,9 @@ export const envVariables = {
   APPLY_JOB_URL: `${import.meta.env.VITE_API_URL}/applications`,
   GET_APPLICATIONS_URL: `${import.meta.env.VITE_API_URL}/applications`,
   WITHDRAW_APPLICATION_URL: `${import.meta.env.VITE_API_URL}/applications`,
+
+  // 🔹Notification
+  GET_ALL_NOTIFICATIONS_URL: `${import.meta.env.VITE_API_URL}/notifications`,
+  READ_ALL_NOTIFICATION_URL: `${import.meta.env.VITE_API_URL}/notifications/read-all`,
+  DELETE_NOTIFICATION_URL: `${import.meta.env.VITE_API_URL}/notifications`,
 };
