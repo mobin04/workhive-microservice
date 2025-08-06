@@ -88,6 +88,12 @@ class Email {
         message:
           'Your application has been withdrawn as requested. You can always apply for other positions that interest you on our platform.',
       },
+      shortlisted: {
+        icon: '✅',
+        text: 'Shortlisted',
+        message:
+          "Good news! You've been shortlisted for the next stage of the hiring process. The employer may reach out to schedule an interview or request more information soon.",
+      },
     };
 
     const status = statusConfig[this.applicationStatus.application.status]; // get the fields from string key
@@ -105,9 +111,11 @@ class Email {
         applicationDate: new Date(
           this.applicationStatus.application.createdAt
         ).toLocaleDateString(),
-        applicationUpdateDate: new Date(
+        applicationUpdateDate: `${
+          this.applicationStatus?.application?.status?.toUpperCase() || ''
+        } ${new Date(
           this.applicationStatus.application.updatedAt
-        ).toLocaleDateString(),
+        ).toLocaleDateString()}`,
         statusMessage: status.message,
       }
     );

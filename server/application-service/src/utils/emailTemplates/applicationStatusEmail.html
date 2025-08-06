@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -148,6 +148,19 @@
         text-align: center;
       }
 
+      .company-name {
+        margin-left: 4px;
+      }
+      .application-date {
+        margin-left: 4px;
+      } 
+      .application-status {
+        margin-left: 4px;
+      }
+      .job-title {
+        margin-left: 4px;
+      }
+      
       .job-info {
         display: flex;
         justify-content: space-between;
@@ -226,7 +239,12 @@
 
       .divider {
         height: 1px;
-        background: linear-gradient(90deg, transparent 0%, #e2e8f0 50%, transparent 100%);
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          #e2e8f0 50%,
+          transparent 100%
+        );
         margin: 20px 0;
       }
 
@@ -283,38 +301,43 @@
         <h2 class="greeting">Hi <span class="username">{{userName}}</span>,</h2>
 
         <p class="message">
-          We have an update regarding your job application. Please see the details below.
+          We have an update regarding your job application. Please see the
+          details below.
         </p>
 
         <div class="job-details">
           <h3>Application Details</h3>
           <div class="job-info">
             <span>Position:</span>
-            <span>{{jobTitle}}</span>
+            <span class="job-title">{{jobTitle}}</span>
           </div>
           <div class="job-info">
             <span>Company:</span>
-            <span>{{companyName}}</span>
+            <span class="company-name">{{companyName}}</span>
           </div>
           <div class="job-info">
             <span>Applied On:</span>
-            <span>{{applicationDate}}</span>
+            <span class="application-date">{{applicationDate}}</span>
           </div>
           <div class="job-info">
             <span>Status Updated:</span>
-            <span>{{applicationUpdateDate}}</span>
+            <span class="application-status">{{applicationUpdateDate}}</span>
           </div>
         </div>
 
         <!-- Dynamic Status Message -->
-        <div class="status-message message-[STATUS_LOWER]">{{statusMessage}}</div>
+        <div class="status-message message-[STATUS_LOWER]">
+          {{statusMessage}}
+        </div>
       </div>
 
       <div class="footer">
         <div class="divider"></div>
         <p>
-          Need assistance? Contact our <a href="[SUPPORT_URL]">Support Team</a><br />
-          Visit your <a href="[DASHBOARD_URL]">dashboard</a> to view all your applications
+          Need assistance? Contact our <a href="[SUPPORT_URL]">Support Team</a
+          ><br />
+          Visit your <a href="[DASHBOARD_URL]">dashboard</a> to view all your
+          applications
         </p>
         <p style="margin-top: 15px; font-size: 12px; color: #94a3b8">
           © 2025 WorkHive. All rights reserved.

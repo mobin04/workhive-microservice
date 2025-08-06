@@ -233,8 +233,8 @@ class ApplicationService {
     const routing_key_job = 'job_request';
 
     try {
-      if (!['accepted', 'rejected'].includes(status)) {
-        throw new AppError('Status must be accepted or rejected', 400);
+      if (!['accepted', 'rejected', 'shortlisted'].includes(status)) {
+        throw new AppError('Status must be accepted & rejected & shortlisted', 400);
       }
       const application = await this.applicationRepo.GetApplicationById({ id });
 
