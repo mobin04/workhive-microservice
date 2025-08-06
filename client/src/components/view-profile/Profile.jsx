@@ -61,15 +61,15 @@ const ViewProfile = () => {
   const handleEdit = () => {
     setIsEditing(true);
     reset({
-      name: userData.name,
-      phone: userData.phone,
-      location: userData.location,
-      website: userData.website,
-      bio: userData.bio,
-      experience: userData.experience,
-      education: userData.education,
-      skills: userData.skills.join(", "),
-      coverImage: userData.coverImage,
+      name: userData?.name,
+      phone: userData?.phone,
+      location: userData?.location,
+      website: userData?.website,
+      bio: userData?.bio,
+      experience: userData?.experience,
+      education: userData?.education,
+      skills: userData?.skills.join(", "),
+      coverImage: userData?.coverImage,
     });
     setPreviewImg(null);
   };
@@ -77,10 +77,11 @@ const ViewProfile = () => {
   const onSubmit = (data) => {
     const processedData = {
       ...data,
-      skills: data.skills
-        .split(",")
-        .map((skill) => skill.trim())
-        .filter((skill) => skill.length > 0),
+      skills:
+        data?.skills
+          ?.split(",")
+          .map((skill) => skill.trim())
+          .filter((skill) => skill.length > 0) || [],
     };
 
     // eslint-disable-next-line no-unused-vars
@@ -250,8 +251,8 @@ const ViewProfile = () => {
                       </div>
                     ) : (
                       <img
-                        src={previewImg || userData.coverImage}
-                        alt={userData.name}
+                        src={previewImg || userData?.coverImage}
+                        alt={userData?.name}
                         className="w-25 h-25 md:h-32 md:w-32 object-cover rounded-full border-2 border-white shadow-lg bg-white"
                       />
                     )}
@@ -279,24 +280,26 @@ const ViewProfile = () => {
                     <div className="flex items-center space-x-3">
                       <span
                         className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          userData.role === "job_seeker"
+                          userData?.role === "job_seeker"
                             ? "bg-green-100 text-green-800"
                             : "bg-blue-100 text-blue-800"
                         }`}
                       >
-                        {getRoleDisplay(userData.role)}
+                        {getRoleDisplay(userData?.role)}
                       </span>
-                      <span
-                        onClick={() => navigate("/saved-jobs")}
-                        className={`md:flex hidden cursor-pointer justify-center items-center px-3 py-1 rounded-full text-sm ${
-                          isDark
-                            ? "bg-gray-700 text-gray-300"
-                            : "bg-gray-100 text-gray-600"
-                        }`}
-                      >
-                        <Bookmark className="h-4 w-4 fill-red-600 text-red-600 inline mr-1" />
-                        {userData.savedJobs.length} Saved Jobs
-                      </span>
+                      {userData?.role === "job_seeker" && (
+                        <span
+                          onClick={() => navigate("/saved-jobs")}
+                          className={`md:flex hidden cursor-pointer justify-center items-center px-3 py-1 rounded-full text-sm ${
+                            isDark
+                              ? "bg-gray-700 text-gray-300"
+                              : "bg-gray-100 text-gray-600"
+                          }`}
+                        >
+                          <Bookmark className="h-4 w-4 fill-red-600 text-red-600 inline mr-1" />
+                          {userData?.savedJobs?.length} Saved Jobs
+                        </span>
+                      )}
                       {applications && applications?.length > 0 && (
                         <span
                           onClick={() => navigate("/applications")}
@@ -559,125 +562,129 @@ const ViewProfile = () => {
                     </div>
 
                     {/* Professional Details */}
-                    <div>
-                      <h3
-                        className={`text-lg font-semibold mb-4 ${
-                          isDark ? "text-white" : "text-gray-900"
-                        }`}
-                      >
-                        Professional Details
-                      </h3>
-                      <div className="space-y-4">
-                        {/* Experience */}
-                        <div>
-                          <label
-                            className={`block text-sm font-medium mb-2 ${
-                              isDark ? "text-gray-300" : "text-gray-700"
-                            }`}
-                          >
-                            Experience Level
-                          </label>
-                          {isEditing ? (
-                            <select
-                              {...register("experience")}
-                              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${profileThemeClasses.inputClasses}`}
-                            >
-                              <option value="Entry Level">Entry Level</option>
-                              <option value="1-2 years">1-2 years</option>
-                              <option value="3-5 years">3-5 years</option>
-                              <option value="5+ years">5+ years</option>
-                              <option value="10+ years">10+ years</option>
-                            </select>
-                          ) : (
-                            <div
-                              className={`flex items-center space-x-2 ${
-                                isDark ? "text-white" : "text-gray-900"
+                    {userData?.role === "job_seeker" && (
+                      <div>
+                        <h3
+                          className={`text-lg font-semibold mb-4 ${
+                            isDark ? "text-white" : "text-gray-900"
+                          }`}
+                        >
+                          Professional Details
+                        </h3>
+                        <div className="space-y-4">
+                          {/* Experience */}
+                          <div>
+                            <label
+                              className={`block text-sm font-medium mb-2 ${
+                                isDark ? "text-gray-300" : "text-gray-700"
                               }`}
                             >
-                              <Award className="h-4 w-4 text-blue-600" />
-                              <span>
-                                {userData?.experience ? (
-                                  userData.experience
-                                ) : (
-                                  <span className="text-gray-500">
-                                    Not added
-                                  </span>
-                                )}
-                              </span>
-                            </div>
-                          )}
-                        </div>
+                              Experience Level
+                            </label>
+                            {isEditing ? (
+                              <select
+                                {...register("experience")}
+                                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${profileThemeClasses.inputClasses}`}
+                              >
+                                <option value="Entry Level">Entry Level</option>
+                                <option value="1-2 years">1-2 years</option>
+                                <option value="3-5 years">3-5 years</option>
+                                <option value="5+ years">5+ years</option>
+                                <option value="10+ years">10+ years</option>
+                              </select>
+                            ) : (
+                              <div
+                                className={`flex items-center space-x-2 ${
+                                  isDark ? "text-white" : "text-gray-900"
+                                }`}
+                              >
+                                <Award className="h-4 w-4 text-blue-600" />
+                                <span>
+                                  {userData?.experience ? (
+                                    userData.experience
+                                  ) : (
+                                    <span className="text-gray-500">
+                                      Not added
+                                    </span>
+                                  )}
+                                </span>
+                              </div>
+                            )}
+                          </div>
 
-                        {/* Education */}
-                        <div>
-                          <label
-                            className={`block text-sm font-medium mb-2 ${
-                              isDark ? "text-gray-300" : "text-gray-700"
-                            }`}
-                          >
-                            Education
-                          </label>
-                          {isEditing ? (
-                            <input
-                              type="text"
-                              {...register("education")}
-                              className={`w-full px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent ${profileThemeClasses.inputClasses}`}
-                            />
-                          ) : (
-                            <div
-                              className={`flex items-center space-x-2 ${
-                                isDark ? "text-white" : "text-gray-900"
+                          {/* Education */}
+                          <div>
+                            <label
+                              className={`block text-sm font-medium mb-2 ${
+                                isDark ? "text-gray-300" : "text-gray-700"
                               }`}
                             >
-                              <BookOpen className="h-4 w-4 text-blue-600" />
-                              <span>
-                                {userData?.education ? (
-                                  userData.education
-                                ) : (
-                                  <span className="text-gray-500">
-                                    Not added
-                                  </span>
-                                )}
-                              </span>
-                            </div>
-                          )}
+                              Education
+                            </label>
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                {...register("education")}
+                                className={`w-full px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent ${profileThemeClasses.inputClasses}`}
+                              />
+                            ) : (
+                              <div
+                                className={`flex items-center space-x-2 ${
+                                  isDark ? "text-white" : "text-gray-900"
+                                }`}
+                              >
+                                <BookOpen className="h-4 w-4 text-blue-600" />
+                                <span>
+                                  {userData?.education ? (
+                                    userData.education
+                                  ) : (
+                                    <span className="text-gray-500">
+                                      Not added
+                                    </span>
+                                  )}
+                                </span>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
 
                     {/* Skills */}
-                    <div>
-                      <h3
-                        className={`text-lg font-semibold mb-4 ${
-                          isDark ? "text-white" : "text-gray-900"
-                        }`}
-                      >
-                        Skills
-                      </h3>
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          {...register("skills")}
-                          placeholder="Enter skills separated by commas"
-                          className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${profileThemeClasses.inputClasses}`}
-                        />
-                      ) : (
-                        <div className="flex flex-wrap gap-2">
-                          {userData?.skills?.length > 0 ? (
-                            userData?.skills?.map((skill, index) => (
-                              <span
-                                key={index}
-                                className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
-                              >
-                                {skill}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-gray-500">Not added</span>
-                          )}
-                        </div>
-                      )}
-                    </div>
+                    {userData?.role === "job_seeker" && (
+                      <div>
+                        <h3
+                          className={`text-lg font-semibold mb-4 ${
+                            isDark ? "text-white" : "text-gray-900"
+                          }`}
+                        >
+                          Skills
+                        </h3>
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            {...register("skills")}
+                            placeholder="Enter skills separated by commas"
+                            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${profileThemeClasses.inputClasses}`}
+                          />
+                        ) : (
+                          <div className="flex flex-wrap gap-2">
+                            {userData?.skills?.length > 0 ? (
+                              userData?.skills?.map((skill, index) => (
+                                <span
+                                  key={index}
+                                  className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
+                                >
+                                  {skill}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-gray-500">Not added</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

@@ -42,7 +42,7 @@ function Header() {
   const [isSearching, setIsSearching] = useState(false);
   const [isHomePage, setIsHomePage] = useState(true);
   const [suggestions, setSuggestions] = useState([]);
-  
+
   useEffect(() => {
     const isHome = location.pathname === "/";
     setIsHomePage(isHome);
@@ -328,8 +328,11 @@ function Header() {
                       (notifs) => notifs?.status === "unread"
                     )?.length > 0 ? (
                       <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                       { allNotifications?.filter( (notifs) => notifs?.status ===
-                        "unread" )?.length}
+                        {
+                          allNotifications?.filter(
+                            (notifs) => notifs?.status === "unread"
+                          )?.length
+                        }
                       </span>
                     ) : null}
                     <Bell className="h-5 w-5" />
@@ -409,28 +412,33 @@ function Header() {
                       >
                         Notifications
                       </a>
-                      <a
-                        onClick={() => {
-                          navigate("/applications");
-                          setProfileDropdownOpen(false);
-                        }}
-                        className={`block cursor-pointer px-4 py-2 ${
-                          isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
-                        } transition-colors`}
-                      >
-                        My Applications
-                      </a>
-                      <a
-                        onClick={() => {
-                          navigate("/saved-jobs");
-                          setProfileDropdownOpen(false);
-                        }}
-                        className={`block px-4 py-2 ${
-                          isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
-                        } transition-colors cursor-pointer`}
-                      >
-                        Saved Jobs
-                      </a>
+                      {user?.role === "job_seeker" && (
+                        <a
+                          onClick={() => {
+                            navigate("/applications");
+                            setProfileDropdownOpen(false);
+                          }}
+                          className={`block cursor-pointer px-4 py-2 ${
+                            isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                          } transition-colors`}
+                        >
+                          My Applications
+                        </a>
+                      )}
+                      
+                      {user?.role === "job_seeker" && (
+                        <a
+                          onClick={() => {
+                            navigate("/saved-jobs");
+                            setProfileDropdownOpen(false);
+                          }}
+                          className={`block px-4 py-2 ${
+                            isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                          } transition-colors cursor-pointer`}
+                        >
+                          Saved Jobs
+                        </a>
+                      )}
                       <div
                         className={`border-t ${
                           isDark ? "border-gray-700" : "border-gray-200"

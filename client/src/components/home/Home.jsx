@@ -43,7 +43,7 @@ function Home() {
       const { filter, url } = queryKey[1];
       return fetchData(filter, url, dispatch);
     },
-    enabled: user ? true : false,
+    enabled: user && user?.role === "job_seeker" ? true : false,
   });
 
   if (isError) {
@@ -123,7 +123,11 @@ function Home() {
 
   return (
     <div className={`${isDark ? "dark" : ""}`}>
-      {user ? <LoggedInHomepage /> : <GuestHomePage />}
+      {user && user?.role === "job_seeker" ? (
+        <LoggedInHomepage />
+      ) : (
+        <GuestHomePage />
+      )}
     </div>
   );
 }

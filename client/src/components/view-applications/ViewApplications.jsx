@@ -16,18 +16,25 @@ import { withDrawnApplicationApi } from "../../server/applicationWithdraw";
 import { useMutation } from "@tanstack/react-query";
 import { updateApplicationStatus } from "../../store/slices/applicationSlice";
 import { useMergeWithdrawnApp } from "../../hooks/useMergeWithdrawnApp";
+import { useNavigate } from "react-router-dom";
 
 const ViewApplications = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { isDark, applicationThemeClasses } = useContext(ThemeContext);
-  const { applications } = useSelector(
-    (state) => state.applications
-  );
+  const { user } = useSelector((state) => state.user);
+  const { applications } = useSelector((state) => state.applications);
   const { isLoading: activeAppLoading } = useFetchApplications();
   const { isLoading: withDrawnedAppLoading } = useFetchWithdrawnApp();
   const [isWithdrawPopup, setIsWithdrawPopup] = useState(false);
   const [withDrawnId, setWithDrawnId] = useState("");
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user && user?.role !== "job_seeker") {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   useEffect(() => {
     if (isWithdrawPopup) {
@@ -145,8 +152,8 @@ const ViewApplications = () => {
               `}
               >
                 Are you sure you want to withdraw this application? This action
-                cannot be undone and you'll need to wait 30 days after reapply if you change your
-                mind.
+                cannot be undone and you'll need to wait 30 days after reapply
+                if you change your mind.
               </p>
 
               {/* Action buttons */}
@@ -267,6 +274,20 @@ const ViewApplications = () => {
                     }`}
                   >
                     Accepted
+                  </div>
+                </div>
+                <div
+                  className={`${applicationThemeClasses.cardClasses} border rounded-lg p-4 transition-all duration-200`}
+                >
+                  <div className="text-2xl font-bold text-lime-600">
+                    {totalStatus("shortlisted")}
+                  </div>
+                  <div
+                    className={`text-sm ${
+                      isDark ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  >
+                    Shortlisted
                   </div>
                 </div>
                 <div

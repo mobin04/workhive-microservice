@@ -26,11 +26,17 @@ import {
 const SavedJobs = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
-
+  const { user } = useSelector((state) => state.user);
   const { savedJobs } = useSelector((state) => state.jobs);
   const dispatch = useDispatch();
   const { isDark, getJobTypeColor, getJobLevelColor, saveJobThemes } =
     useContext(ThemeContext);
+
+  useEffect(() => {
+    if (user && user?.role !== "job_seeker") {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["saved-jobs"],

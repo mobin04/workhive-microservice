@@ -41,6 +41,7 @@ import { showPopup } from "../../store/slices/popupSlice";
 
 const JobViewer = () => {
   const location = useLocation();
+  const {user} = useSelector(state => state.user);
   const navigate = useNavigate();
   const { savedJobs } = useSelector((state) => state.jobs);
   const dispatch = useDispatch();
@@ -51,6 +52,13 @@ const JobViewer = () => {
     jobViewerThemeClass,
     getStatusColor,
   } = useContext(ThemeContext);
+
+  // Auto redirect
+  useEffect(() => {
+    if(user && user?.role !== 'job_seeker'){
+      navigate('/')
+    }
+  }, [user, navigate])
 
   // Fetch application
   const { isLoading: isAppLoading } = useFetchApplications();

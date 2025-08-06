@@ -24,7 +24,7 @@ const useFetchApplications = () => {
   });
 
   useEffect(() => {
-    if (user) {
+    if (user && user?.role === "job_seeker") {
       refetch();
     }
   }, [refetch, user]);

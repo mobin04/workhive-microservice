@@ -16,7 +16,7 @@ const NotificationPopup = ({
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const currentNotification = notification
+  const currentNotification = notification;
 
   const handleClose = () => {
     setIsAnimating(false);
@@ -58,7 +58,10 @@ const NotificationPopup = ({
 
   const getNotificationIcon = (message) => {
     const lowerMessage = message.toLowerCase();
-    if (lowerMessage.includes("accepted")) {
+    if (
+      lowerMessage.includes("accepted") ||
+      lowerMessage.includes("shortlisted")
+    ) {
       return <Check className="h-5 w-5 text-green-500" />;
     } else if (lowerMessage.includes("rejected")) {
       return <X className="h-5 w-5 text-red-500" />;
@@ -87,7 +90,7 @@ const NotificationPopup = ({
   const getAnimationClasses = () => {
     const isTop = position.includes("top");
     const isRight = position.includes("right");
- 
+
     if (!isAnimating) {
       if (isTop) {
         return isRight
@@ -185,7 +188,7 @@ const NotificationPopup = ({
               Dismiss
             </button>
             <button
-              onClick={() => navigate('/applications')}
+              onClick={() => navigate("/applications")}
               className="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
             >
               View Details
