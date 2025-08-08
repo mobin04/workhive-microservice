@@ -265,6 +265,24 @@ class JobService {
     }
   }
 
+  async StatisticsForEmployer(userInput) {
+    const { employerId } = userInput;
+    try {
+      if (!employerId) throw new AppError('Employer ID is required', 400);
+
+      const getStatistics = await this.jobRepository.StatisticForEmployer({
+        employerId,
+      });
+
+      if (!getStatistics) throw new AppError('No statistics found!', 404);
+
+      return formatData(getStatistics);
+    } catch (err) {
+    
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
   async AddLike(userInput) {
     const { userId, jobId } = userInput;
     try {
@@ -293,7 +311,7 @@ class JobService {
 
       if (!isLiked)
         throw new AppError(
-          `You can't remove like! Since you are not liked this job`, 
+          `You can't remove like! Since you are not liked this job`,
           400
         );
 

@@ -1,5 +1,6 @@
 const { Job } = require('../models/index');
 const { AppError, ApiFeatures, JobConfig } = require('../../utils');
+const mongoose = require('mongoose');
 
 class JobRepository {
   async GetAllJobs(query) {
@@ -17,7 +18,9 @@ class JobRepository {
   async GetJobsByEmployerId(input) {
     const { id } = input;
     try {
-      const job = await Job.find({ employer: id }).lean();
+      const job = await Job.find({ employer: id })
+        .lean()
+        .sort({ createdAt: -1 });
       return job;
     } catch (err) {
       throw new AppError(err.message, err.statusCode);
@@ -217,6 +220,212 @@ class JobRepository {
       }
       return job;
     } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
+  async StatisticForEmployer(input) {
+    const { employerId } = input;
+    try {
+      const now = new Date();
+
+      const stats = await Job.aggregate([
+        {
+          $match: {
+            employer: new mongoose.Types.ObjectId(employerId),
+          },
+        },
+
+        {
+          $facet: {
+            // Summary
+            summary: [
+              {
+                $group: {
+                  _id: null,
+                  totalJobsPosted: { $sum: 1 },
+                  activeJobs: {
+                    $sum: {
+                      $cond: [{ $gt: ['$expiresAt', now] }, 1, 0],
+                    },
+                  },
+                  expiredJobs: {
+                    $sum: {
+                      $cond: [{ $lte: ['$expiresAt', now] }, 1, 0],
+                    },
+                  },
+                  totalApplications: { $sum: { $size: '$applications' } },
+                },
+              },
+              {
+                $addFields: {
+                  averageApplicationsPerJob: {
+                    $cond: [
+                      { $eq: ['$totalJobsPosted', 0] },
+                      0,
+                      { $divide: ['$totalApplications', '$totalJobsPosted'] },
+                    ],
+                  },
+                },
+              },
+              {
+                $project: { _id: 0 },
+              },
+            ],
+
+            // Time based stats
+            timeRangeStats: [
+              {
+                $group: {
+                  _id: null,
+                  last7Days: {
+                    $sum: {
+                      $cond: [
+                        {
+                          $gte: [
+                            '$createdAt',
+                            new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+                          ],
+                        },
+                        1,
+                        0,
+                      ],
+                    },
+                  },
+                  last30Days: {
+                    $sum: {
+                      $cond: [
+                        {
+                          $gte: [
+                            '$createdAt',
+                            new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+                          ],
+                        },
+                        1,
+                        0,
+                      ],
+                    },
+                  },
+                  last90Days: {
+                    $sum: {
+                      $cond: [
+                        {
+                          $gte: [
+                            '$createdAt',
+                            new Date(Date.now() - 90 * 24 * 60 * 60 * 1000),
+                          ],
+                        },
+                        1,
+                        0,
+                      ],
+                    },
+                  },
+                },
+              },
+              {
+                $project: {
+                  _id: 0,
+                  last7Days: 1,
+                  last30Days: 1,
+                  last90Days: 1,
+                },
+              },
+            ],
+
+            // jobType stats
+            jobTypeStats: [
+              {
+                $group: {
+                  _id: '$jobType',
+                  count: { $sum: 1 },
+                  applications: { $sum: { $size: '$applications' } },
+                },
+              },
+              {
+                $project: {
+                  _id: 0,
+                  type: '$_id',
+                  count: 1,
+                  applications: 1,
+                },
+              },
+            ],
+
+            // jobLevel stats
+            jobLevelStats: [
+              {
+                $group: {
+                  _id: '$jobLevel',
+                  count: { $sum: 1 },
+                  applications: { $sum: { $size: '$applications' } },
+                },
+              },
+              {
+                $project: {
+                  _id: 0,
+                  level: '$_id',
+                  count: 1,
+                  applications: 1,
+                },
+              },
+            ],
+
+            // category stats
+            categoryStats: [
+              {
+                $group: {
+                  _id: '$category',
+                  count: { $sum: 1 },
+                  applications: { $sum: { $size: '$applications' } },
+                },
+              },
+              {
+                $project: {
+                  _id: 0,
+                  category: '$_id',
+                  count: 1,
+                  applications: 1,
+                },
+              },
+            ],
+
+            // Location stats
+            locationStats: [
+              {
+                $group: {
+                  _id: '$location',
+                  count: { $sum: 1 },
+                  applications: { $sum: { $size: '$applications' } },
+                },
+              },
+              {
+                $project: {
+                  _id: 0,
+                  location: '$_id',
+                  count: 1,
+                  applications: 1,
+                },
+              },
+            ],
+          },
+        },
+
+        // Formated output
+        {
+          $project: {
+            employerId: employerId,
+            summary: { $arrayElemAt: ['$summary', 0] },
+            jobTypeStats: 1,
+            jobLevelStats: 1,
+            categoryStats: 1,
+            locationStats: 1,
+            timeRangeStats: 1,
+          },
+        },
+      ]);
+      return stats[0];
+    } catch (err) {
+      console.log(err);
       throw new AppError(err.message, err.statusCode);
     }
   }

@@ -39,22 +39,28 @@ const userSchema = new mongoose.Schema(
     ], // Additionaly included (optional)
     phone: {
       type: String,
+      default: 'Not specified'
     },
     location: {
       type: String,
+      default: 'Not specified'
     },
     website: {
       type: String,
+      default: 'Not specified'
     },
     bio: {
       type: String,
+      default: 'Not specified'
     },
     skills: [String],
     experience: {
       type: String,
+      default: 'Not specified'
     },
     education: {
       type: String,
+      default: 'Not specified'
     },
     createdAt: {
       type: Date,

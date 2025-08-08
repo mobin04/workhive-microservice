@@ -185,7 +185,7 @@ module.exports = (app, channel) => {
   app.get(
     `${baseUrl}/statistics`,
     authMiddleware.protect,
-    authMiddleware.restrictTo('admin'),
+    // authMiddleware.restrictTo('admin, employer'),
     async (req, res) => {
       const jobStatistics = await service.GetJobStatistics();
       const employerStatistics = await service.GetEmployerStatistics();
@@ -200,6 +200,134 @@ module.exports = (app, channel) => {
         },
       });
     }
+  );
+
+  /**
+   * @swagger
+   * /api/v2/jobs/{id}/employer-stats:
+   *   get:
+   *     summary: Get statistics for an employer (jobs, applications, etc.)
+   *     security:
+   *       - bearerAuth: []
+   *     tags:
+   *       - Job
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         description: Employer ID
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Successfully fetched employer statistics
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: success
+   *                 message:
+   *                   type: string
+   *                   example: Statistics fetched successfully
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     data:
+   *                       type: object
+   *                       properties:
+   *                         employerId:
+   *                           type: string
+   *                         summary:
+   *                           type: object
+   *                           properties:
+   *                             totalJobsPosted:
+   *                               type: integer
+   *                             activeJobs:
+   *                               type: integer
+   *                             expiredJobs:
+   *                               type: integer
+   *                             totalApplications:
+   *                               type: integer
+   *                             averageApplicationsPerJob:
+   *                               type: number
+   *                         jobTypeStats:
+   *                           type: array
+   *                           items:
+   *                             type: object
+   *                             properties:
+   *                               type:
+   *                                 type: string
+   *                               count:
+   *                                 type: integer
+   *                               applications:
+   *                                 type: integer
+   *                         jobLevelStats:
+   *                           type: array
+   *                           items:
+   *                             type: object
+   *                             properties:
+   *                               level:
+   *                                 type: string
+   *                               count:
+   *                                 type: integer
+   *                               applications:
+   *                                 type: integer
+   *                         categoryStats:
+   *                           type: array
+   *                           items:
+   *                             type: object
+   *                             properties:
+   *                               category:
+   *                                 type: string
+   *                               count:
+   *                                 type: integer
+   *                               applications:
+   *                                 type: integer
+   *                         locationStats:
+   *                           type: array
+   *                           items:
+   *                             type: object
+   *                             properties:
+   *                               location:
+   *                                 type: string
+   *                               count:
+   *                                 type: integer
+   *                         timeRangeStats:
+   *                           type: object
+   *                           properties:
+   *                             last7Days:
+   *                               type: integer
+   *                             last30Days:
+   *                               type: integer
+   *                             last90Days:
+   *                               type: integer
+   *       400:
+   *         description: Employer ID is required
+   *       404:
+   *         description: No statistics found
+   */
+
+  // 🔹Get Statistics for employer.
+  app.get(
+    `${baseUrl}/:id/employer-stats`, // Employer ID
+    authMiddleware.protect,
+    authMiddleware.restrictTo('employer'),
+    catchAsync(async (req, res, next) => {
+      const employerId = req.params.id;
+      if (!employerId) return next(new AppError('Employer id not found!', 400));
+      const { data } = await service.StatisticsForEmployer({ employerId });
+
+      res.status(200).json({
+        status: 'success',
+        message: 'Statistics fetched successfully',
+        data: {
+          data,
+        },
+      });
+    })
   );
 
   /**
@@ -576,12 +704,12 @@ module.exports = (app, channel) => {
    *                   type: string
    *      400:
    *        description: Job id not found!, You can't remove like! Since you are not liked this job
-   *      404: 
+   *      404:
    *        description: No job found with that id
    *      500:
    *        description: Failed to remove like
-   *      
-   */            
+   *
+   */
 
   app.patch(
     `${baseUrl}/:id/like`,
