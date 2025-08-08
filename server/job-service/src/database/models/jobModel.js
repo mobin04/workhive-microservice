@@ -125,7 +125,7 @@ jobSchema.index({ geoLocation: '2dsphere' }); // For geospatial querys
 
 jobSchema.pre('save', function (next) {
   if (this.isNew) {
-    this.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    this.expiresAt = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000);
   }
   next();
 });

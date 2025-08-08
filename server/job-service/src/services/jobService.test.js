@@ -19,6 +19,7 @@ jest.mock('../database/repository', () => ({
     PullApplication: jest.fn(),
     AddLike: jest.fn(),
     RemoveLike: jest.fn(),
+    StatisticForEmployer: jest.fn(),
   })),
 }));
 
@@ -1067,5 +1068,49 @@ describe('JobService - RemoveLike', () => {
     expect(result.data).toBe('Like removed successfully!');
     expect(mockRepo.RemoveLike).toHaveBeenCalled();
     expect(mockRepo.GetJobByJobId).toHaveBeenCalled();
+  });
+});
+
+describe('JobService - StatisticsForEmployer', () => {
+  let service;
+  let mockRepo;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    service = new JobService();
+    mockRepo = service.jobRepository;
+  });
+
+  it('Should throw error if employer ID is not found', async () => {
+    await expect(
+      service.StatisticsForEmployer({ employerId: null })
+    ).rejects.toThrow('Employer ID is required');
+  });
+
+  it('Should throw error if No statistics found', async () => {
+    mockRepo.StatisticForEmployer.mockResolvedValue(null);
+    await expect(
+      service.StatisticsForEmployer({ employerId: 'emp123' })
+    ).rejects.toThrow('No statistics found!');
+  });
+
+  it('Should return statistic data successfully', async () => {
+    mockRepo.StatisticForEmployer.mockResolvedValueOnce({
+      employerId: 'emp123',
+      totalJobs: [{ count: 5 }],
+      totalCategory: [{ count: 8 }],
+    });
+
+    const result = await service.StatisticsForEmployer({
+      employerId: 'emp123',
+    });
+
+    expect(result).toHaveProperty('data');
+    expect(mockRepo.StatisticForEmployer).toHaveBeenCalled();
+    expect(result.data).toMatchObject({
+      employerId: 'emp123',
+      totalJobs: [{ count: 5 }],
+      totalCategory: [{ count: 8 }],
+    });
   });
 });
