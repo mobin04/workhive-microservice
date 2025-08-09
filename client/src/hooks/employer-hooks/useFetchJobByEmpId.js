@@ -1,19 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchData } from "../server/fetchData";
+import { fetchData } from "../../server/fetchData";
 
-const useFetchJobByJobId = (url, isEnabled = true) => {
+const useFetchJobByEmpId = (url, isEnabled = true) => {
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["job", url],
+    queryKey: ["job-employer", url],
     queryFn: ({ queryKey }) => fetchData({}, queryKey[1]),
     enabled: isEnabled,
-    refetchOnWindowFocus: false,
   });
 
   return {
     data,
     isLoading,
-    refetch
+    refetch,
   };
-};
+}; 
 
-export default useFetchJobByJobId;
+export default useFetchJobByEmpId;

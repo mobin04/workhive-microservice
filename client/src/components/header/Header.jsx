@@ -107,7 +107,7 @@ function Header() {
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && user?.role === "job_seeker") {
       reduxDispatch(setJobs(data));
     }
   }, [data, reduxDispatch]);
@@ -117,9 +117,13 @@ function Header() {
       (debouncedSearch && debouncedSearch.trim().length >= 2) ||
       (state.locationCoords && Array.isArray(state.locationCoords));
 
-    if (shouldSearch && user) {
+    if (shouldSearch && user?.role === "job_seeker") {
       refetch();
-    } else if (debouncedSearch === "" && !state.locationCoords && user) {
+    } else if (
+      debouncedSearch === "" &&
+      !state.locationCoords &&
+      user?.role === "job_seeker"
+    ) {
       // fetch all jobs when search is cleared
       fetchData({}, GET_JOB_URL)
         .then((res) => {
@@ -262,7 +266,7 @@ function Header() {
             </div>
 
             {/* Desktop Search Section */}
-            {isHomePage && (
+            {isHomePage && user?.role === "job_seeker" && (
               <SearchBars
                 clearSearch={clearSearch}
                 handleLocationInputChange={handleLocationInputChange}
@@ -412,6 +416,21 @@ function Header() {
                       >
                         Notifications
                       </a>
+                      
+                      {user?.role === "employer" && (
+                        <a
+                          onClick={() => {
+                            navigate("/employer-stats");
+                            setProfileDropdownOpen(false);
+                          }}
+                          className={`block cursor-pointer px-4 py-2 ${
+                            isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                          } transition-colors`}
+                        >
+                          Job Statistics
+                        </a>
+                      )}
+
                       {user?.role === "job_seeker" && (
                         <a
                           onClick={() => {
@@ -425,7 +444,7 @@ function Header() {
                           My Applications
                         </a>
                       )}
-                      
+
                       {user?.role === "job_seeker" && (
                         <a
                           onClick={() => {
@@ -493,7 +512,7 @@ function Header() {
       </header>
 
       {/* Mobile Search Overlay */}
-      {isHomePage && (
+      {isHomePage && user?.role === "job_seeker" && (
         <MobileSearchBar
           clearSearch={clearSearch}
           handleLocationInputChange={handleLocationInputChange}

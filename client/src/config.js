@@ -38,6 +38,12 @@ export const envVariables = {
 
   // 🔹Notification
   GET_ALL_NOTIFICATIONS_URL: `${import.meta.env.VITE_API_URL}/notifications`,
-  READ_ALL_NOTIFICATION_URL: `${import.meta.env.VITE_API_URL}/notifications/read-all`,
+  READ_ALL_NOTIFICATION_URL: `${
+    import.meta.env.VITE_API_URL
+  }/notifications/read-all`,
   DELETE_NOTIFICATION_URL: `${import.meta.env.VITE_API_URL}/notifications`,
+
+  // EMPLOYER
+  GET_ALL_JOBS_EMPLOYER_URL: `${import.meta.env.VITE_API_URL}/jobs`,
+  GET_APPLICATIONS_BY_JOBID_URL: `${import.meta.env.VITE_API_URL}/applications`,
 };
