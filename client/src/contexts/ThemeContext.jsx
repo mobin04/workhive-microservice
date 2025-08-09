@@ -324,6 +324,35 @@ export function ThemeContextProvider({ children }) {
     }),
     [isDark]
   );
+  
+  const getStatusColorViewAppEmp = useCallback(
+  (status) => {
+    switch (status) {
+      case "pending":
+        return isDark
+          ? "bg-yellow-900 text-yellow-300"
+          : "bg-yellow-100 text-yellow-800";
+      case "shortlisted":
+        return isDark
+          ? "bg-blue-900 text-blue-300"
+          : "bg-blue-100 text-blue-800";
+      case "accepted":
+        return isDark
+          ? "bg-green-900 text-green-300"
+          : "bg-green-100 text-green-800";
+      case "rejected":
+        return isDark
+          ? "bg-red-900 text-red-300"
+          : "bg-red-100 text-red-800";
+      default:
+        return isDark
+          ? "bg-gray-700 text-gray-300"
+          : "bg-gray-100 text-gray-800";
+    }
+  },
+  [isDark]
+);
+
 
   const themeContextValue = useMemo(
     () => ({
@@ -347,6 +376,7 @@ export function ThemeContextProvider({ children }) {
       applicationThemeClasses,
       getApplicationStatusClr,
       profileThemeClasses,
+      getStatusColorViewAppEmp
     }),
     [
       isDark,
@@ -369,6 +399,7 @@ export function ThemeContextProvider({ children }) {
       applicationThemeClasses,
       getApplicationStatusClr,
       profileThemeClasses,
+      getStatusColorViewAppEmp
     ]
   );
 

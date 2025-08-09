@@ -20,6 +20,9 @@ import useFetchProfile from "./hooks/useFetchProfile";
 import NotificationPopup from "./components/notification-popup/NotificationPopup";
 import useNotificationListen from "./hooks/useNotificationListen";
 import useFetchNotifications from "./hooks/useFetchNotifications";
+import EmployerStatistics from "./components/employer-components/employer-stats/EmployerStats";
+import JobApplicationsViewer from "./components/employer-components/view-applications/ViewApplications";
+import ViewJobEmp from "./components/employer-components/view-job/ViewJobEmp";
 
 function App() {
   const { popup } = useSelector((state) => state.popup);
@@ -57,6 +60,9 @@ function App() {
         <Route path="/saved-jobs" element={<SavedJobs />} />
         <Route path="/applications" element={<ViewApplications />} />
         <Route path="/profile" element={<ViewProfile />} />
+        <Route path="/employer-stats" element={<EmployerStatistics/>} />
+        <Route path="/view-applications" element={<JobApplicationsViewer/>} />
+        <Route path="/view-job" element={<ViewJobEmp/>} />
         <Route
           path="*"
           element={

@@ -26,6 +26,15 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none; 
+  scrollbar-width: none;
+}
+
 .slider-thumb::-moz-range-thumb {
   width: 20px;
   height: 20px;
