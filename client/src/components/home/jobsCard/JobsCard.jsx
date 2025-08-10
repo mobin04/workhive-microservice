@@ -15,6 +15,8 @@ import { useMergeWithdrawnApp } from "../../../hooks/useMergeWithdrawnApp";
 import {
   Bookmark,
   Building2,
+  CircleAlert,
+  CircleCheck,
   Clock,
   Frown,
   MapPin,
@@ -115,7 +117,8 @@ const JobsCard = ({ isAppLoading, isWithdrawLoading }) => {
                         className="w-20 h-20 rounded-lg object-cover border-2 border-gray-200"
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = 'https://www.svgrepo.com/download/382706/picture-photo-image.svg';
+                          e.target.src =
+                            "https://www.svgrepo.com/download/382706/picture-photo-image.svg";
                         }}
                       />
                     </div>
@@ -124,6 +127,29 @@ const JobsCard = ({ isAppLoading, isWithdrawLoading }) => {
                       <h3 className="text-xl font-semibold mb-1">
                         {job.title}
                       </h3>
+                      {job?.status === "open" ? (
+                        <div
+                          className={`inline-flex my-2 gap-1 justify-center items-center px-3 py-1 rounded-full text-xs font-medium border ${
+                            isDark
+                              ? "bg-green-900 text-green-200 border-green-800"
+                              : "bg-green-400/20 text-green-900 border-green-500"
+                          }`}
+                        >
+                          <CircleCheck className="h-3 w-3" />
+                          <span>{job?.status}</span>
+                        </div>
+                      ) : (
+                        <div
+                          className={`inline-flex my-2 gap-1 justify-center items-center px-3 py-1 rounded-full text-xs font-medium border ${
+                            isDark
+                              ? "bg-red-900 text-red-200 border-red-800"
+                              : "bg-red-400/20 text-red-900 border-red-500"
+                          }`}
+                        >
+                          <CircleAlert className="h-3 w-3" />
+                          <span>{job?.status}</span>
+                        </div>
+                      )}
                       <div
                         className={`flex flex-wrap items-center gap-4 text-sm ${dynamicFontColor} mb-2`}
                       >
@@ -205,7 +231,7 @@ const JobsCard = ({ isAppLoading, isWithdrawLoading }) => {
                         onClick={() => handleRemove(job?._id)}
                         disabled={removePending[job._id]}
                         className={`flex justify-center items-center p-2 min-w-10 rounded-lg cursor-pointer ${
-                          isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                          isDark ? "hover:bg-gray-500" : "hover:bg-gray-100"
                         } transition-colors`}
                       >
                         {removePending[job._id] ? (
@@ -217,8 +243,10 @@ const JobsCard = ({ isAppLoading, isWithdrawLoading }) => {
                     ) : (
                       <button
                         onClick={() => handleSave(job?._id)}
-                        disabled={savePending[job._id]}
-                        className={`flex justify-center items-center p-2 min-w-10 rounded-lg cursor-pointer ${
+                        disabled={
+                          savePending[job._id] || job?.status === "closed"
+                        }
+                        className={`flex justify-center disabled:text-gray-500 disabled:cursor-not-allowed items-center p-2 min-w-10 rounded-lg cursor-pointer ${
                           isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
                         } transition-colors`}
                       >
@@ -247,12 +275,19 @@ const JobsCard = ({ isAppLoading, isWithdrawLoading }) => {
                               View Application
                             </button>
                           </div>
-                        ) : (
+                        ) : job?.status !== "closed" ? (
                           <button
                             onClick={() => navigate(`/job?id=${job._id}`)}
                             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
                           >
                             Apply Now
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => navigate(`/job?id=${job._id}`)}
+                            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
+                          >
+                            View Job
                           </button>
                         )}
                       </>
