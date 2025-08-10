@@ -41,7 +41,7 @@ import { showPopup } from "../../store/slices/popupSlice";
 
 const JobViewer = () => {
   const location = useLocation();
-  const {user} = useSelector(state => state.user);
+  const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const { savedJobs } = useSelector((state) => state.jobs);
   const dispatch = useDispatch();
@@ -55,10 +55,10 @@ const JobViewer = () => {
 
   // Auto redirect
   useEffect(() => {
-    if(user && user?.role !== 'job_seeker'){
-      navigate('/')
+    if (user && user?.role !== "job_seeker") {
+      navigate("/");
     }
-  }, [user, navigate])
+  }, [user, navigate]);
 
   // Fetch application
   const { isLoading: isAppLoading } = useFetchApplications();
@@ -396,12 +396,20 @@ const JobViewer = () => {
                   >
                     View Application
                   </button>
-                ) : (
+                ) : jobData?.status === "open" ? (
                   <button
                     onClick={() => navigate(`/apply?id=${jobData?._id}`)}
                     className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-colors cursor-pointer ${jobViewerThemeClass.button.primary}`}
                   >
                     Apply Now
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => navigate(`/apply?id=${jobData?._id}`)}
+                    disabled={true}
+                    className={`flex-1 px-6 py-3 disabled:cursor-not-allowed rounded-lg font-semibold transition-colors cursor-pointer ${jobViewerThemeClass.button.secondary}`}
+                  >
+                    Closed
                   </button>
                 )}
               </>
@@ -425,8 +433,8 @@ const JobViewer = () => {
             ) : (
               <button
                 onClick={() => handleSave(jobData?._id)}
-                disabled={savePending[jobData._id]}
-                className={`min-h-14 min-w-30 flex justify-center items-center px-6 py-3 rounded-lg font-semibold border transition-colors cursor-pointer ${jobViewerThemeClass.button.secondary}`}
+                disabled={savePending[jobData._id] || jobData?.status === 'closed'}
+                className={`min-h-14 min-w-30 flex disabled:cursor-not-allowed justify-center items-center px-6 py-3 rounded-lg font-semibold border transition-colors cursor-pointer ${jobViewerThemeClass.button.secondary}`}
               >
                 {savePending[jobData._id] ? (
                   <div className="animate-spin rounded-full w-5 h-5 border-3 border-b-transparent border-red-500"></div>

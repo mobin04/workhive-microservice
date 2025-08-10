@@ -27,6 +27,7 @@ export const envVariables = {
   REMOVE_SAVED_JOB: `${import.meta.env.VITE_API_URL}/auth/saved-job`,
   ADD_LIKE_URL: `${import.meta.env.VITE_API_URL}/jobs/like`,
   UNDO_LIKE_URL: `${import.meta.env.VITE_API_URL}/jobs`,
+  CLOSE_JOB_URL:  `${import.meta.env.VITE_API_URL}/jobs`,
 
   // 🔹Mapbox Token
   MAPBOX_ACCESS_KEY: import.meta.env.VITE_MAPBOX_API_KEY,

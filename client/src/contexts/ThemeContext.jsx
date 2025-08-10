@@ -324,35 +324,43 @@ export function ThemeContextProvider({ children }) {
     }),
     [isDark]
   );
-  
-  const getStatusColorViewAppEmp = useCallback(
-  (status) => {
-    switch (status) {
-      case "pending":
-        return isDark
-          ? "bg-yellow-900 text-yellow-300"
-          : "bg-yellow-100 text-yellow-800";
-      case "shortlisted":
-        return isDark
-          ? "bg-blue-900 text-blue-300"
-          : "bg-blue-100 text-blue-800";
-      case "accepted":
-        return isDark
-          ? "bg-green-900 text-green-300"
-          : "bg-green-100 text-green-800";
-      case "rejected":
-        return isDark
-          ? "bg-red-900 text-red-300"
-          : "bg-red-100 text-red-800";
-      default:
-        return isDark
-          ? "bg-gray-700 text-gray-300"
-          : "bg-gray-100 text-gray-800";
-    }
-  },
-  [isDark]
-);
 
+  const getStatusColorViewAppEmp = useCallback(
+    (status) => {
+      switch (status) {
+        case "pending":
+          return isDark
+            ? "bg-yellow-900 text-yellow-300"
+            : "bg-yellow-100 text-yellow-800";
+        case "shortlisted":
+          return isDark
+            ? "bg-blue-900 text-blue-300"
+            : "bg-blue-100 text-blue-800";
+        case "accepted":
+          return isDark
+            ? "bg-green-900 text-green-300"
+            : "bg-green-100 text-green-800";
+        case "rejected":
+          return isDark ? "bg-red-900 text-red-300" : "bg-red-100 text-red-800";
+        default:
+          return isDark
+            ? "bg-gray-700 text-gray-300"
+            : "bg-gray-100 text-gray-800";
+      }
+    },
+    [isDark]
+  );
+
+  const jobViewerEmpThemeClasses = useMemo(() => {
+    return {
+      bgClass: isDark ? "bg-gray-900" : "bg-white",
+      textClass: isDark ? "text-white" : "text-gray-900",
+      textSecondaryClass: isDark ? "text-gray-300" : "text-gray-600",
+      borderClass: isDark ? "border-gray-700" : "border-gray-200",
+      cardBgClass: isDark ? "bg-gray-800" : "bg-gray-50",
+      hoverBgClass: isDark ? "hover:bg-gray-700" : "hover:bg-gray-100",
+    };
+  }, [isDark]);
 
   const themeContextValue = useMemo(
     () => ({
@@ -376,7 +384,8 @@ export function ThemeContextProvider({ children }) {
       applicationThemeClasses,
       getApplicationStatusClr,
       profileThemeClasses,
-      getStatusColorViewAppEmp
+      getStatusColorViewAppEmp,
+      jobViewerEmpThemeClasses,
     }),
     [
       isDark,
@@ -399,7 +408,8 @@ export function ThemeContextProvider({ children }) {
       applicationThemeClasses,
       getApplicationStatusClr,
       profileThemeClasses,
-      getStatusColorViewAppEmp
+      getStatusColorViewAppEmp,
+      jobViewerEmpThemeClasses,
     ]
   );
 
