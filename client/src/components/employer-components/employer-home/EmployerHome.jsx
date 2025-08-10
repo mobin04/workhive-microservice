@@ -21,6 +21,7 @@ import {
   TrendingUp,
   ThumbsUp,
   ChartNoAxesCombined,
+  ExternalLink,
 } from "lucide-react";
 
 const EmployerHome = () => {
@@ -77,8 +78,9 @@ const EmployerHome = () => {
     fiveDaysAgo.setDate(now.getDate() - 5);
 
     if (
-      (job?.applications?.length > 0 && job?.likes?.length > 0) ||
-      (job?.updatedAt && new Date(job.updatedAt) >= fiveDaysAgo)
+      job?.applications?.length > 0 &&
+      job?.updatedAt &&
+      new Date(job?.updatedAt) >= fiveDaysAgo
     ) {
       return true;
     }
@@ -193,7 +195,7 @@ const EmployerHome = () => {
 
             {/* Jobs List */}
             <div
-              className={`divide-y cursor-pointer ${
+              className={`divide-y${
                 isDark ? "divide-gray-700" : "divide-gray-200"
               }`}
             >
@@ -335,6 +337,16 @@ const EmployerHome = () => {
                             <Edit3 className="h-4 w-4" />
                           </button>
                         )}
+                        <button
+                          onClick={() => navigate(`/view-job?id=${job?._id}`)}
+                          className={`p-2 rounded-lg transition-colors cursor-pointer duration-200 ${
+                            isDark
+                              ? "text-gray-400 hover:text-blue-400 hover:bg-gray-700"
+                              : "text-gray-500 hover:text-blue-600 hover:bg-gray-100"
+                          }`}
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </button>
                         <button
                           className={`p-2 rounded-lg transition-colors cursor-pointer duration-200 ${
                             isDark

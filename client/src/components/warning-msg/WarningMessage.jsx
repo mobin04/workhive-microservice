@@ -8,6 +8,8 @@ const WarningMessage = ({
   message,
   title,
   handleConfirm,
+  pendingBtnText,
+  btnText,
 }) => {
   const { isDark } = useContext(ThemeContext);
   return (
@@ -99,7 +101,7 @@ const WarningMessage = ({
                 {isPending && (
                   <div className="animate-spin w-7 h-7 border-3 border-b-transparent rounded-full"></div>
                 )}
-                {isPending ? "Withdrawing..." : "Withdraw"}
+                {isPending ? pendingBtnText : btnText}
               </div>
             </button>
           </div>

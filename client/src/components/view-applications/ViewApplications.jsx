@@ -104,6 +104,8 @@ const ViewApplications = () => {
                 cannot be undone and you'll need to wait 30 days after reapply
                 if you change your mind.`}
           title={"Withdraw Application"}
+          pendingBtnText={'Withdrawing...'}
+          btnText={'Withdraw'}
         />
       )}
 
