@@ -36,9 +36,11 @@ import {
   Clipboard,
   ClipboardList,
   ServerCrash,
+  MapPinned,
 } from "lucide-react";
 import { showPopup } from "../../store/slices/popupSlice";
 import JobDescriptionRender from "../job-description-render/JobDescriptionRender";
+import { reverseGeocode } from "../../utils/mapbox";
 
 const JobViewer = () => {
   const location = useLocation();
@@ -47,6 +49,7 @@ const JobViewer = () => {
   const { savedJobs } = useSelector((state) => state.jobs);
   const dispatch = useDispatch();
   const [isLinkCopied, setIsLinkCopied] = useState(false);
+  const [geoLocName, setGeoLocName] = useState("");
   const {
     getJobTypeColor,
     getJobLevelColor,
@@ -149,6 +152,14 @@ const JobViewer = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (jobData && jobData?.geoLocation?.coordinates?.length === 2) {
+      reverseGeocode(jobData?.geoLocation?.coordinates).then((name) =>
+        setGeoLocName(name.place_name)
+      );
+    }
+  }, [jobData]);
+
   if (isLoading) return <Loading />;
 
   return (
@@ -191,6 +202,17 @@ const JobViewer = () => {
                     />
                     <span className={jobViewerThemeClass.text.muted}>
                       {jobData.location}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 mt-2">
+                    <div>
+                      <MapPinned
+                        className={`w-4 h-4 ${jobViewerThemeClass.text.muted}`}
+                      />
+                    </div>
+                    <span className={jobViewerThemeClass.text.muted}>
+                      {geoLocName ? geoLocName : "Not Avaliable"}
                     </span>
                   </div>
                 </div>
@@ -314,12 +336,13 @@ const JobViewer = () => {
               Job Description
             </h2>
             <div
-              className={`prose max-w-none ${jobViewerThemeClass.text.secondary} rounded-xl border-2 ${ isDark ? 'border-gray-700' : 'border-gray-300'} sm:p-2`}
+              className={`prose max-w-none ${
+                jobViewerThemeClass.text.secondary
+              } rounded-xl border-2 ${
+                isDark ? "border-gray-700" : "border-gray-300"
+              } sm:p-2`}
             >
-              <JobDescriptionRender description={jobData?.description}/>
-              {/* <p className="leading-relaxed whitespace-pre-line text-base">
-                {jobData.description}
-              </p> */}
+              <JobDescriptionRender description={jobData?.description} />
             </div>
           </div>
 
@@ -436,7 +459,9 @@ const JobViewer = () => {
             ) : (
               <button
                 onClick={() => handleSave(jobData?._id)}
-                disabled={savePending[jobData._id] || jobData?.status === 'closed'}
+                disabled={
+                  savePending[jobData._id] || jobData?.status === "closed"
+                }
                 className={`min-h-14 min-w-30 flex disabled:cursor-not-allowed justify-center items-center px-6 py-3 rounded-lg font-semibold border transition-colors cursor-pointer ${jobViewerThemeClass.button.secondary}`}
               >
                 {savePending[jobData._id] ? (

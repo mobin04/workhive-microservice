@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { ThemeContext } from "../../../contexts/ThemeContext";
-import { forwardGeocode } from "../../../utils/mapbox";
+import { forwardGeocode, reverseGeocode } from "../../../utils/mapbox";
 import MiniEditor from "./MiniDescEditor";
 import { allCategories } from "./categories";
 import {
@@ -29,9 +29,17 @@ const JobFormModal = ({
   const [logoFile, setLogoFile] = useState(null);
   const [locationSuggestion, setLocationSuggestion] = useState([]);
   const [isLocationSearchOpen, setIsLocationSearchOpen] = useState(false);
-
+  const [geoLocName, setGeoLocName] = useState("");
   const { isDark, jobFormThemeClasses } = useContext(ThemeContext);
   const isEditMode = Boolean(jobData);
+
+  useEffect(() => {
+    if (jobData && jobData?.geoLocation?.coordinates?.length === 2) {
+      reverseGeocode(jobData?.geoLocation?.coordinates).then((name) =>
+        setGeoLocName(name.place_name)
+      );
+    }
+  }, [jobData]);
 
   const {
     register,
@@ -71,7 +79,7 @@ const JobFormModal = ({
         salaryMinPerMonth: jobData.salaryMinPerMonth || "",
         salaryMaxPerMonth: jobData.salaryMaxPerMonth || "",
         coordinates: jobData.geoLocation?.coordinates || [0, 0],
-        geoLocationName: jobData.geoLocationName || "",
+        geoLocationName: geoLocName || "",
         expiresAt: jobData.expiresAt
           ? new Date(jobData.expiresAt).toISOString().split("T")[0]
           : "",
@@ -96,7 +104,7 @@ const JobFormModal = ({
       setLogoPreview("");
       setLogoFile(null);
     }
-  }, [jobData, reset]);
+  }, [jobData, reset, geoLocName]);
 
   // Handle logo upload
   const handleLogoUpload = useCallback((event) => {
@@ -109,13 +117,13 @@ const JobFormModal = ({
       }
 
       // Validate file type
-      if (!file.type.startsWith('image/')) {
+      if (!file.type.startsWith("image/")) {
         alert("Please select an image file");
         return;
       }
 
       setLogoFile(file);
-      
+
       const reader = new FileReader();
       reader.onload = (e) => {
         setLogoPreview(e.target.result);
@@ -125,26 +133,28 @@ const JobFormModal = ({
   }, []);
 
   // Handle form submission
-  const handleFormSubmit = useCallback((data) => {
-    const formData = {
-      ...data,
-      companyLogo: logoFile,
-      geoLocation: {
-        type: "Point",
-        coordinates: [
-          parseFloat(data?.coordinates[0]) || 0,
-          parseFloat(data?.coordinates[1]) || 0,
-        ],
-      },
-    };
+  const handleFormSubmit = useCallback(
+    (data) => {
+      const formData = {
+        ...data,
+        companyLogo: logoFile,
+        geoLocation: {
+          type: "Point",
+          coordinates: [
+            parseFloat(data?.coordinates[0]) || 0,
+            parseFloat(data?.coordinates[1]) || 0,
+          ],
+        },
+      };
 
-    // Remove unwanted fields
-    // eslint-disable-next-line no-unused-vars
-    const { geoLocationName, coordinates, ...updatedFormData } = formData;
-    
-    onSubmit(updatedFormData);
-  }, [logoFile, onSubmit]);
+      // Remove unwanted fields
+      // eslint-disable-next-line no-unused-vars
+      const { geoLocationName, coordinates, ...updatedFormData } = formData;
 
+      onSubmit(updatedFormData);
+    },
+    [logoFile, onSubmit]
+  );
 
   const findLocation = useCallback(async (value) => {
     if (value?.length >= 2) {
@@ -162,12 +172,14 @@ const JobFormModal = ({
     }
   }, []);
 
-  const selectLocation = useCallback((item) => {
-    setValue("geoLocationName", item?.place_name);
-    setValue("coordinates", [item?.coordinates[0], item?.coordinates[1]]);
-    setIsLocationSearchOpen(false);
-  }, [setValue]);
-
+  const selectLocation = useCallback(
+    (item) => {
+      setValue("geoLocationName", item?.place_name);
+      setValue("coordinates", [item?.coordinates[0], item?.coordinates[1]]);
+      setIsLocationSearchOpen(false);
+    },
+    [setValue]
+  );
 
   const handleClose = useCallback(() => {
     setLogoPreview("");
@@ -274,10 +286,16 @@ const JobFormModal = ({
                   <span>Job Title *</span>
                 </label>
                 <input
-                  {...register("title", { 
+                  {...register("title", {
                     required: "Job title is required",
-                    minLength: { value: 3, message: "Job title must be at least 3 characters" },
-                    maxLength: { value: 100, message: "Job title must be less than 100 characters" }
+                    minLength: {
+                      value: 3,
+                      message: "Job title must be at least 3 characters",
+                    },
+                    maxLength: {
+                      value: 100,
+                      message: "Job title must be less than 100 characters",
+                    },
                   })}
                   className={`w-full p-3 ${jobFormThemeClasses?.inputBgClass} border ${jobFormThemeClasses?.inputBorderClass} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors`}
                   placeholder="e.g. Software Engineer"
@@ -297,7 +315,10 @@ const JobFormModal = ({
                 <input
                   {...register("company", {
                     required: "Company name is required",
-                    minLength: { value: 2, message: "Company name must be at least 2 characters" }
+                    minLength: {
+                      value: 2,
+                      message: "Company name must be at least 2 characters",
+                    },
                   })}
                   className={`w-full p-3 ${jobFormThemeClasses?.inputBgClass} border ${jobFormThemeClasses?.inputBorderClass} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors`}
                   placeholder="e.g. TechNova"
@@ -371,9 +392,9 @@ const JobFormModal = ({
                 >
                   <option value="full_time">Full Time</option>
                   <option value="part_time">Part Time</option>
-                  <option value="contract">Contract</option>
-                  <option value="freelance">Freelance</option>
+                  <option value="remote">Remote</option>
                   <option value="internship">Internship</option>
+                  <option value="contract">Contract</option>
                 </select>
                 {errors.jobType && (
                   <p className="text-red-500 text-xs">
@@ -398,7 +419,8 @@ const JobFormModal = ({
                   <option value="entry_level">Entry Level</option>
                   <option value="mid_level">Mid Level</option>
                   <option value="senior_level">Senior Level</option>
-                  <option value="executive">Executive</option>
+                  <option value="director">Director</option>
+                  <option value="vp_or_above">Vp or Above</option>
                 </select>
                 {errors.jobLevel && (
                   <p className="text-red-500 text-xs">
@@ -434,7 +456,9 @@ const JobFormModal = ({
                 {isLocationSearchOpen && locationSuggestion?.length > 0 && (
                   <div
                     className={`absolute top-full left-0 right-0 md:right-auto md:w-1/2 z-50 mt-1 ${
-                      isDark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+                      isDark
+                        ? "bg-gray-800 border-gray-700"
+                        : "bg-white border-gray-200"
                     } border rounded-lg shadow-lg max-h-60 overflow-y-auto`}
                   >
                     <div className="p-2">
@@ -451,7 +475,9 @@ const JobFormModal = ({
                             }`}
                           >
                             <MapPin className="h-3 w-3 text-gray-400 flex-shrink-0" />
-                            <span className="truncate text-sm">{item.place_name}</span>
+                            <span className="truncate text-sm">
+                              {item.place_name}
+                            </span>
                           </div>
                         ))}
                       </div>
@@ -475,7 +501,10 @@ const JobFormModal = ({
                   <input
                     {...register("salaryMinPerMonth", {
                       required: "Minimum salary is required",
-                      min: { value: 1, message: "Salary must be greater than 0" }
+                      min: {
+                        value: 1,
+                        message: "Salary must be greater than 0",
+                      },
                     })}
                     type="number"
                     min="1"
@@ -493,11 +522,18 @@ const JobFormModal = ({
                   <input
                     {...register("salaryMaxPerMonth", {
                       required: "Maximum salary is required",
-                      min: { value: 1, message: "Salary must be greater than 0" },
+                      min: {
+                        value: 1,
+                        message: "Salary must be greater than 0",
+                      },
                       validate: (value) => {
                         const minSalary = watch("salaryMinPerMonth");
-                        return !minSalary || Number(value) >= Number(minSalary) || "Maximum salary must be greater than or equal to minimum salary";
-                      }
+                        return (
+                          !minSalary ||
+                          Number(value) >= Number(minSalary) ||
+                          "Maximum salary must be greater than or equal to minimum salary"
+                        );
+                      },
                     })}
                     type="number"
                     min="1"
@@ -526,15 +562,18 @@ const JobFormModal = ({
                 onChange={(val) => setValue("description", val)}
                 disabled={isLoading}
               />
-              
+
               <input
                 {...register("description", {
                   required: "Job description is required",
-                  minLength: { value: 50, message: "Description must be at least 50 characters" }
+                  minLength: {
+                    value: 50,
+                    message: "Description must be at least 50 characters",
+                  },
                 })}
                 type="hidden"
               />
-              
+
               {errors.description && (
                 <p className="text-red-500 text-xs">
                   {errors.description.message}

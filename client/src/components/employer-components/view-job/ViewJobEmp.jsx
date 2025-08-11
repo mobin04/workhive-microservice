@@ -24,17 +24,21 @@ import {
   AlertCircle,
   IndianRupee,
   CircleAlert,
+  MapPinned,
 } from "lucide-react";
 import useEditJob from "../../../hooks/employer-hooks/useEditJob";
 import WarningMessage from "../../warning-msg/WarningMessage";
 import CreateOrEditJob from "../create-or-edit-job/CreateOrEditJob";
 import JobDescriptionRender from "../../job-description-render/JobDescriptionRender";
+import { reverseGeocode } from "../../../utils/mapbox";
 
 const ViewJobEmp = () => {
-  const { isDark, jobViewerEmpThemeClasses } = useContext(ThemeContext);
+  const { isDark, jobViewerEmpThemeClasses, jobViewerThemeClass } =
+    useContext(ThemeContext);
   const { user } = useSelector((state) => state.user);
   const [isEditPopup, setIsEditPopup] = useState({ type: "", isTrue: false });
   const [isJobEditingMode, setIsJobEditingMode] = useState(false);
+  const [geoLocName, setGeoLocName] = useState("");
   const [job, setJob] = useState({});
   const location = useLocation();
   const navigate = useNavigate();
@@ -151,6 +155,14 @@ const ViewJobEmp = () => {
     onClose();
   };
 
+  useEffect(() => {
+    if (job && job?.geoLocation?.coordinates?.length === 2) {
+      reverseGeocode(job?.geoLocation?.coordinates).then((name) =>
+        setGeoLocName(name.place_name)
+      );
+    }
+  }, [job]);
+
   if (isLoading || isPending) return <Loading />;
 
   return (
@@ -201,13 +213,14 @@ const ViewJobEmp = () => {
                   <h1 className="text-lg sm:text-2xl font-bold mb-2">
                     {job?.title}
                   </h1>
-                  <div className="flex-1 sm:flex items-center space-x-4 mb-3">
+                  <div className="flex-1 sm:flex items-center space-x-4 mb-2">
                     <div className="flex items-center space-x-2">
                       <Building2 className="sm:h-5 sm:w-5 w-4 h-4 text-blue-600" />
                       <span className="font-semibold text-md sm:text-lg">
                         {job?.company}
                       </span>
                     </div>
+
                     <div className="flex my-2 items-center space-x-2">
                       <MapPin className="w-4 h-4 sm:h-5 sm:w-5 text-gray-500" />
                       <span
@@ -218,7 +231,20 @@ const ViewJobEmp = () => {
                     </div>
                   </div>
 
-                  <div className="flex-1 sm:flex gap-1 justify-center items-start">
+                  <div className="mb-4 max-w-md">
+                    <div className="flex my-2 items-center space-x-2">
+                      <div>
+                        <MapPinned
+                          className={`w-4 h-4 ${jobViewerThemeClass.text.muted}`}
+                        />
+                      </div>
+                      <span className={jobViewerThemeClass.text.muted}>
+                        {geoLocName ? geoLocName : "Not Avaliable"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 sm:flex gap-1 justify-start items-start">
                     <div className="flex gap-1">
                       <div className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
                         {formatJobType(job?.jobType)}

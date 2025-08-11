@@ -17,9 +17,9 @@ export const forwardGeocode = async (place) => {
           "poi",
           "neighborhood",
           "locality",
-          "place", 
+          "place",
           "district",
-          "region", 
+          "region",
         ],
         countries: ["in"],
         autocomplete: true,
@@ -33,5 +33,37 @@ export const forwardGeocode = async (place) => {
   } catch (err) {
     console.error("Mapbox error:", err);
     return [];
+  }
+};
+
+export const reverseGeocode = async (coordinates) => {
+  try {
+    const res = await geocodingClient
+      .reverseGeocode({
+        query: coordinates,
+        limit: 1,
+        types: [
+          "address",
+          "poi",
+          "neighborhood",
+          "locality",
+          "place",
+          "district",
+          "region",
+        ],
+        countries: ["in"],
+      })
+      .send();
+
+    if (res.body.features.length > 0) {
+      return {
+        place_name: res.body.features[0].place_name,
+        coordinates: res.body.features[0].center,
+      };
+    }
+    return null;
+  } catch (err) {
+    console.error("Mapbox reverse geocoding error:", err);
+    return null;
   }
 };
