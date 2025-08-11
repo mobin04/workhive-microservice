@@ -22,12 +22,15 @@ export const envVariables = {
 
   // 🔹Jobs
   GET_JOB_URL: `${import.meta.env.VITE_API_URL}/jobs`,
+  // GET_JOB_URL : 'http://localhost:8002/api/v2/jobs',
   GET_SAVED_JOBS: `${import.meta.env.VITE_API_URL}/auth/saved-jobs`,
   SAVE_JOB: `${import.meta.env.VITE_API_URL}/auth/save-job`,
   REMOVE_SAVED_JOB: `${import.meta.env.VITE_API_URL}/auth/saved-job`,
   ADD_LIKE_URL: `${import.meta.env.VITE_API_URL}/jobs/like`,
   UNDO_LIKE_URL: `${import.meta.env.VITE_API_URL}/jobs`,
   CLOSE_JOB_URL:  `${import.meta.env.VITE_API_URL}/jobs`,
+  UPDATE_JOB_URL: `${import.meta.env.VITE_API_URL}/jobs`,
+  // UPDATE_JOB_URL : 'http://localhost:8002/api/v2/jobs',
 
   // 🔹Mapbox Token
   MAPBOX_ACCESS_KEY: import.meta.env.VITE_MAPBOX_API_KEY,

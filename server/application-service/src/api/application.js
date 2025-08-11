@@ -62,7 +62,7 @@ module.exports = (app) => {
     authMiddleware.restrictTo('admin', 'job_seeker'),
     async (req, res, next) => {
       const reqQuery = req.query;
-      const  applicantId  = req.params.id;
+      const applicantId = req.params.id;
 
       try {
         const { data } = await service.GetWithdrawnedApplication({
@@ -160,6 +160,30 @@ module.exports = (app) => {
         status: 'success',
         message: 'successfully fetched applications!',
         data: data,
+      });
+    })
+  );
+
+  app.get(
+    `${baseUrl}/:id/application`,
+    authMiddleware.protect,
+    authMiddleware.restrictTo('employer', 'admin'),
+    isValidObjectId,
+    catchAsync(async (req, res, next) => {
+      const appId = req.params.id;
+      if (!appId)
+        return next(
+          new AppError(
+            'Application id is required in order to find application',
+            400
+          )
+        );
+
+      const { data } = await service.GetAppByAppId({ appId });
+      return res.status(200).json({
+        status: 'success',
+        message: 'Application fetched successfully!',
+        data,
       });
     })
   );

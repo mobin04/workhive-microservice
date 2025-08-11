@@ -27,11 +27,14 @@ import {
 } from "lucide-react";
 import useEditJob from "../../../hooks/employer-hooks/useEditJob";
 import WarningMessage from "../../warning-msg/WarningMessage";
+import CreateOrEditJob from "../create-or-edit-job/CreateOrEditJob";
+import JobDescriptionRender from "../../job-description-render/JobDescriptionRender";
 
 const ViewJobEmp = () => {
   const { isDark, jobViewerEmpThemeClasses } = useContext(ThemeContext);
   const { user } = useSelector((state) => state.user);
   const [isEditPopup, setIsEditPopup] = useState({ type: "", isTrue: false });
+  const [isJobEditingMode, setIsJobEditingMode] = useState(false);
   const [job, setJob] = useState({});
   const location = useLocation();
   const navigate = useNavigate();
@@ -40,11 +43,17 @@ const ViewJobEmp = () => {
 
   const handleCloseJob = (jobId) => {
     if (!jobId) return;
-    mutate(`${envVariables.CLOSE_JOB_URL}/${jobId}/close`, {});
+    mutate({
+      url: `${envVariables.CLOSE_JOB_URL}/${jobId}/close`,
+      credential: {},
+    });
   };
 
   const handleRenewJob = (jobId) => {
-    mutate(`${envVariables.CLOSE_JOB_URL}/${jobId}/renew`, {});
+    mutate({
+      url: `${envVariables.CLOSE_JOB_URL}/${jobId}/renew`,
+      credential: {},
+    });
   };
 
   const jobId = useMemo(() => {
@@ -117,12 +126,46 @@ const ViewJobEmp = () => {
     if (!isPending) handleCancel();
   };
 
+  //Edit Job onClose
+  const onClose = () => {
+    setIsJobEditingMode(false);
+  };
+
+  const onSubmit = (jobData) => {
+    const formData = new FormData();
+    for (const key in jobData) {
+      const value = jobData[key];
+
+      if (value instanceof File) {
+        formData.append(key, value);
+      } else {
+        const isObject = typeof value === "object" && value !== null;
+        formData.append(key, isObject ? JSON.stringify(value) : value);
+      }
+    }
+
+    mutate({
+      url: `${envVariables.UPDATE_JOB_URL}/${job?._id}`,
+      credential: formData,
+    });
+    onClose();
+  };
+
   if (isLoading || isPending) return <Loading />;
 
   return (
     <div
-      className={`${jobViewerEmpThemeClasses?.bgClass} ${jobViewerEmpThemeClasses?.textClass} min-h-screen p-6`}
+      className={`${jobViewerEmpThemeClasses?.bgClass} ${jobViewerEmpThemeClasses?.textClass}  min-h-screen p-6`}
     >
+      {isJobEditingMode && (
+        <CreateOrEditJob
+          isOpen={isJobEditingMode}
+          onClose={onClose}
+          jobData={job}
+          onSubmit={onSubmit}
+          isLoading={isPending}
+        />
+      )}
       {isEditPopup.isTrue && (
         <WarningMessage
           handleCancel={handleCancel}
@@ -225,8 +268,9 @@ const ViewJobEmp = () => {
                     </button>
                   )}
                 </div>
-                {(job?.status === 'open' || !job?.isRenewed) && (
+                {(job?.status === "open" || !job?.isRenewed) && (
                   <button
+                    onClick={() => setIsJobEditingMode(true)}
                     className={`flex mt-3 sm:mt-0 w-fit cursor-pointer items-center space-x-2 px-4 py-2 rounded-lg font-medium  transition-colors ${
                       isDark
                         ? " bg-gray-600/20 text-white hover:bg-gray-600/30"
@@ -248,7 +292,8 @@ const ViewJobEmp = () => {
                 <CircleAlert className="w-6 h-6" />
                 <p>
                   To reopen this job, please renew it first. Jobs can only be
-                  renewed once, and renewal will extend the job expiration by 30 days
+                  renewed once, and renewal will extend the job expiration by 30
+                  days
                 </p>
               </div>
             )}
@@ -275,11 +320,7 @@ const ViewJobEmp = () => {
                   <Briefcase className="h-5 w-5 text-blue-600" />
                   <span>Job Description</span>
                 </h2>
-                <div
-                  className={`${jobViewerEmpThemeClasses?.textSecondaryClass} leading-relaxed whitespace-pre-line`}
-                >
-                  {job?.description}
-                </div>
+                <JobDescriptionRender description={job?.description} />
               </div>
 
               {/* Job Details */}

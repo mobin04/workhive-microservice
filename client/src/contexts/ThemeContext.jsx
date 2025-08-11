@@ -362,6 +362,20 @@ export function ThemeContextProvider({ children }) {
     };
   }, [isDark]);
 
+  const jobFormThemeClasses = useMemo(() => {
+    return {
+      bgClass: isDark ? "bg-gray-900" : "bg-white",
+      textClass: isDark ? "text-white" : "text-gray-900",
+      textSecondaryClass: isDark ? "text-gray-300" : "text-gray-600",
+      borderClass: isDark ? "border-gray-700" : "border-gray-300",
+      inputBgClass: isDark ? "bg-gray-800" : "bg-white",
+      inputBorderClass: isDark ? "border-gray-600" : "border-gray-300",
+      overlayClass: isDark
+        ? "bg-black bg-opacity-50"
+        : "bg-black bg-opacity-30",
+    };
+  }, [isDark]);
+
   const themeContextValue = useMemo(
     () => ({
       isDark,
@@ -386,6 +400,7 @@ export function ThemeContextProvider({ children }) {
       profileThemeClasses,
       getStatusColorViewAppEmp,
       jobViewerEmpThemeClasses,
+      jobFormThemeClasses,
     }),
     [
       isDark,
@@ -410,6 +425,7 @@ export function ThemeContextProvider({ children }) {
       profileThemeClasses,
       getStatusColorViewAppEmp,
       jobViewerEmpThemeClasses,
+      jobFormThemeClasses,
     ]
   );
 

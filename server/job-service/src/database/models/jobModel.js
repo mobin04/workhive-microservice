@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const addIdVirtual = require('../../utils/idVirtualPlugin');
+const { AppError } = require('../../utils');
 
 const jobSchema = new mongoose.Schema(
   {
@@ -50,13 +51,6 @@ const jobSchema = new mongoose.Schema(
       type: Number,
       min: [0, 'Salary must be a positive number!'],
       required: [true, 'A Job must have maximium salary!'],
-      validate: {
-        validator: function (val) {
-          return val >= this.salaryMinPerMonth;
-        },
-        message:
-          'Maximum salary must be greater than or equal to minimum salary!',
-      },
     },
     employer: {
       type: mongoose.Schema.Types.ObjectId,
@@ -121,7 +115,18 @@ const jobSchema = new mongoose.Schema(
 jobSchema.index({ title: 'text', location: 'text', company: 'text' });
 jobSchema.index({ salaryMin: 1, salaryMax: -1 });
 
-jobSchema.index({ geoLocation: '2dsphere' }); // For geospatial querys
+jobSchema.index({ geoLocation: '2dsphere' }); 
+
+jobSchema.pre('save', function (next) {
+  if (this.salaryMaxPerMonth < this.salaryMinPerMonth) {
+    return next(
+      new AppError(
+        'Maximum salary must be greater than or equal to minimum salary!'
+      )
+    );
+  }
+  next();
+});
 
 jobSchema.pre('save', function (next) {
   if (this.isNew) {

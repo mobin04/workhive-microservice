@@ -93,7 +93,7 @@ class JobService {
   async UpdateJob(userInput) {
     const { id, file, reqObj, currentUser } = userInput;
     try {
-      const isJobExist = await this.jobRepository.GetJobById({ id });
+      const isJobExist = await this.jobRepository.GetJobByJobId({ id });
 
       if (!isJobExist) throw new AppError('No job found with that id', 404);
 
@@ -117,6 +117,22 @@ class JobService {
         'category',
         'companyLogo'
       );
+
+      if (typeof filteredProperty.geoLocation === 'string') {
+        filteredProperty.geoLocation = JSON.parse(filteredProperty.geoLocation);
+      }
+
+      // Convert salaries to integers
+      if (filteredProperty.salaryMinPerMonth)
+        filteredProperty.salaryMinPerMonth = parseInt(
+          filteredProperty.salaryMinPerMonth,
+          10
+        );
+      if (filteredProperty.salaryMaxPerMonth)
+        filteredProperty.salaryMaxPerMonth = parseInt(
+          filteredProperty.salaryMaxPerMonth,
+          10
+        );
 
       if (filteredProperty.geoLocation?.coordinates) {
         filteredProperty.geoLocation.coordinates =
@@ -174,7 +190,7 @@ class JobService {
   async renewJobExpiration(userInput) {
     const { id } = userInput;
     try {
-      const job = await this.jobRepository.GetJobById({ id });
+      const job = await this.jobRepository.GetJobByJobId({ id });
 
       if (job.isRenewed) {
         throw new AppError('Already renew this job!');
@@ -190,7 +206,7 @@ class JobService {
   async CloseJob(userInput) {
     const { id, user } = userInput;
     try {
-      const job = await this.jobRepository.GetJobById({ id });
+      const job = await this.jobRepository.GetJobByJobId({ id });
 
       if (!job) throw new AppError('Job not found!', 404);
 
@@ -278,7 +294,6 @@ class JobService {
 
       return formatData(getStatistics);
     } catch (err) {
-    
       throw new AppError(err.message, err.statusCode);
     }
   }

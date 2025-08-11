@@ -1,11 +1,9 @@
-const { Job } = require('../database/models');
-
 class APIFeatures {
-  constructor(query) {
+  constructor(model, query) {
+    this.model = model;
     this.query = query;
   }
 
-  // Pagination
   paginate() {
     const page = parseInt(this.query.page) || 1;
     const limit = parseInt(this.query.limit) || 10;
@@ -14,7 +12,6 @@ class APIFeatures {
     return this;
   }
 
-  // Sorting
   sort() {
     const sortBy = this.query.sort || 'createdAt';
     const sortOrder = this.query.order === 'asc' ? 1 : -1;
@@ -22,7 +19,6 @@ class APIFeatures {
     return this;
   }
 
-  // Filtering
   filter() {
     const excludedFields = ['page', 'limit', 'sort', 'order', 'search'];
     const filters = { ...this.query };
@@ -31,24 +27,18 @@ class APIFeatures {
     if (filters.salaryMinPerMonth) {
       filters.salaryMinPerMonth = { $gte: parseInt(filters.salaryMinPerMonth) };
     }
-
     if (filters.salaryMaxPerMonth) {
       filters.salaryMaxPerMonth = { $lte: parseInt(filters.salaryMaxPerMonth) };
     }
-
     if (filters.category) {
-      console.log(filters.category);
-      filters.category = { $in: filters.category.split(',') }; // $in [ "Graphic", "Devs"]
+      filters.category = { $in: filters.category.split(',') };
     }
-
     if (filters.jobType) {
       filters.jobType = { $in: filters.jobType.split(',') };
     }
-
     if (filters.jobLevel) {
       filters.jobLevel = { $in: filters.jobLevel.split(',') };
     }
-
     if (
       filters.latitude &&
       filters.longitude &&
@@ -56,19 +46,15 @@ class APIFeatures {
       filters.unit
     ) {
       const { latitude, longitude, distance, unit } = filters;
-
       const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
-
       filters.geoLocation = {
         $geoWithin: {
           $centerSphere: [
             [parseFloat(longitude), parseFloat(latitude)],
             radius,
-          ], // [longitude, latitude]
+          ],
         },
       };
-
-      // Delete the row fields for seamless querying.
       delete filters.latitude;
       delete filters.longitude;
       delete filters.distance;
@@ -78,8 +64,7 @@ class APIFeatures {
     const finalFilter = { ...filters };
 
     if (this.query.search) {
-      const searchRegex = new RegExp(this.query.search, 'i'); // Case-insensitive search
-
+      const searchRegex = new RegExp(this.query.search, 'i');
       finalFilter.$or = [
         { title: searchRegex },
         { company: searchRegex },
@@ -94,9 +79,9 @@ class APIFeatures {
     return this;
   }
 
-  // Fetch Jobs
   async fetchJobs() {
-    return await Job.find(this.filters)
+    return await this.model
+      .find(this.filters)
       .sort(this.sorting)
       .skip(this.pagination.skip)
       .limit(this.pagination.limit)

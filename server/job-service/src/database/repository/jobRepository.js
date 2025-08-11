@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 class JobRepository {
   async GetAllJobs(query) {
     try {
-      const jobService = new ApiFeatures(query).paginate().sort().filter();
+      const jobService = new ApiFeatures(Job ,query).paginate().sort().filter();
       const jobs = await jobService.fetchJobs();
       const totalJobs = await Job.countDocuments(jobService.filters);
       const totalPages = Math.ceil(totalJobs / jobService.pagination.limit);
@@ -20,7 +20,7 @@ class JobRepository {
     try {
       const job = await Job.find({ employer: id })
         .lean()
-        .sort({ createdAt: -1 });
+        .sort({ applications: -1, updatedAt: -1 });
       return job;
     } catch (err) {
       throw new AppError(err.message, err.statusCode);
