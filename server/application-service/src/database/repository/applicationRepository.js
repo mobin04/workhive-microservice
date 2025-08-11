@@ -116,6 +116,17 @@ class ApplicationRepository {
     }
   }
 
+  async GetAppByAppId(input) {
+    const { appId } = input;
+    try {
+      const application = await Application.findById(appId).lean()
+      if (!application) return false;
+      return application;
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
   async UpdateApplicationStatus(input) {
     const { id, status } = input;
     const expireDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
@@ -130,7 +141,7 @@ class ApplicationRepository {
       throw new AppError(err.message, err.statusCode);
     }
   }
- 
+
   async WithdrawedApplication(input) {
     const { applicantId } = input;
     try {

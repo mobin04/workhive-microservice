@@ -38,6 +38,7 @@ import {
   ServerCrash,
 } from "lucide-react";
 import { showPopup } from "../../store/slices/popupSlice";
+import JobDescriptionRender from "../job-description-render/JobDescriptionRender";
 
 const JobViewer = () => {
   const location = useLocation();
@@ -51,6 +52,7 @@ const JobViewer = () => {
     getJobLevelColor,
     jobViewerThemeClass,
     getStatusColor,
+    isDark,
   } = useContext(ThemeContext);
 
   // Auto redirect
@@ -312,11 +314,12 @@ const JobViewer = () => {
               Job Description
             </h2>
             <div
-              className={`prose max-w-none ${jobViewerThemeClass.text.secondary}`}
+              className={`prose max-w-none ${jobViewerThemeClass.text.secondary} rounded-xl border-2 ${ isDark ? 'border-gray-700' : 'border-gray-300'} sm:p-2`}
             >
-              <p className="leading-relaxed whitespace-pre-line text-base">
+              <JobDescriptionRender description={jobData?.description}/>
+              {/* <p className="leading-relaxed whitespace-pre-line text-base">
                 {jobData.description}
-              </p>
+              </p> */}
             </div>
           </div>
 

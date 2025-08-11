@@ -11,8 +11,17 @@ export const forwardGeocode = async (place) => {
       .forwardGeocode({
         query: place,
         limit: 5,
-        types: ['district', 'place', 'region'],
-        countries: ['in'],
+        // types: ['district', 'place', 'region'],
+        types: [
+          "address",
+          "poi",
+          "neighborhood",
+          "locality",
+          "place", 
+          "district",
+          "region", 
+        ],
+        countries: ["in"],
         autocomplete: true,
       })
       .send();

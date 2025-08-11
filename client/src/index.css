@@ -35,6 +35,23 @@
   scrollbar-width: none;
 }
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.ProseMirror:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
 .slider-thumb::-moz-range-thumb {
   width: 20px;
   height: 20px;

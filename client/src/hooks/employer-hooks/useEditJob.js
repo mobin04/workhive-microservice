@@ -6,13 +6,16 @@ import { showPopup } from "../../store/slices/popupSlice";
 const useEditJob = (setJob) => {
   const dispatch = useDispatch();
   const { data, isPending, mutate } = useMutation({
-    mutationFn: (url, credential) => editJob(url, credential),
+    mutationFn: ({url, credential}) => editJob(url, credential),
     onSuccess: (data) => {
       if (data?.data?.closedJob) {
         setJob(data?.data?.closedJob);
       }
       if (data?.data?.renewedJob) {
         setJob(data?.data?.renewedJob);
+      }
+      if(data?.data?.updatedJob){
+        setJob(data?.data?.updatedJob)
       }
       dispatch(
         showPopup({

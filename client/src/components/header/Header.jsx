@@ -125,7 +125,7 @@ function Header() {
       user?.role === "job_seeker"
     ) {
       // fetch all jobs when search is cleared
-      fetchData({}, GET_JOB_URL)
+      fetchData({}, GET_JOB_URL, null)
         .then((res) => {
           reduxDispatch(setJobs(res));
         })

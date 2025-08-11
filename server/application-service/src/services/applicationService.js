@@ -234,7 +234,10 @@ class ApplicationService {
 
     try {
       if (!['accepted', 'rejected', 'shortlisted'].includes(status)) {
-        throw new AppError('Status must be accepted & rejected & shortlisted', 400);
+        throw new AppError(
+          'Status must be accepted & rejected & shortlisted',
+          400
+        );
       }
       const application = await this.applicationRepo.GetApplicationById({ id });
 
@@ -407,6 +410,31 @@ class ApplicationService {
       return formatData({ applicationInfo });
     } catch (err) {
       // console.log(`❌ ERROR OCCOUR ${err}`);
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
+  async GetAppByAppId(userInput) {
+    const { appId } = userInput;
+    const routing_key_user = 'user.request';
+    try {
+      const application = await this.applicationRepo.GetAppByAppId({ appId });
+
+      if (!application)
+        throw new AppError('No application found with that Id', 404);
+
+      const applicant = await ProvideMessage(
+        { type: 'userId', id: application.applicant },
+        routing_key_user,
+        10000
+      );
+
+      if (!applicant) throw new AppError('No applicant found!', 404);
+
+      const applicationData = { application, applicant };
+
+      return formatData(applicationData);
+    } catch (err) {
       throw new AppError(err.message, err.statusCode);
     }
   }
