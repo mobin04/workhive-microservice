@@ -18,6 +18,7 @@ import {
   CircleAlert,
   CircleCheck,
   Clock,
+  ExternalLink,
   Frown,
   MapPin,
   ThumbsUp,
@@ -263,7 +264,18 @@ const JobsCard = ({ isAppLoading, isWithdrawLoading }) => {
                     ) : (
                       <>
                         {getApplications(job?._id)?.[0]?.application ? (
-                          <div>
+                          <div className="flex justify-center items-center gap-3">
+                            <button
+                              onClick={() => navigate(`/job?id=${job._id}`)}
+                              className={`flex justify-center items-center p-2 min-w-10 rounded-lg cursor-pointer ${
+                                isDark
+                                  ? "hover:bg-gray-700"
+                                  : "hover:bg-gray-100"
+                              } transition-colors`}
+                            >
+                              <ExternalLink className="h-5 w-5" />
+                            </button>
+
                             <button
                               onClick={() => navigate("/applications")}
                               className={` ${
