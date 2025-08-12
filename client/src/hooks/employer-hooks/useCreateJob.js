@@ -1,28 +1,20 @@
 import { useMutation } from "@tanstack/react-query";
-import {editJob} from "../../server/createAndEditJob";
+import { createJob } from "../../server/createAndEditJob";
 import { useDispatch } from "react-redux";
 import { showPopup } from "../../store/slices/popupSlice";
 
-const useEditJob = (setJob = null, onClose = null) => {
+const useCreateJob = (setJobDetails = null, onClose = null) => {
   const dispatch = useDispatch();
   const { data, isPending, mutate } = useMutation({
-    mutationFn: ({ url, credential }) => editJob(url, credential),
+    mutationFn: ({ credential }) => createJob(credential),
     onSuccess: (data) => {
-      if (setJob) {
-        if (data?.data?.closedJob) {
-          setJob(data?.data?.closedJob);
-        }
-        if (data?.data?.renewedJob) {
-          setJob(data?.data?.renewedJob);
-        }
-        if (data?.data?.updatedJob) {
-          setJob(data?.data?.updatedJob);
-        }
+      if (setJobDetails) {
+        setJobDetails((prev) => [...prev, data?.data?.job]);
       }
       if (onClose) onClose();
       dispatch(
         showPopup({
-          message: data?.message || "Operation successfull",
+          message: data?.message || "Congrats! Job created successfull",
           type: "success",
           visible: true,
           popupId: Date.now(),
@@ -34,7 +26,7 @@ const useEditJob = (setJob = null, onClose = null) => {
         showPopup({
           message:
             err.response?.data?.message ||
-            "Operation Failed! Please try again later",
+            "Failed to create your job, Please try again after sometime",
           type: "error",
           visible: true,
           popupId: Date.now(),
@@ -50,4 +42,4 @@ const useEditJob = (setJob = null, onClose = null) => {
   };
 };
 
-export default useEditJob;
+export default useCreateJob;

@@ -58,6 +58,22 @@ class JobService {
 
       filteredProperty.employer = userId;
 
+      if (typeof filteredProperty.geoLocation === 'string') {
+        filteredProperty.geoLocation = JSON.parse(filteredProperty.geoLocation);
+      }
+
+      // String => Integer
+      if (filteredProperty.salaryMinPerMonth)
+        filteredProperty.salaryMinPerMonth = parseInt(
+          filteredProperty.salaryMinPerMonth,
+          10
+        );
+      if (filteredProperty.salaryMaxPerMonth)
+        filteredProperty.salaryMaxPerMonth = parseInt(
+          filteredProperty.salaryMaxPerMonth,
+          10
+        );
+
       if (filteredProperty.geoLocation?.coordinates) {
         filteredProperty.geoLocation.coordinates =
           this.jobConfig.handleCoordinateFormat(
