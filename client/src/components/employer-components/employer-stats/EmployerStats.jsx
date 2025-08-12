@@ -106,9 +106,6 @@ const EmployerStatistics = () => {
       applications: item?.applications,
     }));
   }, [employerStats?.locationStats]);
-  
-
-  // RESENTLY UPDATED JOBS FOR  BADGING TOMMOROW 🍾
 
   // Custom tooltip component for pie charts
   // eslint-disable-next-line no-unused-vars
@@ -185,18 +182,20 @@ const EmployerStatistics = () => {
           {title}
         </h3>
       </div>
-      <div className="h-75">
+      <div className="h-[25rem]">
         <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
+          <PieChart
+            margin={{ top: 40, bottom: 50 }}
+          >
             <Pie
               data={data}
               cx="50%"
-              cy="50%"
+              cy="45%"
               innerRadius={45}
-              outerRadius={85}
+              outerRadius={80}
               paddingAngle={1.5}
               dataKey="value"
-              label={({ percent, applications }) => `apps(${applications}) ${(percent * 100).toFixed(0)}%`}
+              label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
             >
               {data?.map((entry, index) => (
                 <Cell
@@ -214,9 +213,8 @@ const EmployerStatistics = () => {
               wrapperStyle={{
                 fontSize: "13px",
                 fontWeight: 500,
-                marginTop: "10px",
+                paddingTop: "10px",
                 color: isDark ? "#F3F4F6" : "#1F2937",
-                paddingBottom: "10px",
               }}
             />
           </PieChart>
@@ -411,7 +409,7 @@ const EmployerStatistics = () => {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={formatTimelineData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                margin={{ top: 10, right: 10, left: 5, bottom: 10 }}
               >
                 <CartesianGrid
                   strokeDasharray="3 3"
@@ -430,6 +428,7 @@ const EmployerStatistics = () => {
                     fill: isDark ? "#9CA3AF" : "#6B7280",
                     fontSize: 12,
                   }}
+                  width={25}
                   axisLine={{ stroke: isDark ? "#4B5563" : "#D1D5DB" }}
                 />
                 <Tooltip content={<LineTooltip />} />
