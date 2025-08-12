@@ -132,30 +132,6 @@ const JobFormModal = ({
     }
   }, []);
 
-  // Handle form submission
-  const handleFormSubmit = useCallback(
-    (data) => {
-      const formData = {
-        ...data,
-        companyLogo: logoFile,
-        geoLocation: {
-          type: "Point",
-          coordinates: [
-            parseFloat(data?.coordinates[0]) || 0,
-            parseFloat(data?.coordinates[1]) || 0,
-          ],
-        },
-      };
-
-      // Remove unwanted fields
-      // eslint-disable-next-line no-unused-vars
-      const { geoLocationName, coordinates, ...updatedFormData } = formData;
-
-      onSubmit(updatedFormData);
-    },
-    [logoFile, onSubmit]
-  );
-
   const findLocation = useCallback(async (value) => {
     if (value?.length >= 2) {
       setIsLocationSearchOpen(true);
@@ -189,6 +165,30 @@ const JobFormModal = ({
     onClose();
   }, [onClose]);
 
+  // Handle form submission
+  const handleFormSubmit = useCallback(
+    (data) => {
+      const formData = {
+        ...data,
+        companyLogo: logoFile,
+        geoLocation: {
+          type: "Point",
+          coordinates: [
+            parseFloat(data?.coordinates[0]) || 0,
+            parseFloat(data?.coordinates[1]) || 0,
+          ],
+        },
+      };
+
+      // Remove unwanted fields
+      // eslint-disable-next-line no-unused-vars
+      const { geoLocationName, coordinates, ...updatedFormData } = formData;
+
+      onSubmit(updatedFormData);
+    },
+    [logoFile, onSubmit]
+  );
+
   if (!isOpen) return null;
 
   return (
@@ -221,7 +221,7 @@ const JobFormModal = ({
           </div>
           <button
             onClick={handleClose}
-            className={`p-2 rounded-lg transition-colors hover:bg-gray-100 ${
+            className={`p-2 rounded-lg cursor-pointer transition-colors hover:bg-gray-100 ${
               isDark ? "hover:bg-gray-800" : ""
             }`}
             disabled={isLoading}
@@ -508,6 +508,22 @@ const JobFormModal = ({
                     })}
                     type="number"
                     min="1"
+                    onKeyDown={(e) => {
+                      if (
+                        [
+                          "Backspace",
+                          "Delete",
+                          "ArrowLeft",
+                          "ArrowRight",
+                          "Tab",
+                        ].includes(e.key)
+                      ) {
+                        return;
+                      }
+                      if (!/^\d$/.test(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                     className={`w-full p-3 ${jobFormThemeClasses?.inputBgClass} border ${jobFormThemeClasses?.inputBorderClass} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors`}
                     placeholder="Minimum salary"
                     disabled={isLoading}
@@ -537,6 +553,22 @@ const JobFormModal = ({
                     })}
                     type="number"
                     min="1"
+                    onKeyDown={(e) => {
+                      if (
+                        [
+                          "Backspace",
+                          "Delete",
+                          "ArrowLeft",
+                          "ArrowRight",
+                          "Tab",
+                        ].includes(e.key)
+                      ) {
+                        return;
+                      }
+                      if (!/^\d$/.test(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                     className={`w-full p-3 ${jobFormThemeClasses?.inputBgClass} border ${jobFormThemeClasses?.inputBorderClass} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors`}
                     placeholder="Maximum salary"
                     disabled={isLoading}

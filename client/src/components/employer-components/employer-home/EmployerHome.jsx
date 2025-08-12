@@ -7,6 +7,8 @@ import Loading from "../../loader/Loading";
 import useFetchJobByEmpId from "../../../hooks/employer-hooks/useFetchJobByEmpId";
 import { useNavigate } from "react-router-dom";
 import useFormatDate from "../../../hooks/useFormatDate";
+import CreateOrEditJob from "../create-or-edit-job/CreateOrEditJob";
+import useEditJob from "../../../hooks/employer-hooks/useEditJob";
 import {
   MapPin,
   Users,
@@ -23,6 +25,7 @@ import {
   ChartNoAxesCombined,
   ExternalLink,
 } from "lucide-react";
+import useCreateJob from "../../../hooks/employer-hooks/useCreateJob";
 
 const EmployerHome = () => {
   const { isDark, getJobTypeColor, getJobLevelColor } =
@@ -34,8 +37,43 @@ const EmployerHome = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.user);
+  const [isJobCreateMode, setIsJobCreateMode] = useState(false);
+  const [jobs, setJobDetails] = useState([]);
+  const [isJobEditingMode, setIsJobEditingMode] = useState({
+    isTrue: false,
+    jobData: null,
+  });
   const { jobs: jobDetails } = useSelector((state) => state.jobs);
+
+  useEffect(() => {
+    if (jobDetails && jobDetails?.data?.jobs?.length > 0)
+      setJobDetails(jobDetails?.data?.jobs || []);
+  }, [jobDetails]);
+
   const formatDate = useFormatDate();
+
+  // Quick update in UI When job updated
+  const handleSaveUpdatedJob = (jobData) => {
+    if (!jobs) return;
+    const updatedJob = jobs?.map((job) => {
+      if (job._id === jobData?._id) {
+        return jobData;
+      } else {
+        return job;
+      }
+    });
+
+    setJobDetails(updatedJob);
+  };
+
+  const onClose = () => {
+    setIsJobCreateMode(false);
+    setIsJobEditingMode({ isTrue: false, jobData: null });
+  };
+
+  const { isPending, mutate } = useEditJob(handleSaveUpdatedJob, onClose);
+  const { mutate: jobCreateMutation, isPending: isJobCreatePending } =
+    useCreateJob(setJobDetails, onClose);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -56,7 +94,7 @@ const EmployerHome = () => {
     }
   }, [data, dispatch, user]);
 
-  const jobs = jobDetails?.data?.jobs || [];
+  // const jobs = jobDetails?.data?.jobs || [];
 
   const formatSalary = (min, max) => {
     return `₹${(min / 1000).toFixed(0)}K - ₹${(max / 1000).toFixed(0)}K`;
@@ -88,6 +126,43 @@ const EmployerHome = () => {
     return false;
   };
 
+  const onSubmit = (jobData) => {
+    const formData = new FormData();
+    for (const key in jobData) {
+      const value = jobData[key];
+
+      if (value instanceof File) {
+        formData.append(key, value);
+      } else {
+        const isObject = typeof value === "object" && value !== null;
+        formData.append(key, isObject ? JSON.stringify(value) : value);
+      }
+    }
+
+    jobCreateMutation({
+      credential: formData,
+    });
+  };
+
+  const onSubmitUpdatedJob = (jobData) => {
+    const formData = new FormData();
+    for (const key in jobData) {
+      const value = jobData[key];
+
+      if (value instanceof File) {
+        formData.append(key, value);
+      } else {
+        const isObject = typeof value === "object" && value !== null;
+        formData.append(key, isObject ? JSON.stringify(value) : value);
+      }
+    }
+
+    mutate({
+      url: `${envVariables.UPDATE_JOB_URL}/${isJobEditingMode?.jobData?._id}`,
+      credential: formData,
+    });
+  };
+
   if (isLoading) return <Loading />;
 
   return (
@@ -96,6 +171,16 @@ const EmployerHome = () => {
         isDark ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
       }`}
     >
+      {(isJobCreateMode || isJobEditingMode?.isTrue) && (
+        <CreateOrEditJob
+          isOpen={isJobCreateMode || isJobEditingMode?.isTrue}
+          onClose={onClose}
+          jobData={isJobEditingMode?.isTrue ? isJobEditingMode?.jobData : null}
+          onSubmit={isJobCreateMode ? onSubmit : onSubmitUpdatedJob}
+          isLoading={isPending || isJobCreatePending}
+        />
+      )}
+
       {jobs && jobs?.length > 0 && (
         <div className="container w-7xl px-4 py-8">
           {/* Job Management Section */}
@@ -124,7 +209,10 @@ const EmployerHome = () => {
                   </p>
                 </div>
                 <div className="flex gap-2 items-center justify-center">
-                  <button className="bg-blue-600 cursor-pointer hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors duration-300 shadow-md">
+                  <button
+                    onClick={() => setIsJobCreateMode(true)}
+                    className="bg-blue-600 cursor-pointer hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors duration-300 shadow-md"
+                  >
                     <Plus className="h-4 w-4" />
                     Post New Job
                   </button>
@@ -328,6 +416,12 @@ const EmployerHome = () => {
                         )}
                         {job?.applications?.length === 0 && (
                           <button
+                            onClick={() =>
+                              setIsJobEditingMode({
+                                isTrue: true,
+                                jobData: job,
+                              })
+                            }
                             className={`p-2 rounded-lg transition-colors cursor-pointer duration-200 ${
                               isDark
                                 ? "text-gray-400 hover:text-gray-300 hover:bg-gray-700"

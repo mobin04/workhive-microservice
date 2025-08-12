@@ -28,8 +28,9 @@ export const envVariables = {
   REMOVE_SAVED_JOB: `${import.meta.env.VITE_API_URL}/auth/saved-job`,
   ADD_LIKE_URL: `${import.meta.env.VITE_API_URL}/jobs/like`,
   UNDO_LIKE_URL: `${import.meta.env.VITE_API_URL}/jobs`,
-  CLOSE_JOB_URL:  `${import.meta.env.VITE_API_URL}/jobs`,
+  CLOSE_JOB_URL: `${import.meta.env.VITE_API_URL}/jobs`,
   UPDATE_JOB_URL: `${import.meta.env.VITE_API_URL}/jobs`,
+  CREATE_NEW_JOB_URL: `${import.meta.env.VITE_API_URL}/jobs`,
   // UPDATE_JOB_URL : 'http://localhost:8002/api/v2/jobs',
 
   // 🔹Mapbox Token

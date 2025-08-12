@@ -207,7 +207,7 @@ const ViewJobEmp = () => {
                 <img
                   src={job?.companyLogo}
                   alt={job?.company}
-                  className="w-16 h-16  rounded-xl object-cover border-2 border-blue-200"
+                  className="w-16 h-16 overflow-hidden rounded-xl object-cover border-2 border-blue-200"
                 />
                 <div>
                   <h1 className="text-lg sm:text-2xl font-bold mb-2">
