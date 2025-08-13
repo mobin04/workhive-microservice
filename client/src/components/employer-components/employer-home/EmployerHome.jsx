@@ -9,6 +9,11 @@ import { useNavigate } from "react-router-dom";
 import useFormatDate from "../../../hooks/useFormatDate";
 import CreateOrEditJob from "../create-or-edit-job/CreateOrEditJob";
 import useEditJob from "../../../hooks/employer-hooks/useEditJob";
+import useCreateJob from "../../../hooks/employer-hooks/useCreateJob";
+import { deleteJob } from "../../../server/deleteJob";
+import { showPopup } from "../../../store/slices/popupSlice";
+import WarningMessage from "../../warning-msg/WarningMessage";
+import useFormatSalary from "../../../hooks/useFormatSalary";
 import {
   MapPin,
   Users,
@@ -25,7 +30,6 @@ import {
   ChartNoAxesCombined,
   ExternalLink,
 } from "lucide-react";
-import useCreateJob from "../../../hooks/employer-hooks/useCreateJob";
 
 const EmployerHome = () => {
   const { isDark, getJobTypeColor, getJobLevelColor } =
@@ -39,6 +43,11 @@ const EmployerHome = () => {
   const { user } = useSelector((state) => state.user);
   const [isJobCreateMode, setIsJobCreateMode] = useState(false);
   const [jobs, setJobDetails] = useState([]);
+  const [isDeleteMode, setIsDeleteMode] = useState({
+    isTrue: false,
+    jobId: "",
+  });
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [isJobEditingMode, setIsJobEditingMode] = useState({
     isTrue: false,
     jobData: null,
@@ -69,6 +78,7 @@ const EmployerHome = () => {
   const onClose = () => {
     setIsJobCreateMode(false);
     setIsJobEditingMode({ isTrue: false, jobData: null });
+    setIsDeleteMode({ isTrue: false, jobId: "" });
   };
 
   const { isPending, mutate } = useEditJob(handleSaveUpdatedJob, onClose);
@@ -96,10 +106,9 @@ const EmployerHome = () => {
 
   // const jobs = jobDetails?.data?.jobs || [];
 
-  const formatSalary = (min, max) => {
-    return `₹${(min / 1000).toFixed(0)}K - ₹${(max / 1000).toFixed(0)}K`;
-  };
+  const formatSalary = useFormatSalary(); 
 
+  // Get the search jobs
   const filteredJobs = jobs?.filter((job) => {
     const matchesSearch =
       job?.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -110,6 +119,7 @@ const EmployerHome = () => {
     return matchesSearch && matchesStatus;
   });
 
+  // Get Most Popular jobs
   const isTrending = (job) => {
     const now = new Date();
     const fiveDaysAgo = new Date(now);
@@ -126,6 +136,7 @@ const EmployerHome = () => {
     return false;
   };
 
+  // Handle creating job
   const onSubmit = (jobData) => {
     const formData = new FormData();
     for (const key in jobData) {
@@ -144,6 +155,7 @@ const EmployerHome = () => {
     });
   };
 
+  // Handle updating job
   const onSubmitUpdatedJob = (jobData) => {
     const formData = new FormData();
     for (const key in jobData) {
@@ -163,6 +175,31 @@ const EmployerHome = () => {
     });
   };
 
+  // Handle Deleting job
+  const handleDelete = async () => {
+    if (!isDeleteMode.isTrue) return;
+
+    setIsDeleteLoading(true);
+    const {message, jobId} = await deleteJob({
+      jobId: isDeleteMode?.jobId,
+      setIsDeleteLoading,
+      onClose,
+      dispatch,
+    });
+    if (message) {
+      const filteredJob = jobs?.filter((job) => job?._id !== jobId);
+      setJobDetails(filteredJob);
+      dispatch(
+        showPopup({
+          message: message || "Job deleted successfully",
+          type: "success",
+          visible: true,
+          popupId: Date.now(),
+        })
+      );
+    }
+  };
+
   if (isLoading) return <Loading />;
 
   return (
@@ -178,6 +215,20 @@ const EmployerHome = () => {
           jobData={isJobEditingMode?.isTrue ? isJobEditingMode?.jobData : null}
           onSubmit={isJobCreateMode ? onSubmit : onSubmitUpdatedJob}
           isLoading={isPending || isJobCreatePending}
+        />
+      )}
+
+      {isDeleteMode.isTrue && isDeleteMode.jobId && (
+        <WarningMessage
+          handleCancel={onClose}
+          handleConfirm={handleDelete}
+          isPending={isDeleteLoading}
+          message={
+            "Are you sure? Once deleted, this job and all its associated information will be permanently removed. This action cannot be undone"
+          }
+          title={"permanently Delete Job"}
+          pendingBtnText={"Deleting..."}
+          btnText={"Delete"}
         />
       )}
 
@@ -441,15 +492,20 @@ const EmployerHome = () => {
                         >
                           <ExternalLink className="h-4 w-4" />
                         </button>
-                        <button
-                          className={`p-2 rounded-lg transition-colors cursor-pointer duration-200 ${
-                            isDark
-                              ? "text-gray-400 hover:text-red-400 hover:bg-gray-700"
-                              : "text-gray-500 hover:text-red-600 hover:bg-gray-100"
-                          }`}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        {(job?.status === "closed" && job?.applications?.length === 0) && (
+                          <button
+                            onClick={() =>
+                              setIsDeleteMode({ isTrue: true, jobId: job?._id })
+                            }
+                            className={`p-2 rounded-lg transition-colors cursor-pointer duration-200 ${
+                              isDark
+                                ? "text-gray-400 hover:text-red-400 hover:bg-gray-700"
+                                : "text-gray-500 hover:text-red-600 hover:bg-gray-100"
+                            }`}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
