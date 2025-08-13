@@ -6,7 +6,7 @@ import { envVariables } from "../../../config";
 import Loading from "../../loader/Loading";
 import useFormatSalary from "../../../hooks/useFormatSalary";
 import useFormatDate from "../../../hooks/useFormatDate";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   MapPin,
   Calendar,
@@ -25,12 +25,15 @@ import {
   IndianRupee,
   CircleAlert,
   MapPinned,
+  Trash,
 } from "lucide-react";
 import useEditJob from "../../../hooks/employer-hooks/useEditJob";
 import WarningMessage from "../../warning-msg/WarningMessage";
 import CreateOrEditJob from "../create-or-edit-job/CreateOrEditJob";
 import JobDescriptionRender from "../../job-description-render/JobDescriptionRender";
 import { reverseGeocode } from "../../../utils/mapbox";
+import { deleteJob } from "../../../server/deleteJob";
+import { showPopup } from "../../../store/slices/popupSlice";
 
 const ViewJobEmp = () => {
   const { isDark, jobViewerEmpThemeClasses, jobViewerThemeClass } =
@@ -39,9 +42,12 @@ const ViewJobEmp = () => {
   const [isEditPopup, setIsEditPopup] = useState({ type: "", isTrue: false });
   const [isJobEditingMode, setIsJobEditingMode] = useState(false);
   const [geoLocName, setGeoLocName] = useState("");
+  const [isDeleteMode, setIsDeleteMode] = useState(false);
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [job, setJob] = useState({});
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const { isPending, mutate } = useEditJob(setJob);
 
@@ -119,6 +125,7 @@ const ViewJobEmp = () => {
 
   const handleCancel = () => {
     setIsEditPopup({ type: "", isTrue: false });
+    setIsDeleteMode(false);
   };
 
   const handleSubmit = () => {
@@ -133,6 +140,7 @@ const ViewJobEmp = () => {
   //Edit Job onClose
   const onClose = () => {
     setIsJobEditingMode(false);
+    setIsDeleteMode(false);
   };
 
   const onSubmit = (jobData) => {
@@ -163,6 +171,30 @@ const ViewJobEmp = () => {
     }
   }, [job]);
 
+  // Handle Deleting job
+  const handleDelete = async () => {
+    if (!isDeleteMode) return;
+
+    setIsDeleteLoading(true);
+    const { message } = await deleteJob({
+      jobId: job?._id,
+      setIsDeleteLoading,
+      onClose,
+      dispatch,
+    });
+    if (message) {
+      dispatch(
+        showPopup({
+          message: message || "Job deleted successfully",
+          type: "success",
+          visible: true,
+          popupId: Date.now(),
+        })
+      );
+      navigate("/");
+    }
+  };
+
   if (isLoading || isPending) return <Loading />;
 
   return (
@@ -178,21 +210,43 @@ const ViewJobEmp = () => {
           isLoading={isPending}
         />
       )}
-      {isEditPopup.isTrue && (
+      {(isEditPopup.isTrue || isDeleteMode) && (
         <WarningMessage
           handleCancel={handleCancel}
-          handleConfirm={handleSubmit}
-          isPending={isPending}
+          handleConfirm={isEditPopup?.isTrue ? handleSubmit : handleDelete}
+          isPending={isEditPopup?.isTrue ? isPending : isDeleteLoading}
           message={`${
             isEditPopup.type === "Close"
               ? "Are you sure you want to close this job!"
-              : "Are you sure you want to renew this job!, Job can only renew once"
+              : isEditPopup.type === "Renew"
+              ? "Are you sure you want to renew this job!, Job can only renew once"
+              : isDeleteMode
+              ? "Are you sure? Once deleted, this job and all its associated information will be permanently removed. This action cannot be undone"
+              : ""
           }`}
           title={`${
-            isEditPopup?.type === "Close" ? "Close this job" : "Renew this job"
+            isEditPopup?.type === "Close"
+              ? "Close this job"
+              : isEditPopup?.type === "Close"
+              ? "Renew this job"
+              : isDeleteMode
+              ? "permanently delete this job"
+              : ""
           }`}
-          pendingBtnText={`${isEditPopup?.type}...`}
-          btnText={isEditPopup?.type}
+          pendingBtnText={
+            isEditPopup.isTrue
+              ? `${isEditPopup?.type}...`
+              : isDeleteMode
+              ? "Deleting..."
+              : ""
+          }
+          btnText={
+            isEditPopup.isTrue
+              ? isEditPopup?.type
+              : isDeleteMode
+              ? "Delete"
+              : ""
+          }
         />
       )}
 
@@ -282,6 +336,17 @@ const ViewJobEmp = () => {
                     </button>
                   )}
 
+                  {job?.status === "closed" &&
+                    job?.applications?.length === 0 && (
+                      <button
+                        onClick={() => setIsDeleteMode(true)}
+                        className="flex w-1/2 sm:w-fit cursor-pointer items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors"
+                      >
+                        <Trash className="h-4 w-4" />
+                        <span>Delete</span>
+                      </button>
+                    )}
+
                   {!job?.isRenewed && (
                     <button
                       onClick={() =>
@@ -340,7 +405,7 @@ const ViewJobEmp = () => {
             <div className="lg:col-span-2 space-y-6">
               {/* Job Description */}
               <div
-                className={`${jobViewerEmpThemeClasses?.cardBgClass} rounded-xl border ${jobViewerEmpThemeClasses?.borderClass} p-6 shadow-lg`}
+                className={`${jobViewerEmpThemeClasses?.cardBgClass} rounded-xl overflow-hidden border ${jobViewerEmpThemeClasses?.borderClass} p-6 shadow-lg`}
               >
                 <h2 className="text-xl font-bold mb-4 flex items-center space-x-2">
                   <Briefcase className="h-5 w-5 text-blue-600" />

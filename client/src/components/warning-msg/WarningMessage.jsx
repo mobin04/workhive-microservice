@@ -88,8 +88,8 @@ const WarningMessage = ({
               Cancel
             </button>
             <button
-              onClick={handleConfirm} // handleConfirmWithdraw
-              disabled={isPending} // isWithdrawPending
+              onClick={handleConfirm}
+              disabled={isPending}
               className="
                     flex-1 px-4 disabled:cursor-none cursor-pointer py-2.5 rounded-xl font-medium transition-all duration-200
                     bg-red-600 hover:bg-red-700 text-white

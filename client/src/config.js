@@ -31,6 +31,7 @@ export const envVariables = {
   CLOSE_JOB_URL: `${import.meta.env.VITE_API_URL}/jobs`,
   UPDATE_JOB_URL: `${import.meta.env.VITE_API_URL}/jobs`,
   CREATE_NEW_JOB_URL: `${import.meta.env.VITE_API_URL}/jobs`,
+  DELETE_JOB_URL: `${import.meta.env.VITE_API_URL}/jobs`,
   // UPDATE_JOB_URL : 'http://localhost:8002/api/v2/jobs',
 
   // 🔹Mapbox Token
