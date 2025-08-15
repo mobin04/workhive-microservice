@@ -773,7 +773,7 @@ module.exports = (app, channel) => {
    *         description: ID of the job to remove from saved list
    *     responses:
    *       204:
-   *         description: Saved job removed successfully (no content returned) or description: Not Found — No job found with that job id
+   *         description: Saved job removed successfully (no content returned)
    *       404:
    *         description: Job ID not found or invalid
    *         content:

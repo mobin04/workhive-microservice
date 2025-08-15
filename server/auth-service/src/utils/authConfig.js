@@ -45,24 +45,38 @@ class AuthConfig {
 
     return verify;
   }
-  
-  // Get Logged In User Info
-async  getLoggedInUserInfo(req) {
-  const parser = new UAParser();
-  const ip = await this.getPublicIP();
-  const location = await this.getGeoLocation(ip);
-  const deviceInfo = parser.setUA(req.headers['user-agent']).getResult();
 
-  const loginDetails = {
-    location,
-    device: {
-      browser: deviceInfo.browser.name,
-      // os: deviceInfo.os.name,
-      type: deviceInfo?.device?.type || 'Desktop',
-    },
-  };
-  return loginDetails;
-}
+  // Get Logged In User Info
+  async getLoggedInUserInfo(req) {
+    try {
+      const parser = new UAParser();
+
+      const ip = await this.getPublicIP();
+      const location = await this.getGeoLocation(ip);
+
+      const deviceInfo = parser
+        .setUA(req.headers['user-agent'] || '')
+        .getResult();
+
+      return {
+        location: location || 'Unknown',
+        device: {
+          browser: deviceInfo.browser?.name || 'Unknown',
+          type: deviceInfo?.device?.type || 'Desktop',
+        },
+      };
+    } catch (error) {
+      console.error('Error getting logged-in user info:', error.message);
+
+      return {
+        location: 'Unknown',
+        device: {
+          browser: 'Unknown',
+          type: 'Desktop',
+        },
+      };
+    }
+  }
 }
 
 module.exports = AuthConfig;

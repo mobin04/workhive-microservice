@@ -17,7 +17,15 @@ const signToken = (user, authType) => {
     payload = { userId: user._id, otpSecret: user.otpSecret, authType };
     jwtExpires = process.env.JWT_LOGIN_EXPIRE;
   } else if (authType === 'getRealToken') {
-    payload = { user };
+    payload = {
+      user: {
+        _id: user?._id,
+        name: user?.name,
+        email: user?.email,
+        role: user?.role,
+        coverImage: user?.coverImage,
+      },
+    };
     jwtExpires = process.env.JWT_EXPIRES_IN;
   }
 

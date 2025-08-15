@@ -36,7 +36,6 @@ class Email {
   }
 
   async sendEmail(subject, templateName, variables) {
-    console.log(this.user)
     try {
       const templatePath = path.join(
         __dirname,
