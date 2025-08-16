@@ -434,7 +434,7 @@ const JobFormModal = ({
             <div className="space-y-2 relative">
               <label className="text-sm font-medium flex items-center space-x-2">
                 <MapPin className="h-4 w-4 text-blue-600" />
-                <span>Geo Location *</span>
+                <span>Geo Location * (exact location prefered)</span>
               </label>
               <div className="w-full md:w-1/2">
                 <input
