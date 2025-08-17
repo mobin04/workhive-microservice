@@ -4,9 +4,14 @@ import useFetchJobByJobId from "../../../hooks/useFetchJobByJobId";
 import { useLocation, useNavigate } from "react-router-dom";
 import { envVariables } from "../../../config";
 import Loading from "../../loader/Loading";
-import useFormatSalary from "../../../hooks/useFormatSalary";
-import useFormatDate from "../../../hooks/useFormatDate";
 import { useDispatch, useSelector } from "react-redux";
+import useEditJob from "../../../hooks/employer-hooks/useEditJob";
+import WarningMessage from "../../warning-msg/WarningMessage";
+import CreateOrEditJob from "../create-or-edit-job/CreateOrEditJob";
+import JobDescriptionRender from "../../job-description-render/JobDescriptionRender";
+import { reverseGeocode } from "../../../utils/mapbox";
+import { deleteJob } from "../../../server/deleteJob";
+import useTriggerPopup from "../../../hooks/useTriggerPopup";
 import {
   MapPin,
   Calendar,
@@ -27,13 +32,8 @@ import {
   MapPinned,
   Trash,
 } from "lucide-react";
-import useEditJob from "../../../hooks/employer-hooks/useEditJob";
-import WarningMessage from "../../warning-msg/WarningMessage";
-import CreateOrEditJob from "../create-or-edit-job/CreateOrEditJob";
-import JobDescriptionRender from "../../job-description-render/JobDescriptionRender";
-import { reverseGeocode } from "../../../utils/mapbox";
-import { deleteJob } from "../../../server/deleteJob";
-import { showPopup } from "../../../store/slices/popupSlice";
+import formatDateString from "../../../utils/formatDateString";
+import formatSalaries from "../../../utils/formatSalary";
 
 const ViewJobEmp = () => {
   const { isDark, jobViewerEmpThemeClasses, jobViewerThemeClass } =
@@ -50,6 +50,7 @@ const ViewJobEmp = () => {
   const dispatch = useDispatch();
 
   const { isPending, mutate } = useEditJob(setJob);
+  const { triggerPopup } = useTriggerPopup();
 
   const handleCloseJob = (jobId) => {
     if (!jobId) return;
@@ -96,8 +97,8 @@ const ViewJobEmp = () => {
     }
   }, [data]);
 
-  const formatSalary = useFormatSalary();
-  const formatDate = useFormatDate();
+  const {formatSalary} = formatSalaries();
+  const {formatDate} = formatDateString();
 
   // Get status color
   const getStatusColor = (status) => {
@@ -183,14 +184,11 @@ const ViewJobEmp = () => {
       dispatch,
     });
     if (message) {
-      dispatch(
-        showPopup({
-          message: message || "Job deleted successfully",
-          type: "success",
-          visible: true,
-          popupId: Date.now(),
-        })
-      );
+      triggerPopup({
+        message: message || "Job deleted successfully",
+        type: "success",
+      });
+
       navigate("/");
     }
   };

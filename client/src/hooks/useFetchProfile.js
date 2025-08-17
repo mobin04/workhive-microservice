@@ -1,12 +1,14 @@
 import { useMutation } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
 import { setUser } from "../store/slices/userSlice";
-import { showPopup } from "../store/slices/popupSlice";
 import { showError } from "../store/slices/errorSlice";
 import { fetchProfile } from "../server/fetchProfile";
+import useTriggerPopup from "./useTriggerPopup";
 
 const useFetchProfile = () => {
   const dispatch = useDispatch();
+  const { triggerPopup } = useTriggerPopup();
+
   const { mutate, isPending } = useMutation({
     mutationFn: fetchProfile,
     onSuccess: (data) => {
@@ -14,14 +16,11 @@ const useFetchProfile = () => {
     },
     onError: (err) => {
       if (err.code === "ERR_NETWORK") {
-        dispatch(
-          showPopup({
-            message: "Internal server error! Please try again later",
-            type: "error",
-            visible: true,
-            popupId: Date.now(),
-          })
-        );
+        triggerPopup({
+          message: "Internal server error! Please try again later",
+          type: "error",
+        });
+
         dispatch(showError({ type: "500", visible: true, onGoHome: false }));
       }
     },

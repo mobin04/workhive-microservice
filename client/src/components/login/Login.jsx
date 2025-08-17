@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { setUser } from "../../store/slices/userSlice";
 import authHandler from "../../utils/authHandler";
-import { showPopup } from "../../store/slices/popupSlice";
+import useTriggerPopup from "../../hooks/useTriggerPopup";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -36,6 +36,8 @@ const Login = () => {
     envVariables;
   const [seconds, setSeconds] = useState(0);
   const [isResendDisabled, setIsResendDisabled] = useState(false);
+
+  const { triggerPopup } = useTriggerPopup();
 
   useEffect(() => {
     if (user?._id) {
@@ -64,14 +66,9 @@ const Login = () => {
         }
         if (type === "login") {
           dispatch(setUser(data?.data?.user));
-          dispatch(
-            showPopup({
-              message: "logged in successfully!",
-              type: "success",
-              visible: true,
-              popupId: Date.now(),
-            })
-          );
+
+          triggerPopup({ message: "logged in successfully!", type: "success" });
+
           navigate("/");
         }
         if (type === "request_magic_login") {

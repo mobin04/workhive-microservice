@@ -1,7 +1,6 @@
-import React, { useCallback } from "react";
 
-function useFormatSalary() {
-  const formatSalary = useCallback((min, max) => {
+function formatSalaries() {
+  const formatSalary = (min, max) => {
     const formatNumber = (num) => {
       if (num >= 100000) {
         return `₹${(num / 100000).toFixed(1)}L`;
@@ -12,8 +11,8 @@ function useFormatSalary() {
       }
     };
     return `${formatNumber(min)} - ${formatNumber(max)}`;
-  }, []);
-  return formatSalary
+  };
+  return {formatSalary};
 }
 
-export default useFormatSalary;
+export default formatSalaries;

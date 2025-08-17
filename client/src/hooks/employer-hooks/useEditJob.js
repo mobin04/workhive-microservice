@@ -1,10 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
-import {editJob} from "../../server/createAndEditJob";
-import { useDispatch } from "react-redux";
-import { showPopup } from "../../store/slices/popupSlice";
+import { editJob } from "../../server/createAndEditJob";
+import useTriggerPopup from "../useTriggerPopup";
 
 const useEditJob = (setJob = null, onClose = null) => {
-  const dispatch = useDispatch();
+  const { triggerPopup } = useTriggerPopup();
+
   const { data, isPending, mutate } = useMutation({
     mutationFn: ({ url, credential }) => editJob(url, credential),
     onSuccess: (data) => {
@@ -20,26 +20,19 @@ const useEditJob = (setJob = null, onClose = null) => {
         }
       }
       if (onClose) onClose();
-      dispatch(
-        showPopup({
-          message: data?.message || "Operation successfull",
-          type: "success",
-          visible: true,
-          popupId: Date.now(),
-        })
-      );
+
+      triggerPopup({
+        message: data?.message || "Operation successfull",
+        type: "success",
+      });
     },
     onError: (err) => {
-      dispatch(
-        showPopup({
-          message:
-            err.response?.data?.message ||
-            "Operation Failed! Please try again later",
-          type: "error",
-          visible: true,
-          popupId: Date.now(),
-        })
-      );
+      triggerPopup({
+        message:
+          err.response?.data?.message ||
+          "Operation Failed! Please try again later",
+        type: "error",
+      });
     },
   });
 
