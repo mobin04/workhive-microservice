@@ -1,7 +1,5 @@
-import { useCallback } from "react";
-
-function usePostedDate() {
-  const posted = useCallback((timeString) => {
+function postedDateFormat() {
+  const posted = (timeString) => {
     const postedDateInMs = new Date(timeString).getTime();
     const timeDifferents = Date.now() - postedDateInMs;
     const msInDays = 1000 * 60 * 60 * 24;
@@ -10,8 +8,8 @@ function usePostedDate() {
       return "Today";
     }
     return `${Math.round(daysAgo)} days ago`;
-  }, []);
-  return posted;
+  };
+  return { posted };
 }
 
-export default usePostedDate;
+export default postedDateFormat;

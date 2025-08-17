@@ -6,14 +6,11 @@ import { setJobs } from "../../../store/slices/jobSlice";
 import Loading from "../../loader/Loading";
 import useFetchJobByEmpId from "../../../hooks/employer-hooks/useFetchJobByEmpId";
 import { useNavigate } from "react-router-dom";
-import useFormatDate from "../../../hooks/useFormatDate";
 import CreateOrEditJob from "../create-or-edit-job/CreateOrEditJob";
 import useEditJob from "../../../hooks/employer-hooks/useEditJob";
 import useCreateJob from "../../../hooks/employer-hooks/useCreateJob";
 import { deleteJob } from "../../../server/deleteJob";
-import { showPopup } from "../../../store/slices/popupSlice";
 import WarningMessage from "../../warning-msg/WarningMessage";
-import useFormatSalary from "../../../hooks/useFormatSalary";
 import {
   MapPin,
   Users,
@@ -30,6 +27,9 @@ import {
   ChartNoAxesCombined,
   ExternalLink,
 } from "lucide-react";
+import useTriggerPopup from "../../../hooks/useTriggerPopup";
+import formatDateString from "../../../utils/formatDateString";
+import formatSalaries from "../../../utils/formatSalary";
 
 const EmployerHome = () => {
   const { isDark, getJobTypeColor, getJobLevelColor } =
@@ -47,19 +47,21 @@ const EmployerHome = () => {
     isTrue: false,
     jobId: "",
   });
+
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [isJobEditingMode, setIsJobEditingMode] = useState({
     isTrue: false,
     jobData: null,
   });
   const { jobs: jobDetails } = useSelector((state) => state.jobs);
+  const { triggerPopup } = useTriggerPopup();
 
   useEffect(() => {
     if (jobDetails && jobDetails?.data?.jobs?.length > 0)
       setJobDetails(jobDetails?.data?.jobs || []);
   }, [jobDetails]);
 
-  const formatDate = useFormatDate();
+  const {formatDate} = formatDateString();
 
   // Quick update in UI When job updated
   const handleSaveUpdatedJob = (jobData) => {
@@ -106,7 +108,7 @@ const EmployerHome = () => {
 
   // const jobs = jobDetails?.data?.jobs || [];
 
-  const formatSalary = useFormatSalary();
+  const {formatSalary} = formatSalaries();
 
   // Get the search jobs
   const filteredJobs = jobs?.filter((job) => {
@@ -189,14 +191,10 @@ const EmployerHome = () => {
     if (message) {
       const filteredJob = jobs?.filter((job) => job?._id !== jobId);
       setJobDetails(filteredJob);
-      dispatch(
-        showPopup({
-          message: message || "Job deleted successfully",
-          type: "success",
-          visible: true,
-          popupId: Date.now(),
-        })
-      );
+      triggerPopup({
+        message: message || "Job deleted successfully",
+        type: "success",
+      });
     }
   };
 

@@ -16,6 +16,8 @@ import ResumePreview from "./Preview";
 import useFetchAppsByJobId from "../../../hooks/employer-hooks/useFetchAppsByJob";
 import { useLocation } from "react-router-dom";
 import Loading from "../../loader/Loading";
+import useUpdateApplication from "../../../hooks/employer-hooks/useUpdateApplication";
+import ApplicationUpdatePopup from "../application-update-popup/ApplicationUpdatePopup";
 
 const JobApplicationsViewer = () => {
   const { isDark, getStatusColorViewAppEmp } = useContext(ThemeContext);
@@ -24,6 +26,11 @@ const JobApplicationsViewer = () => {
   const [showResumePreview, setShowResumePreview] = useState(false);
   const [jobData, setJobData] = useState({});
   const location = useLocation();
+  const [isUpdateMode, setIsUpdateMode] = useState({
+    isTrue: false,
+    status: "",
+    appId: "",
+  });
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -39,11 +46,6 @@ const JobApplicationsViewer = () => {
   useEffect(() => {
     refetch();
   }, [refetch]);
-
-  const updateApplicationStatus = (applicationId, newStatus) => {
-    // This would be your API call to update status
-    console.log(`Updating application ${applicationId} to ${newStatus}`);
-  };
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -80,6 +82,22 @@ const JobApplicationsViewer = () => {
     };
   }, [jobData?.application]);
 
+  const onClose = () => {
+    setIsUpdateMode({ isTrue: false, status: "", appId: "" });
+  };
+
+  const { isPending, mutate } = useUpdateApplication({
+    onClose,
+    updateApp: setJobData,
+  });
+
+  const onSubmit = () => {
+    const { appId, status, isTrue } = isUpdateMode;
+    if (!isTrue || !appId || !status) return;
+    // console.log(isUpdateMode);
+    mutate({ appId, status });
+  };
+
   if (isLoading) return <Loading />;
 
   return (
@@ -88,6 +106,16 @@ const JobApplicationsViewer = () => {
         isDark ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
       }`}
     >
+      {isUpdateMode?.isTrue && (
+        <ApplicationUpdatePopup
+          isOpen={isUpdateMode?.isTrue}
+          onClose={onClose}
+          onSubmit={onSubmit}
+          status={isUpdateMode?.status}
+          isLoading={isPending}
+        />
+      )}
+
       {/* Header */}
       <div className={`${isDark ? "bg-gray-800/20" : "bg-white"} `}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -287,7 +315,11 @@ const JobApplicationsViewer = () => {
                   <>
                     <button
                       onClick={() =>
-                        updateApplicationStatus(application._id, "shortlisted")
+                        setIsUpdateMode({
+                          isTrue: true,
+                          appId: application?._id,
+                          status: "shortlisted",
+                        })
                       }
                       className="flex cursor-pointer items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
                     >
@@ -296,7 +328,11 @@ const JobApplicationsViewer = () => {
                     </button>
                     <button
                       onClick={() =>
-                        updateApplicationStatus(application._id, "rejected")
+                        setIsUpdateMode({
+                          isTrue: true,
+                          appId: application?._id,
+                          status: "accepted",
+                        })
                       }
                       className="flex cursor-pointer items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
                     >
@@ -305,7 +341,11 @@ const JobApplicationsViewer = () => {
                     </button>
                     <button
                       onClick={() =>
-                        updateApplicationStatus(application._id, "rejected")
+                        setIsUpdateMode({
+                          isTrue: true,
+                          appId: application?._id,
+                          status: "rejected",
+                        })
                       }
                       className="flex cursor-pointer items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
                     >
@@ -319,7 +359,11 @@ const JobApplicationsViewer = () => {
                   <>
                     <button
                       onClick={() =>
-                        updateApplicationStatus(application._id, "accepted")
+                        setIsUpdateMode({
+                          isTrue: true,
+                          appId: application?._id,
+                          status: "accepted",
+                        })
                       }
                       className="flex cursor-pointer items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
                     >
@@ -328,7 +372,11 @@ const JobApplicationsViewer = () => {
                     </button>
                     <button
                       onClick={() =>
-                        updateApplicationStatus(application._id, "rejected")
+                        setIsUpdateMode({
+                          isTrue: true,
+                          appId: application?._id,
+                          status: "rejected",
+                        })
                       }
                       className="flex cursor-pointer items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
                     >

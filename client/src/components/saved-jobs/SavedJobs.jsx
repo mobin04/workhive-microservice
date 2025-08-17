@@ -1,8 +1,5 @@
 import React, { useState, useMemo, useContext, useEffect } from "react";
 import { ThemeContext } from "../../contexts/ThemeContext";
-import useFormatSalary from "../../hooks/useFormatSalary";
-import useFormatDate from "../../hooks/useFormatDate";
-import usePostedDate from "../../hooks/usePostedDate";
 import { useQuery } from "@tanstack/react-query";
 import { envVariables } from "../../config";
 import Loading from "../loader/Loading";
@@ -22,6 +19,9 @@ import {
   Trash2,
   SearchX,
 } from "lucide-react";
+import formatDateString from "../../utils/formatDateString";
+import formatSalaries from "../../utils/formatSalary";
+import postedDateFormat from "../../utils/postedDate";
 
 const SavedJobs = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -68,9 +68,9 @@ const SavedJobs = () => {
     );
   }, [searchQuery, savedJobs]);
 
-  const formatSalary = useFormatSalary();
-  const formatDate = useFormatDate();
-  const posted = usePostedDate();
+  const {formatSalary} = formatSalaries();
+  const {formatDate} = formatDateString();
+  const {posted} = postedDateFormat();
 
   // Hanlde remove job from saved list
   const { handleSave: handleRemove, pendingJobs: removePending } =

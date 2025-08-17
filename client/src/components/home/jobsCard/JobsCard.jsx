@@ -1,14 +1,12 @@
 import React, { memo, useCallback, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { ThemeContext } from "../../../contexts/ThemeContext";
-import usePostedDate from "../../../hooks/usePostedDate";
 import { envVariables } from "../../../config";
 import saveJobToSaveList from "../../../server/saveJob";
 import removeJobFromSaved from "../../../server/removeJobFromSaved";
 import useSaveAndRemoveJob from "../../../hooks/useSaveAndRemoveJob";
 import useFetchSavedJobs from "../../../hooks/useFetchSavedJobs";
 import { useSelector, useDispatch } from "react-redux";
-import useFormatSalary from "../../../hooks/useFormatSalary";
 import { likeJob, undoLikeJob } from "../../../store/slices/jobSlice";
 import { likeJobApi, undoLikeJobApi } from "../../../server/likeJob";
 import { useMergeWithdrawnApp } from "../../../hooks/useMergeWithdrawnApp";
@@ -23,6 +21,8 @@ import {
   MapPin,
   ThumbsUp,
 } from "lucide-react";
+import formatSalaries from "../../../utils/formatSalary";
+import postedDateFormat from "../../../utils/postedDate";
 
 const JobsCard = ({ isAppLoading, isWithdrawLoading }) => {
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ const JobsCard = ({ isAppLoading, isWithdrawLoading }) => {
 
   const fixedApplications = useMergeWithdrawnApp();
 
-  const posted = usePostedDate();
+  const {posted} = postedDateFormat();
 
   // Handle save job
   const { handleSave, pendingJobs: savePending } = useSaveAndRemoveJob(
@@ -87,7 +87,7 @@ const JobsCard = ({ isAppLoading, isWithdrawLoading }) => {
     return job.likes?.includes(user?._id);
   };
 
-  const formatSalary = useFormatSalary();
+  const {formatSalary} = formatSalaries();
 
   const getApplications = useCallback(
     (id) => {

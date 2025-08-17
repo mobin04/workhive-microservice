@@ -10,12 +10,10 @@ import { ThemeContext } from "../../contexts/ThemeContext";
 import { envVariables } from "../../config";
 import { useLocation, useNavigate } from "react-router-dom";
 import Loading from "../loader/Loading";
-import useFormatSalary from "../../hooks/useFormatSalary";
-import useFormatDate from "../../hooks/useFormatDate";
 import useSaveAndRemoveJob from "../../hooks/useSaveAndRemoveJob";
 import saveJobToSaveList from "../../server/saveJob";
 import removeJobFromSaved from "../../server/removeJobFromSaved";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import useFetchSavedJobs from "../../hooks/useFetchSavedJobs";
 import useFetchJobByJobId from "../../hooks/useFetchJobByJobId";
 import { useMergeWithdrawnApp } from "../../hooks/useMergeWithdrawnApp";
@@ -38,16 +36,17 @@ import {
   ServerCrash,
   MapPinned,
 } from "lucide-react";
-import { showPopup } from "../../store/slices/popupSlice";
 import JobDescriptionRender from "../job-description-render/JobDescriptionRender";
 import { reverseGeocode } from "../../utils/mapbox";
+import useTriggerPopup from "../../hooks/useTriggerPopup";
+import formatDateString from "../../utils/formatDateString";
+import formatSalaries from "../../utils/formatSalary";
 
 const JobViewer = () => {
   const location = useLocation();
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const { savedJobs } = useSelector((state) => state.jobs);
-  const dispatch = useDispatch();
   const [isLinkCopied, setIsLinkCopied] = useState(false);
   const [geoLocName, setGeoLocName] = useState("");
   const {
@@ -68,6 +67,7 @@ const JobViewer = () => {
   // Fetch application
   const { isLoading: isAppLoading } = useFetchApplications();
   const { isLoading: isWithdrawLoading } = useFetchWithdrawnApp();
+  const { triggerPopup } = useTriggerPopup();
 
   // Fix and merge withdrawn and active applications
   const fixedApplications = useMergeWithdrawnApp();
@@ -85,8 +85,8 @@ const JobViewer = () => {
 
   const jobData = data?.data?.job;
 
-  const formatSalary = useFormatSalary();
-  const formatDate = useFormatDate();
+  const {formatSalary} = formatSalaries();
+  const {formatDate} = formatDateString();
 
   const { refetch } = useFetchSavedJobs();
 
@@ -134,14 +134,7 @@ const JobViewer = () => {
       timeoutRef.current = null;
     }, 2000);
 
-    dispatch(
-      showPopup({
-        message: "Link copied to clipboard!",
-        type: "success",
-        visible: true,
-        popupId: Date.now(),
-      })
-    );
+    triggerPopup({ message: "Link copied to clipboard!", type: "success" });
   };
 
   useEffect(() => {

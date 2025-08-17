@@ -18,10 +18,10 @@ import { setJobs } from "../../store/slices/jobSlice";
 import { useDebounce } from "../../hooks/useDebounce";
 import { Bell, Briefcase, Moon, Search, Sun, X } from "lucide-react";
 import { forwardGeocode } from "../../utils/mapbox";
-import { showPopup } from "../../store/slices/popupSlice";
 import SearchBars from "./search-bar/SearchBars";
 import MobileSearchBar from "./mobile-search-bar/MobileSearchBar";
 import NotificationDropdown from "../notification/Notification";
+import useTriggerPopup from "../../hooks/useTriggerPopup";
 
 const initialState = {
   search: "",
@@ -57,6 +57,8 @@ function Header() {
   }
 
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  const { triggerPopup } = useTriggerPopup();
 
   const debouncedSearch = useDebounce(state.search, 400);
   // const debouncedLocation = useDebounce(state.location, 400);
@@ -204,14 +206,9 @@ function Header() {
       const res = await axios.post(LOGOUT_URL, "", { withCredentials: true });
       if (res.data.message) {
         reduxDispatch(setUser(null));
-        reduxDispatch(
-          showPopup({
-            message: "Sign out successfully!",
-            type: "success",
-            visible: true,
-            popupId: Date.now,
-          })
-        );
+
+        triggerPopup({ message: "Sign out successfully!", type: "success" });
+
         navigate("/");
       }
       setProfileDropdownOpen(false);
@@ -416,7 +413,7 @@ function Header() {
                       >
                         Notifications
                       </a>
-                      
+
                       {user?.role === "employer" && (
                         <a
                           onClick={() => {

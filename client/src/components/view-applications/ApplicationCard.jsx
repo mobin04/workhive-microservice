@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import { ThemeContext } from "../../contexts/ThemeContext";
 import { useNavigate } from "react-router-dom";
-import useFormatSalary from "../../hooks/useFormatSalary";
 import {
   MapPin,
   Calendar,
@@ -11,6 +10,7 @@ import {
   Building2,
   Shredder, 
 } from "lucide-react";
+import formatSalaries from "../../utils/formatSalary";
 
 const ApplicationCard = ({ app, setIsWithdrawPopup, setWithDrawnId }) => {
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ const ApplicationCard = ({ app, setIsWithdrawPopup, setWithDrawnId }) => {
     });
   };
 
-  const formatSalary = useFormatSalary();
+  const {formatSalary} = formatSalaries();
 
   return (
     <div

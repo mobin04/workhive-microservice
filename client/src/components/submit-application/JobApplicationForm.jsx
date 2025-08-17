@@ -9,7 +9,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import ApplicationSuccessMessage from "./SuccessMessage";
 import { useDispatch } from "react-redux";
-import { showPopup } from "../../store/slices/popupSlice";
+import useTriggerPopup from "../../hooks/useTriggerPopup";
 
 const applyJob = async (formData) => {
   const res = await axios.post(envVariables.APPLY_JOB_URL, formData, {
@@ -29,6 +29,8 @@ const JobApplicationForm = () => {
 
   const location = useLocation();
   const navigate = useNavigate();
+
+  const { triggerPopup } = useTriggerPopup();
 
   const url = useMemo(() => {
     const jobId = new URLSearchParams(location.search).get("id");
@@ -102,14 +104,10 @@ const JobApplicationForm = () => {
         console.log(data);
       },
       onError: (error) => {
-        dispatch(
-          showPopup({
-            message: error?.response?.data?.message || "Failed to apply job",
-            type: "error",
-            visible: true,
-            popupId: Date.now(),
-          })
-        );
+        triggerPopup({
+          message: error?.response?.data?.message || "Failed to apply job",
+          type: "error",
+        });
         setUploadError(
           error?.response?.data?.message ||
             "Failed to submit application! Please try again after sometime"
