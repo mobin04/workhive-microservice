@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 class JobRepository {
   async GetAllJobs(query) {
     try {
-      const jobService = new ApiFeatures(Job ,query).paginate().sort().filter();
+      const jobService = new ApiFeatures(Job, query).paginate().sort().filter();
       const jobs = await jobService.fetchJobs();
       const totalJobs = await Job.countDocuments(jobService.filters);
       const totalPages = Math.ceil(totalJobs / jobService.pagination.limit);
@@ -109,27 +109,94 @@ class JobRepository {
     try {
       const jobStatistics = await Job.aggregate([
         {
-          $group: {
-            _id: {
-              month: { $month: '$createdAt' },
-              year: { $year: '$createdAt' },
-            },
-            totalPosted: { $sum: 1 },
-            totalApplications: { $sum: { $size: '$applications' } }, // Count total applications per job
-          },
-        },
-        { $sort: { '_id.year': -1, '_id.month': -1 } },
-        {
-          $project: {
-            _id: 0,
-            month: '$_id.month',
-            year: '$_id.year',
-            totalPosted: 1,
-            totalApplications: 1, // Track total applications
+          $facet: {
+            // Monthly stats
+            monthlyStats: [
+              {
+                $group: {
+                  _id: {
+                    month: { $month: '$createdAt' },
+                    year: { $year: '$createdAt' },
+                  },
+                  totalPosted: { $sum: 1 },
+                  totalApplications: { $sum: { $size: '$applications' } },
+                },
+              },
+              { $sort: { '_id.year': -1, '_id.month': -1 } },
+              {
+                $project: {
+                  _id: 0,
+                  month: '$_id.month',
+                  year: '$_id.year',
+                  totalPosted: 1,
+                  totalApplications: 1,
+                },
+              },
+            ],
+
+            // 2️⃣ Timeline stats
+            timeRangeStats: [
+              {
+                $group: {
+                  _id: null,
+                  last7Days: {
+                    $sum: {
+                      $cond: [
+                        {
+                          $gte: [
+                            '$createdAt',
+                            new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days
+                          ],
+                        },
+                        1,
+                        0,
+                      ],
+                    },
+                  },
+                  last30Days: {
+                    $sum: {
+                      $cond: [
+                        {
+                          $gte: [
+                            '$createdAt',
+                            new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days
+                          ],
+                        },
+                        1,
+                        0,
+                      ],
+                    },
+                  },
+                  last90Days: {
+                    $sum: {
+                      $cond: [
+                        {
+                          $gte: [
+                            '$createdAt',
+                            new Date(Date.now() - 90 * 24 * 60 * 60 * 1000),// 90 days
+                          ],
+                        },
+                        1,
+                        0,
+                      ],
+                    },
+                  },
+                },
+              },
+              {
+                $project: {
+                  _id: 0,
+                  last7Days: 1,
+                  last30Days: 1,
+                  last90Days: 1,
+                },
+              },
+            ],
           },
         },
       ]);
-      return jobStatistics;
+
+      return jobStatistics[0];
     } catch (err) {
       throw new AppError(err.message, err.statusCode);
     }

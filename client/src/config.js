@@ -53,4 +53,7 @@ export const envVariables = {
   // EMPLOYER
   GET_ALL_JOBS_EMPLOYER_URL: `${import.meta.env.VITE_API_URL}/jobs`,
   GET_APPLICATIONS_BY_JOBID_URL: `${import.meta.env.VITE_API_URL}/applications`,
+  
+  // ADMIN 
+  GET_ADMIN_STATS: `${import.meta.env.VITE_API_URL}/jobs/statistics`
 };

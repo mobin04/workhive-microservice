@@ -14,6 +14,7 @@ import { setJobs } from "../../store/slices/jobSlice";
 import useFetchApplications from "../../hooks/useFetchApplications";
 import useFetchWithdrawnApp from "../../hooks/useFetchWithdrawnApp";
 import EmployerHome from "../employer-components/employer-home/EmployerHome";
+import AdminHome from "../admin-components/admin-home/AdminHome";
 
 function Home() {
   const { isDark, bodyThemeClasses } = useContext(ThemeContext);
@@ -52,7 +53,7 @@ function Home() {
   }
 
   useEffect(() => {
-    if (data && user?.role === 'job_seeker') {
+    if (data && user?.role === "job_seeker") {
       dispatch(setJobs(data));
     }
   }, [data, dispatch, user]);
@@ -126,7 +127,11 @@ function Home() {
     <div className={`${isDark ? "dark" : ""}`}>
       {user && user?.role === "job_seeker" ? (
         <LoggedInHomepage />
-      ) : user?.role === 'employer' ? <EmployerHome/> : (
+      ) : user?.role === "employer" ? (
+        <EmployerHome />
+      ) : user?.role === "admin" ? (
+        <AdminHome />
+      ) : (
         <GuestHomePage />
       )}
     </div>
