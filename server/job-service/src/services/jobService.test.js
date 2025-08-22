@@ -186,7 +186,7 @@ describe('JobService - UpdateJob', () => {
     jest.clearAllMocks();
     service = new JobService();
     mockRepo = service.jobRepository;
-    // mock coordinate helper
+
     service.jobConfig.handleCoordinateFormat = jest.fn((coords) => coords);
     service.jobConfig.uploadCompanyLogo = jest
       .fn()
@@ -194,7 +194,8 @@ describe('JobService - UpdateJob', () => {
   });
 
   it('Should throw error if job not found', async () => {
-    mockRepo.GetJobById.mockResolvedValue(null);
+    mockRepo.GetJobByJobId.mockResolvedValue(null);
+
     await expect(
       service.UpdateJob({
         id: 'job123',
@@ -206,7 +207,7 @@ describe('JobService - UpdateJob', () => {
   });
 
   it('Should throw error if user not allowed to update job', async () => {
-    mockRepo.GetJobById.mockResolvedValue({
+    mockRepo.GetJobByJobId.mockResolvedValue({
       _id: 'job123',
       employer: 'user123',
       title: 'developer',
@@ -214,7 +215,7 @@ describe('JobService - UpdateJob', () => {
 
     await expect(
       service.UpdateJob({
-        _id: 'job123',
+        id: 'job123',
         file: {},
         reqObj: {},
         currentUser: {
@@ -227,7 +228,7 @@ describe('JobService - UpdateJob', () => {
   });
 
   it('Should throw error if no valid field provided for update', async () => {
-    mockRepo.GetJobById.mockResolvedValue({
+    mockRepo.GetJobByJobId.mockResolvedValue({
       _id: 'job123',
       employer: 'user123',
       title: 'developer',
@@ -247,11 +248,12 @@ describe('JobService - UpdateJob', () => {
   });
 
   it('Should update job successfully without file', async () => {
-    mockRepo.GetJobById.mockResolvedValue({
+    mockRepo.GetJobByJobId.mockResolvedValue({
       _id: 'job123',
       employer: 'user123',
       title: 'developer',
     });
+
     mockRepo.UpdateJobById.mockResolvedValue({
       _id: 'job123',
       title: 'updated title',
@@ -281,7 +283,7 @@ describe('JobService - UpdateJob', () => {
   });
 
   it('Should update job successfully with file', async () => {
-    mockRepo.GetJobById.mockResolvedValue({
+    mockRepo.GetJobByJobId.mockResolvedValue({
       _id: 'job123',
       employer: 'user123',
       title: 'developer',
@@ -316,11 +318,12 @@ describe('JobService - UpdateJob', () => {
   });
 
   it('Should throw error if UpdateJobById fails', async () => {
-    mockRepo.GetJobById.mockResolvedValue({
+    mockRepo.GetJobByJobId.mockResolvedValue({
       _id: 'job123',
       employer: 'user123',
       title: 'developer',
     });
+
     mockRepo.UpdateJobById.mockResolvedValue(null);
 
     await expect(
@@ -414,7 +417,7 @@ describe('JobService - renewJobExpiration', () => {
   });
 
   it('Should throw error if job is already renewed', async () => {
-    mockRepo.GetJobById.mockResolvedValueOnce({
+    mockRepo.GetJobByJobId.mockResolvedValueOnce({
       _id: 'job123',
       isRenewed: true,
       title: 'foo',
@@ -426,7 +429,7 @@ describe('JobService - renewJobExpiration', () => {
   });
 
   it('Should return renewed job successfully', async () => {
-    mockRepo.GetJobById.mockResolvedValueOnce({
+    mockRepo.GetJobByJobId.mockResolvedValueOnce({
       _id: 'job123',
       isRenewed: false,
       title: 'foo',
@@ -448,7 +451,7 @@ describe('JobService - renewJobExpiration', () => {
       expire: '10:56:13:0000',
       title: 'foo',
     });
-    expect(mockRepo.GetJobById).toHaveBeenCalledWith({ id: 'job123' });
+    expect(mockRepo.GetJobByJobId).toHaveBeenCalledWith({ id: 'job123' });
     expect(mockRepo.JobRenewExpire).toHaveBeenCalledWith({
       job: {
         _id: 'job123',
@@ -469,14 +472,14 @@ describe('JobService - CloseJob', () => {
   });
 
   it('Should throw error if job not found', async () => {
-    mockRepo.GetJobById.mockResolvedValue(null);
+    mockRepo.GetJobByJobId.mockResolvedValue(null);
     await expect(service.CloseJob({ id: '', user: {} })).rejects.toThrow(
       'Job not found!'
     );
   });
 
   it('Should throw error if user not allowed to close the job', async () => {
-    mockRepo.GetJobById.mockResolvedValueOnce({
+    mockRepo.GetJobByJobId.mockResolvedValueOnce({
       _id: 'job123',
       employer: 'emp1',
     });
@@ -494,7 +497,7 @@ describe('JobService - CloseJob', () => {
   });
 
   it('Should throw error if job status is already closed', async () => {
-    mockRepo.GetJobById.mockResolvedValueOnce({
+    mockRepo.GetJobByJobId.mockResolvedValueOnce({
       _id: 'job123',
       employer: 'emp1',
       status: 'closed',
@@ -513,7 +516,7 @@ describe('JobService - CloseJob', () => {
   });
 
   it('Should return closed job successfully', async () => {
-    mockRepo.GetJobById.mockResolvedValueOnce({
+    mockRepo.GetJobByJobId.mockResolvedValueOnce({
       _id: 'job123',
       employer: 'emp1',
       status: 'active',
@@ -536,7 +539,7 @@ describe('JobService - CloseJob', () => {
     });
 
     expect(result).toHaveProperty('data');
-    expect(mockRepo.GetJobById).toHaveBeenCalledWith({ id: 'job123' });
+    expect(mockRepo.GetJobByJobId).toHaveBeenCalledWith({ id: 'job123' });
     expect(mockRepo.CloseJob).toHaveBeenCalledWith({
       job: {
         _id: 'job123',

@@ -75,6 +75,36 @@ class AuthRepository {
     }
   }
 
+  async suspendUser({ userId, days, reason }) {
+    try {
+      const user = await User.findByIdAndUpdate(userId, {
+        isSuspended: true,
+        suspendedUntil: new Date(Date.now() + days * 24 * 60 * 60 * 1000),
+        suspendReason: reason || 'No reason provided',
+      });
+
+      if (!user) return false;
+
+      return user;
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
+  async UnsuspendUser({ userId }) {
+    try {
+      const user = await User.findByIdAndUpdate(userId, {
+        isSuspended: false,
+        suspendedUntil: null,
+        suspendReason: null,
+      });
+      if (!user) return false;
+      return user;
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
   async PullSavedJob({ jobId, userId }) {
     try {
       const user = await User.findByIdAndUpdate(userId, {
@@ -84,7 +114,7 @@ class AuthRepository {
     } catch (err) {
       throw new AppError(err.message, err.statusCode);
     }
-  } 
+  }
 
   async GetUserStatistics() {
     try {
