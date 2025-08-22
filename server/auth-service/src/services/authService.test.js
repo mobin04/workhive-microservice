@@ -12,6 +12,8 @@ jest.mock('../database', () => ({
     GetUserStatistics: jest.fn(),
     SaveJob: jest.fn(),
     PullSavedJob: jest.fn(),
+    suspendUser: jest.fn(),
+    UnsuspendUser: jest.fn(),
   })),
 }));
 
@@ -918,5 +920,119 @@ describe('AuthService - RemoveSavedJobs', () => {
     expect(result.data).toBe('Job removed successfully!');
     expect(mockRepo.FindById).toHaveBeenCalled();
     expect(mockRepo.PullSavedJob).toHaveBeenCalled();
+  });
+});
+
+describe('AuthService - SuspendAccount', () => {
+  let service;
+  let mockRepo;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    service = new AuthService();
+    mockRepo = service.repository;
+
+    Email.mockImplementation(() => ({
+      sendSuspensionEmail: jest.fn().mockResolvedValue(true),
+    }));
+  });
+
+  it('Should throw error if days is invalid', async () => {
+    await expect(
+      service.SuspendAccount({ userId: 'u123', days: 0, reason: 'spam' })
+    ).rejects.toThrow('Suspension days must be a positive number');
+
+    await expect(
+      service.SuspendAccount({ userId: 'u123', days: -5, reason: 'spam' })
+    ).rejects.toThrow('Suspension days must be a positive number');
+  });
+
+  it('Should throw error if suspendUser returns null', async () => {
+    mockRepo.suspendUser.mockResolvedValue(null);
+
+    await expect(
+      service.SuspendAccount({ userId: 'u123', days: 5, reason: 'spam' })
+    ).rejects.toThrow('Failed to suspend user!');
+  });
+
+  it('Should suspend user and send email successfully', async () => {
+    mockRepo.suspendUser.mockResolvedValue({
+      userId: 'u123',
+      name: 'user',
+      days: 7,
+      reason: 'bla bla bla',
+    });
+
+    const result = await service.SuspendAccount({
+      userId: 'u123',
+      days: 7,
+      reason: 'bla bla bla',
+    });
+
+    expect(mockRepo.suspendUser).toHaveBeenCalledWith({
+      userId: 'u123',
+      days: 7,
+      reason: 'bla bla bla',
+    });
+
+    expect(Email).toHaveBeenCalled();
+    expect(result).toMatchObject({
+      data: {
+        userId: 'u123',
+        name: 'user',
+        days: 7,
+        reason: 'bla bla bla',
+      },
+    });
+  });
+});
+
+describe('AuthService - UnsuspendUser', () => {
+  let service;
+  let mockRepo;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    service = new AuthService();
+    mockRepo = service.repository;
+
+    Email.mockImplementation(() => ({
+      sendUnsuspendEmail: jest.fn().mockResolvedValue(true),
+    }));
+  });
+
+  it('Should throw error if UnsuspendUser returns null', async () => {
+    mockRepo.UnsuspendUser.mockResolvedValue(null);
+
+    await expect(service.UnsuspendUser({ userId: 'u123' })).rejects.toThrow(
+      'Failed to unsuspend user!'
+    );
+  });
+
+  it('Should throw error if sending unsuspend email fails', async () => {
+    const fakeUser = { _id: 'u123', name: 'john' };
+    mockRepo.UnsuspendUser.mockResolvedValue(fakeUser);
+
+    Email.mockImplementation(() => ({
+      sendUnsuspendEmail: jest
+        .fn()
+        .mockRejectedValue(new Error('Email failed')),
+    }));
+
+    await expect(service.UnsuspendUser({ userId: 'u123' })).rejects.toThrow(
+      'Email failed'
+    );
+  });
+
+  it('Should unsuspend user and send email successfully', async () => {
+    const fakeUser = { _id: 'u123', name: 'john' };
+    mockRepo.UnsuspendUser.mockResolvedValue(fakeUser);
+
+    const result = await service.UnsuspendUser({ userId: 'u123' });
+
+    expect(mockRepo.UnsuspendUser).toHaveBeenCalledWith({ userId: 'u123' });
+    expect(Email).toHaveBeenCalledWith(fakeUser, '', {});
+    expect(result).toHaveProperty('data');
+    expect(result.data).toMatchObject({ _id: 'u123', name: 'john' });
   });
 });

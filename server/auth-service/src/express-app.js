@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+require('./database/repository/suspensionCleaner');
 const { auth } = require('./api');
 const { swaggerSpec, swaggerUI } = require('./swagger');
 const {

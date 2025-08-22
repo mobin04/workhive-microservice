@@ -43,6 +43,7 @@ module.exports = (app, channel) => {
   app.get(
     `${baseUrl}/profile`,
     authMiddleware.protect,
+    authMiddleware.checkSuspension,
     async (req, res, next) => {
       try {
         const id = req.user._id;
@@ -160,6 +161,7 @@ module.exports = (app, channel) => {
     `${baseUrl}/saved-jobs`,
     authMiddleware.protect,
     authMiddleware.restrictTo('job_seeker'),
+    authMiddleware.checkSuspension,
     async (req, res) => {
       const userId = req.user._id;
 
@@ -663,6 +665,7 @@ module.exports = (app, channel) => {
     `${baseUrl}/save-job/:id`,
     authMiddleware.protect,
     authMiddleware.restrictTo('job_seeker'),
+    authMiddleware.checkSuspension,
     async (req, res) => {
       const userId = req.user._id;
       const jobId = req.params.id;
@@ -726,6 +729,7 @@ module.exports = (app, channel) => {
   app.patch(
     `${baseUrl}/profile`,
     authMiddleware.protect,
+    authMiddleware.checkSuspension,
     upload.single('coverImage'),
     catchAsync(async (req, res, next) => {
       let file = '';
@@ -749,6 +753,167 @@ module.exports = (app, channel) => {
         message: 'Profile updated successfully!',
         data: {
           user: data.user,
+        },
+      });
+    })
+  );
+
+  /**
+   * @swagger
+   * /api/v2/admin/suspend/{id}:
+   *   patch:
+   *     summary: Suspend a user account
+   *     description: Admin can suspend a user account for a given number of days with a reason.
+   *     security:
+   *       - bearerAuth: []
+   *       - jwt: []
+   *     tags:
+   *       - Admin
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: User ID of the account to suspend
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               days:
+   *                 type: integer
+   *                 description: Number of days to suspend the account
+   *                 example: 7
+   *               reason:
+   *                 type: string
+   *                 description: Reason for suspension
+   *                 example: "Violation of community guidelines"
+   *     responses:
+   *       200:
+   *         description: Account suspended successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: success
+   *                 message:
+   *                   type: string
+   *                   example: Successfully suspend this account for 7
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     user:
+   *                       type: object
+   *                       description: Updated user object after suspension
+   *       400:
+   *         description: Suspension days must be a positive number
+   *       403:
+   *         description: Forbidden (only admin can suspend accounts)
+   *       500:
+   *         description: Failed to suspend user!
+   */
+
+  // 🔹FOR ADMIN ONLY (SUSPEND USER)
+  app.patch(
+    `${baseUrl}/admin/suspend/:id`,
+    authMiddleware.protect,
+    authMiddleware.restrictTo('admin'),
+    catchAsync(async (req, res, next) => {
+      const userId = req.params.id;
+      const { days } = req.body;
+      const { reason } = req.body;
+
+      if (!userId)
+        return next(
+          new AppError(
+            'User ID is required inorder to suspend that account!',
+            400
+          )
+        );
+
+      const { data } = await service.SuspendAccount({ userId, days, reason });
+
+      res.status(200).json({
+        status: 'success',
+        message: `Successfully suspend this account for ${days} days`,
+        data: {
+          user: data,
+        },
+      });
+    })
+  );
+
+  /**
+   * @swagger
+   * /api/v2/admin/unsuspend/{id}:
+   *   patch:
+   *     summary: Unsuspend a user account
+   *     description: Admin can remove suspension from a user account.
+   *     security:
+   *       - bearerAuth: []
+   *       - jwt: []
+   *     tags:
+   *       - Admin
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: User ID of the account to unsuspend
+   *     responses:
+   *       200:
+   *         description: User unsuspended successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: success
+   *                 message:
+   *                   type: string
+   *                   example: User unsuspended successfully
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     user:
+   *                       type: object
+   *                       description: Updated user object after unsuspension
+   *       400:
+   *         description: Missing or invalid User ID
+   *       401:
+   *         description: Unauthorized (missing or invalid token)
+   *       403:
+   *         description: Forbidden (only admin can unsuspend accounts)
+   *       500:
+   *         description: Failed to unsuspend user!
+   */
+
+  // 🔹FOR ADMIN ONLY (UNSUSPEND USER)
+  app.patch(
+    `${baseUrl}/admin/unsuspend/:id`,
+    authMiddleware.protect,
+    authMiddleware.restrictTo('admin'),
+    catchAsync(async (req, res, next) => {
+      const userId = req.params.id;
+
+      if (!userId) return next(new AppError('Please provide the user ID', 400));
+
+      const unsuspendUser = await service.UnsuspendUser({ userId });
+
+      res.status(200).json({
+        status: 'success',
+        message: 'User unsuspended successfully',
+        data: {
+          user: unsuspendUser,
         },
       });
     })
@@ -796,6 +961,7 @@ module.exports = (app, channel) => {
     authMiddleware.protect,
     authMiddleware.restrictTo('job_seeker'),
     isValidObjectId,
+    authMiddleware.checkSuspension,
     catchAsync(async (req, res, next) => {
       const jobId = req.params.id;
       const userId = req.user._id;

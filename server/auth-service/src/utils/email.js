@@ -11,6 +11,7 @@ class Email {
     this.user = user;
     this.loginDetails = others.loggedUserInfo;
     this.otpSecret = others.otpSecret;
+    this.suspensionDays = others.suspensionDays;
   }
 
   newTransporter() {
@@ -103,6 +104,30 @@ class Email {
       coverImage: this.user.coverImage,
       magicLink: this.url,
     });
+  }
+
+  async sendUnsuspendEmail() {
+    await this.sendEmail('Your account is back', 'unsuspendEmail', {
+      profilePic: this.user?.coverImage || 'unknown',
+      userName: this.user?.name || 'unknown',
+      restoreDate: new Date().toDateString(),
+    });
+  }
+
+  async sendSuspensionEmail() {
+    await this.sendEmail(
+      'Your account has been suspended',
+      'suspendAccount',
+      {
+        coverImage: this.user?.coverImage || 'unknown',
+        username: this.user?.name || 'unknown',
+        reason: this.user?.suspendReason || 'unknown',
+        suspensionDays: this.suspensionDays || 'unknown',
+        suspensionUntil: this.user?.suspendedUntil
+          ? new Date(this.user?.suspendedUntil)?.toDateString()
+          : 'unknown',
+      }
+    );
   }
 }
 

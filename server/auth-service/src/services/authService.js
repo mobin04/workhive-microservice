@@ -176,9 +176,29 @@ class AuthService {
         }
 
         const logginUserId = decoded.userId;
-        const loggingUser = await this.repository.FindById({
+
+        let loggingUser = await this.repository.FindById({
           id: logginUserId,
         });
+
+        if (loggingUser?.isSuspended) {
+          if (
+            loggingUser.suspendedUntil &&
+            loggingUser.suspendedUntil <= new Date()
+          ) {
+            const user = await this.repository.UnsuspendUser({
+              id: loggingUser?._id,
+            });
+            if (user) {
+              loggingUser = user;
+            }
+          } else {
+            throw new AppError(
+              `Your account is suspended until ${loggingUser?.suspendedUntil?.toDateString()}`,
+              401
+            );
+          }
+        }
 
         return formatData({ loggingUser });
       }
@@ -417,6 +437,46 @@ class AuthService {
       if (!removeJob) throw new AppError('No job found with that job id!', 404);
 
       return formatData('Job removed successfully!');
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
+  async SuspendAccount(adminInput) {
+    const { userId, days, reason } = adminInput;
+    try {
+      if (!days || isNaN(days) || days <= 0) {
+        throw new AppError('Suspension days must be a positive number', 400);
+      }
+
+      const suspendUser = await this.repository.suspendUser({
+        userId,
+        days,
+        reason,
+      });
+
+      if (!suspendUser) throw new AppError('Failed to suspend user!', 500);
+
+      await new Email(suspendUser, '', {
+        suspensionDays: days,
+      }).sendSuspensionEmail();
+
+      return formatData(suspendUser);
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
+  async UnsuspendUser(adminInput) {
+    const { userId } = adminInput;
+    try {
+      const unSuspendedUser = await this.repository.UnsuspendUser({ userId });
+      if (!unSuspendedUser)
+        throw new AppError('Failed to unsuspend user!', 500);
+
+      await new Email(unSuspendedUser, '', {}).sendUnsuspendEmail();
+
+      return formatData(unSuspendedUser);
     } catch (err) {
       throw new AppError(err.message, err.statusCode);
     }

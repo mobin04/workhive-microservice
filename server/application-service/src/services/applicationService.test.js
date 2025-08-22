@@ -14,6 +14,7 @@ jest.mock('../database/repository', () => ({
     GetApplicationByJobId: jest.fn(),
     UpdateApplicationStatus: jest.fn(),
     WithdrawedApplication: jest.fn(),
+    GetAppByAppId: jest.fn(),
   })),
 }));
 
@@ -298,7 +299,7 @@ describe('ApplicationService - UpdateApplicationStatus', () => {
         status: 'pending',
         currentUser: {},
       })
-    ).rejects.toThrow('Status must be accepted or rejected');
+    ).rejects.toThrow('Status must be accepted & rejected & shortlisted');
   });
 
   it('Should throw error if no application found', async () => {
@@ -567,89 +568,62 @@ describe('ApplicationService - GetWithdrawnedApplication', () => {
   });
 });
 
-// describe('ApplicationService - GetWithdrawnedApplication', () => {
-//   let service;
-//   let mockRepo;
+describe('ApplicationService - GetAppByAppId', () => {
+  let service;
+  let mockRepo;
 
-//   beforeEach(() => {
-//     jest.clearAllMocks();
-//     service = new ApplicationService();
-//     mockRepo = service.applicationRepo;
-//   });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    service = new ApplicationService();
+    mockRepo = service.applicationRepo;
+  });
 
-//   it('Should return false if no applications found', async () => {
-//     mockRepo.WithdrawedApplication.mockResolvedValue({
-//       application: null,
-//       applicationCount: 0,
-//     });
-//     const result = await service.GetWithdrawnedApplication({ reqQuery: {} });
-//     expect(result).toBe(false);
-//   });
+  it('should return application data with applicant (success)', async () => {
+    const mockApplication = { _id: 'app1', applicant: 'user123' };
+    const mockApplicant = { _id: 'user123', name: 'John Doe' };
 
-//   it('should return formatted data if applications found', async () => {
-//     // Mock application data
-//     mockRepo.WithdrawedApplication.mockResolvedValue({
-//       application: [{ _id: 'app1', applicant: 'user1', job: 'job1' }],
-//       applicationCount: 1,
-//     });
+    mockRepo.GetAppByAppId.mockResolvedValue(mockApplication);
+    ProvideMessage.mockResolvedValue(mockApplicant);
 
-//     ProvideMessage.mockResolvedValueOnce({
-//       _id: 'user1',
-//       name: 'User1',
-//       email: 'user1@ex.com',
-//       coverImage: 'img1',
-//     }) // applicant
-//       .mockResolvedValueOnce({
-//         _id: 'job1',
-//         company: 'Company',
-//         title: 'Title',
-//         location: 'Loc',
-//         employer: 'emp1',
-//       }) // job
-//       .mockResolvedValueOnce({
-//         _id: 'emp1',
-//         name: 'Employer',
-//         email: 'emp@ex.com',
-//         coverImage: 'img2',
-//       }); // employer
+    const result = await service.GetAppByAppId({ appId: 'app1' });
 
-//     const result = await service.GetWithdrawnedApplication({ reqQuery: {} });
+    expect(mockRepo.GetAppByAppId).toHaveBeenCalledWith({ appId: 'app1' });
+    expect(result).toHaveProperty('data');
+    expect(ProvideMessage).toHaveBeenCalledWith(
+      { type: 'userId', id: 'user123' },
+      'user.request',
+      10000
+    );
+    expect(result.data).toMatchObject({
+      application: mockApplication,
+      applicant: mockApplicant,
+    });
+  });
 
-//     expect(result).toHaveProperty('data.applicationInfo');
-//     expect(result.data.applicationInfo[0]).toMatchObject({
-//       _id: 'app1',
-//       applicant: {
-//         id: 'user1',
-//         name: 'User1',
-//         email: 'user1@ex.com',
-//         coverImage: 'img1',
-//       },
-//       jobDetails: {
-//         id: 'job1',
-//         company: 'Company',
-//         title: 'Title',
-//         location: 'Loc',
-//         employer: {
-//           id: 'emp1',
-//           name: 'Employer',
-//           email: 'emp@ex.com',
-//           coverImage: 'img2',
-//         },
-//       },
-//     });
-//     expect(result.data.applicationCount).toBe(1);
-//   });
+  it('should throw AppError if application not found', async () => {
+    mockRepo.GetAppByAppId.mockResolvedValue(null);
 
-//   it('should throw AppError if ProvideMessage throws', async () => {
-//     mockRepo.WithdrawedApplication.mockResolvedValue({
-//       application: [{ _id: 'app1', applicant: 'user1', job: 'job1' }],
-//       applicationCount: 1,
-//     });
+    await expect(service.GetAppByAppId({ appId: 'missing' })).rejects.toThrow(
+      'No application found with that Id'
+    );
+    expect(mockRepo.GetAppByAppId).toHaveBeenCalled();
+  });
 
-//     ProvideMessage.mockRejectedValueOnce(new Error('RPC error'));
+  it('should throw AppError if applicant not found', async () => {
+    const mockApplication = { _id: 'app2', applicant: 'user456' };
 
-//     await expect(
-//       service.GetWithdrawnedApplication({ reqQuery: {} })
-//     ).rejects.toThrow('RPC error');
-//   });
-// });
+    mockRepo.GetAppByAppId.mockResolvedValue(mockApplication);
+    ProvideMessage.mockResolvedValue(null);
+
+    await expect(service.GetAppByAppId({ appId: 'app2' })).rejects.toThrow(
+      'No applicant found!'
+    );
+
+    expect(mockRepo.GetAppByAppId).toHaveBeenCalled();
+    expect(ProvideMessage).toHaveBeenCalledWith(
+      { type: 'userId', id: 'user456' },
+      'user.request',
+      10000
+    );
+  });
+});

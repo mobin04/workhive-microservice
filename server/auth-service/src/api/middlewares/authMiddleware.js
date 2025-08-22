@@ -1,8 +1,9 @@
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
-// const User = require('../../database/models/userModel');
+const User = require('../../database/models/userModel');
 const catchAsync = require('../../utils/catchAsync');
 const AppError = require('../../utils/appError');
+const { Email } = require('../../utils');
 // const AuthRepository = require('../../database/repository/authRepository');
 
 // Create jwt token
@@ -23,6 +24,8 @@ const signToken = (user, authType) => {
         name: user?.name,
         email: user?.email,
         role: user?.role,
+        isSuspended: user?.isSuspended,
+        suspendedUntil: user?.suspendedUntil,
         coverImage: user?.coverImage,
       },
     };
@@ -70,6 +73,28 @@ exports.createSendToken = (user, statusCode, req, res, authType) => {
       user,
     },
   });
+};
+
+// Check and fix suspension.
+exports.checkSuspension = async (req, res, next) => {
+  const user = await User.findById(req.user._id);
+
+  if (user?.isSuspended) {
+    // suspension expired
+    if (user.suspendedUntil && user.suspendedUntil <= new Date()) {
+      user.isSuspended = false;
+      user.suspendedUntil = null;
+      await user.save();
+      return next();
+    }
+
+    return res.status(403).json({
+      status: 'fail',
+      message: `Your account is suspended until ${user?.suspendedUntil?.toDateString()}`,
+    });
+  }
+
+  next();
 };
 
 // protecting the routes
