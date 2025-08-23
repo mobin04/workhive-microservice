@@ -53,7 +53,10 @@ export const envVariables = {
   // EMPLOYER
   GET_ALL_JOBS_EMPLOYER_URL: `${import.meta.env.VITE_API_URL}/jobs`,
   GET_APPLICATIONS_BY_JOBID_URL: `${import.meta.env.VITE_API_URL}/applications`,
-  
-  // ADMIN 
-  GET_ADMIN_STATS: `${import.meta.env.VITE_API_URL}/jobs/statistics`
+
+  // ADMIN
+  GET_ADMIN_STATS: `${import.meta.env.VITE_API_URL}/jobs/statistics`,
+  GET_USER_BY_ID: `${import.meta.env.VITE_API_URL}/auth/user`,
+  SUSPEND_USER_URL: `${import.meta.env.VITE_API_URL}/auth/admin/suspend`,
+  UNSUSPEND_USER_URL: `${import.meta.env.VITE_API_URL}/auth/admin/unsuspend`
 };

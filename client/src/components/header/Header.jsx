@@ -9,9 +9,7 @@ import React, {
 import { useLocation, useNavigate } from "react-router-dom";
 import { ThemeContext } from "../../contexts/ThemeContext";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
 import { envVariables } from "../../config";
-import { setUser } from "../../store/slices/userSlice";
 import { useQuery } from "@tanstack/react-query";
 import { fetchData } from "../../server/fetchData";
 import { setJobs } from "../../store/slices/jobSlice";
@@ -21,7 +19,7 @@ import { forwardGeocode } from "../../utils/mapbox";
 import SearchBars from "./search-bar/SearchBars";
 import MobileSearchBar from "./mobile-search-bar/MobileSearchBar";
 import NotificationDropdown from "../notification/Notification";
-import useTriggerPopup from "../../hooks/useTriggerPopup";
+import useSignOut from "../../hooks/useSignout";
 
 const initialState = {
   search: "",
@@ -49,7 +47,7 @@ function Header() {
   }, [location]);
 
   const { user } = useSelector((state) => state.user);
-  const { LOGOUT_URL, GET_JOB_URL } = envVariables;
+  const { GET_JOB_URL } = envVariables;
   const reduxDispatch = useDispatch();
 
   function reducer(state, action) {
@@ -58,7 +56,7 @@ function Header() {
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const { triggerPopup } = useTriggerPopup();
+  const signOutHook = useSignOut();
 
   const debouncedSearch = useDebounce(state.search, 400);
   // const debouncedLocation = useDebounce(state.location, 400);
@@ -112,6 +110,7 @@ function Header() {
     if (data && user?.role === "job_seeker") {
       reduxDispatch(setJobs(data));
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, reduxDispatch]);
 
   useEffect(() => {
@@ -169,7 +168,6 @@ function Header() {
     const value = e.target.value;
     dispatch({ name: "location", value });
 
-    // Clear location coordinates when user types new location
     if (state.locationCoords) {
       dispatch({ name: "locationCoords", value: null });
     }
@@ -202,19 +200,8 @@ function Header() {
   };
 
   const signOut = async () => {
-    try {
-      const res = await axios.post(LOGOUT_URL, "", { withCredentials: true });
-      if (res.data.message) {
-        reduxDispatch(setUser(null));
-
-        triggerPopup({ message: "Sign out successfully!", type: "success" });
-
-        navigate("/");
-      }
-      setProfileDropdownOpen(false);
-    } catch (err) {
-      console.error("Error signing out:", err);
-    }
+    signOutHook();
+    setProfileDropdownOpen(false);
   };
 
   // Close dropdowns when clicking outside
@@ -301,7 +288,7 @@ function Header() {
                   </button>
                 )}
 
-                {/* Theme Toggle */}
+                {/* Theme Change */}
                 <button
                   onClick={toggleTheme}
                   className={`p-2 rounded-lg ${
@@ -314,8 +301,6 @@ function Header() {
                     <Moon className="h-5 w-5 text-gray-600" />
                   )}
                 </button>
-
-                {/* Notifications */}
 
                 {/* Notifications */}
                 <div className="relative dropdown-container">
@@ -345,17 +330,6 @@ function Header() {
                     isDark={isDark}
                   />
                 </div>
-
-                {/* <button
-                  className={`relative p-2 rounded-lg cursor-pointer ${
-                    isDark ? "hover:bg-gray-700" : "hover:bg-blue-50"
-                  } transition-colors hidden sm:block`}
-                >
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                    3
-                  </span>
-                </button> */}
 
                 {/* Profile Dropdown */}
                 <div className="relative dropdown-container">

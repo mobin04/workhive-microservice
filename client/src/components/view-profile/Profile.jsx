@@ -182,20 +182,16 @@ const ViewProfile = () => {
               {/* Cover Image */}
               <div className="relative h-22 md:h-32 bg-gradient-to-r from-blue-500 to-blue-600">
                 <div className="absolute inset-0 bg-black/20 overflow-hidden">
-                  {[...Array(20)].map((_, i) => {
-                    return (
-                      <div
-                        key={i}
-                        className="absolute transition-all duration-1000 ease-initial"
-                        style={{
-                          top: `${Math.random() * 100}%`,
-                          left: `${Math.random() * 100}%`,
-                        }}
-                      >
-                        🔹
-                      </div>
-                    );
-                  })}
+                  {[...Array(20)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="absolute w-1 h-1 bg-blue-400/50 transform rotate-45"
+                      style={{
+                        left: `${(i * 17 + 10) % 100}%`,
+                        top: `${(i * 23 + 15) % 80}%`,
+                      }}
+                    />
+                  ))}
                 </div>
 
                 {/* Edit Button */}

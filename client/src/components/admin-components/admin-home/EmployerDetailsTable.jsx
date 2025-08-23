@@ -106,10 +106,9 @@ const EmployerDetailsTable = ({ adminStats }) => {
                 <td className={`py-3 px-4 text-center`}>
                   <button
                     onClick={() => {
-                      // Navigate to employer details page
-                      navigate(`/admin/employers/${employer.employerId}`);
+                      navigate(`/admin/user-profile/${employer.employerId}`);
                     }}
-                    className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                    className={`px-3 py-1.5 cursor-pointer text-sm font-medium rounded-lg transition-colors ${
                       isDark
                         ? "bg-blue-600 hover:bg-blue-700 text-white"
                         : "bg-blue-600 hover:bg-blue-700 text-white"

@@ -23,6 +23,8 @@ import useFetchNotifications from "./hooks/useFetchNotifications";
 import EmployerStatistics from "./components/employer-components/employer-stats/EmployerStats";
 import JobApplicationsViewer from "./components/employer-components/view-applications/ViewApplications";
 import ViewJobEmp from "./components/employer-components/view-job/ViewJobEmp";
+import ViewUserProfile from "./components/admin-components/view-user-profile/ViewProfile";
+import useSignOut from "./hooks/useSignout";
 
 function App() {
   const { popup } = useSelector((state) => state.popup);
@@ -31,12 +33,19 @@ function App() {
   const { isVisible, notification } = useSelector(
     (state) => state.notification
   );
-  const {refetch} = useFetchNotifications()
+  const { refetch } = useFetchNotifications();
+  const signOut = useSignOut();
 
   useNotificationListen(user?._id, refetch);
-  
+
   const dispatch = useDispatch();
   const { mutate, isPending } = useFetchProfile();
+
+  useEffect(() => {
+    if (user && user?.isSuspended) {
+      signOut();
+    }
+  }, [user]);
 
   useEffect(() => {
     mutate();
@@ -60,9 +69,10 @@ function App() {
         <Route path="/saved-jobs" element={<SavedJobs />} />
         <Route path="/applications" element={<ViewApplications />} />
         <Route path="/profile" element={<ViewProfile />} />
-        <Route path="/employer-stats" element={<EmployerStatistics/>} />
-        <Route path="/view-applications" element={<JobApplicationsViewer/>} />
-        <Route path="/view-job" element={<ViewJobEmp/>} />
+        <Route path="/employer-stats" element={<EmployerStatistics />} />
+        <Route path="/view-applications" element={<JobApplicationsViewer />} />
+        <Route path="/view-job" element={<ViewJobEmp />} />
+        <Route path="/admin/user-profile/:id" element={<ViewUserProfile />} />
         <Route
           path="*"
           element={
