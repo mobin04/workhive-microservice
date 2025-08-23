@@ -826,8 +826,7 @@ module.exports = (app, channel) => {
     authMiddleware.restrictTo('admin'),
     catchAsync(async (req, res, next) => {
       const userId = req.params.id;
-      const { days } = req.body;
-      const { reason } = req.body;
+      const { days, reason } = req.body;
 
       if (!userId)
         return next(
@@ -907,13 +906,13 @@ module.exports = (app, channel) => {
 
       if (!userId) return next(new AppError('Please provide the user ID', 400));
 
-      const unsuspendUser = await service.UnsuspendUser({ userId });
+      const {data} = await service.UnsuspendUser({ userId });
 
       res.status(200).json({
         status: 'success',
         message: 'User unsuspended successfully',
         data: {
-          user: unsuspendUser,
+          user: data,
         },
       });
     })

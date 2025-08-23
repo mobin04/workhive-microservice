@@ -376,6 +376,100 @@ export function ThemeContextProvider({ children }) {
     };
   }, [isDark]);
 
+  const getStatusClrUsrProfile = useCallback(
+    (status) => {
+      switch (status) {
+        case "open":
+          return isDark
+            ? "bg-green-900 text-green-300"
+            : "bg-green-100 text-green-800";
+        case "closed":
+          return isDark ? "bg-red-900 text-red-300" : "bg-red-100 text-red-800";
+        case "paused":
+          return isDark
+            ? "bg-yellow-900 text-yellow-300"
+            : "bg-yellow-100 text-yellow-800";
+        default:
+          return isDark
+            ? "bg-gray-700 text-gray-300"
+            : "bg-gray-100 text-gray-800";
+      }
+    },
+    [isDark]
+  );
+
+  const getJobByClrTypeUsrProfile = useCallback(
+    (type) => {
+      switch (type) {
+        case "full_time":
+          return isDark
+            ? "bg-blue-900 text-blue-300"
+            : "bg-blue-100 text-blue-800";
+        case "part_time":
+          return isDark
+            ? "bg-purple-900 text-purple-300"
+            : "bg-purple-100 text-purple-800";
+        case "contract":
+          return isDark
+            ? "bg-orange-900 text-orange-300"
+            : "bg-orange-100 text-orange-800";
+        default:
+          return isDark
+            ? "bg-gray-700 text-gray-300"
+            : "bg-gray-100 text-gray-800";
+      }
+    },
+    [isDark]
+  );
+
+  const suspendThemeClass = useMemo(
+    () => ({
+      light: {
+        overlay: "bg-gray-900/60",
+        popup: "bg-white text-gray-900",
+        header: "bg-red-50 border-red-200",
+        headerUnsuspend: "bg-green-50 border-green-200",
+        headerIcon: "text-red-600",
+        headerIconUnsuspend: "text-green-600",
+        headerText: "text-red-800",
+        headerTextUnsuspend: "text-green-800",
+        userInfo: "bg-gray-50",
+        input:
+          "bg-white border-gray-300 text-gray-900 focus:border-red-500 focus:ring-red-500",
+        select:
+          "bg-white border-gray-300 text-gray-900 focus:border-red-500 focus:ring-red-500",
+        label: "text-gray-700",
+        button: {
+          primary: "bg-red-600 hover:bg-red-700 text-white",
+          secondary: "bg-gray-200 hover:bg-gray-300 text-gray-800",
+          saveGreen: "bg-green-600 hover:bg-green-700 text-white",
+        },
+      },
+      dark: {
+        overlay: "bg-gray-900/80 ",
+        popup: "bg-gray-800 text-gray-100",
+        header: "bg-red-900 bg-opacity-30 border-red-700",
+        headerUnsuspend: "bg-green-800/20 border-green-200",
+        headerIcon: "text-red-400",
+        headerIconUnsuspend: "text-green-600",
+        headerText: "text-red-300",
+        headerTextUnsuspend: "text-green-200",
+        userInfo: "bg-gray-700",
+        input:
+          "bg-gray-700 border-gray-600 text-gray-100 focus:border-red-400 focus:ring-red-400",
+        select:
+          "bg-gray-700 border-gray-600 text-gray-100 focus:border-red-400 focus:ring-red-400",
+        label: "text-gray-300",
+        button: {
+          primary: "bg-red-600 hover:bg-red-700 text-white",
+          secondary: "bg-gray-600 hover:bg-gray-700 text-gray-200",
+          saveGreen: "bg-green-600 hover:bg-green-700 text-white",
+        },
+      },
+    }),
+    []
+  );
+
   const themeContextValue = useMemo(
     () => ({
       isDark,
@@ -401,6 +495,9 @@ export function ThemeContextProvider({ children }) {
       getStatusColorViewAppEmp,
       jobViewerEmpThemeClasses,
       jobFormThemeClasses,
+      getStatusClrUsrProfile,
+      getJobByClrTypeUsrProfile,
+      suspendThemeClass,
     }),
     [
       isDark,
@@ -426,6 +523,9 @@ export function ThemeContextProvider({ children }) {
       getStatusColorViewAppEmp,
       jobViewerEmpThemeClasses,
       jobFormThemeClasses,
+      getStatusClrUsrProfile,
+      getJobByClrTypeUsrProfile,
+      suspendThemeClass,
     ]
   );
 

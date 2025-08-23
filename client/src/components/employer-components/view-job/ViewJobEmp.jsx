@@ -78,7 +78,7 @@ const ViewJobEmp = () => {
   );
 
   useEffect(() => {
-    if (user && user?.role !== "employer") {
+    if (user &&  user?.role === "job_seeker") {
       navigate("/");
     }
   }, [user, navigate]);

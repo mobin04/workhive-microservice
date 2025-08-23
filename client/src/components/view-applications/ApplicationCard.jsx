@@ -8,24 +8,19 @@ import {
   ExternalLink,
   FileText,
   Building2,
-  Shredder, 
+  Shredder,
 } from "lucide-react";
 import formatSalaries from "../../utils/formatSalary";
+import formatDateString from "../../utils/formatDateString";
 
 const ApplicationCard = ({ app, setIsWithdrawPopup, setWithDrawnId }) => {
   const navigate = useNavigate();
   const { isDark, applicationThemeClasses, getApplicationStatusClr } =
     useContext(ThemeContext);
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
+  const { formatDate } = formatDateString();
 
-  const {formatSalary} = formatSalaries();
+  const { formatSalary } = formatSalaries();
 
   return (
     <div

@@ -66,9 +66,13 @@ class AuthRepository {
 
   async SaveJob({ userId, jobId }) {
     try {
-      const user = await User.findByIdAndUpdate(userId, {
-        $addToSet: { savedJobs: jobId },
-      });
+      const user = await User.findByIdAndUpdate(
+        userId,
+        {
+          $addToSet: { savedJobs: jobId },
+        },
+        { new: true }
+      );
       return user;
     } catch (err) {
       throw new AppError(err.message, err.statusCode);
@@ -77,11 +81,15 @@ class AuthRepository {
 
   async suspendUser({ userId, days, reason }) {
     try {
-      const user = await User.findByIdAndUpdate(userId, {
-        isSuspended: true,
-        suspendedUntil: new Date(Date.now() + days * 24 * 60 * 60 * 1000),
-        suspendReason: reason || 'No reason provided',
-      });
+      const user = await User.findByIdAndUpdate(
+        userId,
+        {
+          isSuspended: true,
+          suspendedUntil: new Date(Date.now() + days * 24 * 60 * 60 * 1000),
+          suspendReason: reason || 'No reason provided',
+        },
+        { new: true, runValidators: true }
+      );
 
       if (!user) return false;
 
@@ -93,11 +101,15 @@ class AuthRepository {
 
   async UnsuspendUser({ userId }) {
     try {
-      const user = await User.findByIdAndUpdate(userId, {
-        isSuspended: false,
-        suspendedUntil: null,
-        suspendReason: null,
-      });
+      const user = await User.findByIdAndUpdate(
+        userId,
+        {
+          isSuspended: false,
+          suspendedUntil: null,
+          suspendReason: null,
+        },
+        { new: true, runValidators: true }
+      );
       if (!user) return false;
       return user;
     } catch (err) {
