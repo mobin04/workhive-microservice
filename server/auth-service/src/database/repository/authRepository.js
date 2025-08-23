@@ -1,5 +1,6 @@
 const { User } = require('../models/index');
-const { AppError, catchAsync } = require('../../utils/index');
+const { AppError } = require('../../utils/index');
+const UserAPIFeatures = require('../../utils/apiFeatures');
 
 class AuthRepository {
   async FindByEmail({ email }) {
@@ -8,6 +9,24 @@ class AuthRepository {
       return existingUser;
     } catch (err) {
       throw new AppError('Unable to find user!', 500);
+    }
+  }
+
+  async GetAllUsers({ query }) {
+    try {
+      const features = new UserAPIFeatures(User, query)
+        .filter()
+        .search()
+        .sort()
+        .paginate();
+
+      const users = await features.fetchUsers();
+      const totalUsers = await User.countDocuments(features.filters);
+      const totalPages = Math.ceil(totalUsers / features.pagination.limit);
+
+      return { users, totalPages, totalUsers };
+    } catch (err) {
+      throw new AppError('Unable to find users!', 500);
     }
   }
 
