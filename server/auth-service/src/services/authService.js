@@ -22,6 +22,20 @@ class AuthService {
     this.authConfig = new AuthConfig();
   }
 
+  async GetAllUsers(userInput) {
+    const { query } = userInput;
+    try {
+      const { users, totalPages, totalUsers } =
+        await this.repository.GetAllUsers({ query });
+
+      if (!users) throw new AppError('Unable to find users!', 404);
+
+      return formatData({ users, totalPages, totalUsers });
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
   async RequestSignupOTP(userInput) {
     const { name, email, password, role } = userInput;
 

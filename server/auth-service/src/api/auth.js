@@ -63,6 +63,100 @@ module.exports = (app, channel) => {
 
   /**
    * @swagger
+   * /api/v2/users:
+   *   get:
+   *     summary: Get all users (Admin only)
+   *     tags:
+   *       - Users
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *         description: Page number for pagination
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 10
+   *         description: Number of users per page
+   *     responses:
+   *       200:
+   *         description: Users fetched successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: success
+   *                 message:
+   *                   type: string
+   *                   example: Users fetched successfully
+   *                 length:
+   *                   type: integer
+   *                   example: 10
+   *                 totalUsers:
+   *                   type: integer
+   *                   example: 100
+   *                 totalPages:
+   *                   type: integer
+   *                   example: 10
+   *                 currentPage:
+   *                   type: integer
+   *                   example: 1
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     users:
+   *                       type: array
+   *                       items:
+   *                         type: object
+   *                         properties:
+   *                           _id:
+   *                             type: string
+   *                             example: 64f0c1234abcd5678ef90123
+   *                           name:
+   *                             type: string
+   *                             example: John Doe
+   *                           email:
+   *                             type: string
+   *                             example: johndoe@example.com
+   *                           role:
+   *                             type: string
+   *                             example: user
+   */
+
+  // 🔹Get All Users (Admin only)
+  app.get(
+    `${baseUrl}/users`,
+    authMiddleware.protect,
+    authMiddleware.restrictTo('admin'),
+    async (req, res) => {
+      const { query } = req;
+      const { data } = await service.GetAllUsers({ query });
+      const { users, totalPages, totalUsers } = data;
+
+      res.status(200).json({
+        status: 'success',
+        message: 'Users fetched successfully',
+        length: users.length,
+        totalUsers,
+        totalPages,
+        currentPage: parseInt(query.page) || 1,
+        data: {
+          users,
+        },
+      });
+    }
+  );
+
+  /**
+   * @swagger
    * /api/v2/auth/magic-login:
    *   get:
    *     summary: Verify magic login link
@@ -906,7 +1000,7 @@ module.exports = (app, channel) => {
 
       if (!userId) return next(new AppError('Please provide the user ID', 400));
 
-      const {data} = await service.UnsuspendUser({ userId });
+      const { data } = await service.UnsuspendUser({ userId });
 
       res.status(200).json({
         status: 'success',

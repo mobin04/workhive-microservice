@@ -1036,3 +1036,59 @@ describe('AuthService - UnsuspendUser', () => {
     expect(result.data).toMatchObject({ _id: 'u123', name: 'john' });
   });
 });
+
+describe('AuthService - GetAllUsers', () => {
+  let service;
+  let mockRepo;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    service = new AuthService();
+    mockRepo = service.repository;
+  });
+
+  it('Should throw error if repository returns null users', async () => {
+    mockRepo.GetAllUsers = jest.fn().mockResolvedValue({ users: null });
+
+    await expect(
+      service.GetAllUsers({ query: { role: 'admin' } })
+    ).rejects.toThrow('Unable to find users!');
+  });
+
+  it('Should return users, totalPages, and totalUsers when successful', async () => {
+    const fakeUsers = [
+      { _id: 'u1', name: 'Alice' },
+      { _id: 'u2', name: 'Bob' },
+    ];
+
+    mockRepo.GetAllUsers = jest.fn().mockResolvedValue({
+      users: fakeUsers,
+      totalPages: 2,
+      totalUsers: 10,
+    });
+
+    const result = await service.GetAllUsers({ query: { role: 'user' } });
+
+    expect(mockRepo.GetAllUsers).toHaveBeenCalledWith({
+      query: { role: 'user' },
+    });
+
+    expect(result).toEqual({
+      data: {
+        users: fakeUsers,
+        totalPages: 2,
+        totalUsers: 10,
+      },
+    });
+  });
+
+  it('Should throw error if repository throws error', async () => {
+    mockRepo.GetAllUsers = jest
+      .fn()
+      .mockRejectedValue(new Error('Database error'));
+
+    await expect(
+      service.GetAllUsers({ query: { role: 'user' } })
+    ).rejects.toThrow('Database error');
+  });
+});
