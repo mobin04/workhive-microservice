@@ -470,6 +470,21 @@ export function ThemeContextProvider({ children }) {
     []
   );
 
+  const allUserThemeClasses = useMemo(
+    () => ({
+      background: isDark ? "bg-gray-900" : "bg-white",
+      cardBackground: isDark ? "bg-gray-800" : "bg-white",
+      text: isDark ? "text-gray-100" : "text-gray-900",
+      textSecondary: isDark ? "text-gray-400" : "text-gray-600",
+      border: isDark ? "border-gray-700" : "border-gray-200",
+      input: isDark
+        ? "bg-gray-700 border-gray-600 text-gray-100"
+        : "bg-white border-gray-300 text-gray-900",
+      hover: isDark ? "hover:bg-gray-700" : "hover:bg-gray-50",
+    }),
+    [isDark]
+  );
+
   const themeContextValue = useMemo(
     () => ({
       isDark,
@@ -498,6 +513,7 @@ export function ThemeContextProvider({ children }) {
       getStatusClrUsrProfile,
       getJobByClrTypeUsrProfile,
       suspendThemeClass,
+      allUserThemeClasses
     }),
     [
       isDark,
@@ -526,6 +542,7 @@ export function ThemeContextProvider({ children }) {
       getStatusClrUsrProfile,
       getJobByClrTypeUsrProfile,
       suspendThemeClass,
+      allUserThemeClasses
     ]
   );
 

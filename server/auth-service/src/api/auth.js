@@ -63,7 +63,7 @@ module.exports = (app, channel) => {
 
   /**
    * @swagger
-   * /api/v2/users:
+   * /api/v2/auth/admin/users:
    *   get:
    *     summary: Get all users (Admin only)
    *     tags:
@@ -133,7 +133,7 @@ module.exports = (app, channel) => {
 
   // 🔹Get All Users (Admin only)
   app.get(
-    `${baseUrl}/users`,
+    `${baseUrl}/admin/users`,
     authMiddleware.protect,
     authMiddleware.restrictTo('admin'),
     async (req, res) => {

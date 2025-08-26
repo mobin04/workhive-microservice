@@ -97,7 +97,6 @@ const EmployerProfileView = () => {
   const onSuspendModeClose = () => {
     setIsSuspendMode(false);
   };
-  
 
   useEffect(() => {
     if (isSuspendMode) {
@@ -110,6 +109,24 @@ const EmployerProfileView = () => {
       document.body.style.overflow = "unset";
     };
   }, [isSuspendMode]);
+
+  const MessageButton = ({ email }) => {
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
+      email
+    )}`;
+
+    return (
+      <a
+        href={gmailUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+      >
+        <MessageCircle className="w-4 h-4" />
+        <span className="text-sm">Message</span>
+      </a>
+    );
+  };
 
   if (loadingProfile) return <Loading />;
 
@@ -197,10 +214,8 @@ const EmployerProfileView = () => {
 
                     {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row gap-2 justify-center md:justify-end">
-                      <button className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
-                        <MessageCircle className="w-4 h-4" />
-                        <span className="text-sm">Message</span>
-                      </button>
+                      <MessageButton email={employer?.email} />
+
                       {employer?.isSuspended ? (
                         <button
                           onClick={() => setIsSuspendMode(true)}
@@ -449,8 +464,7 @@ const EmployerProfileView = () => {
                             isDark ? "text-gray-400" : "text-gray-600"
                           }`}
                         >
-                          {employer?.role?.charAt(0).toUpperCase() +
-                            employer?.role?.slice(1)}
+                          {employer?.role?.toUpperCase()}
                         </p>
                       </div>
                       <div>
