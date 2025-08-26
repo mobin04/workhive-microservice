@@ -33,8 +33,8 @@ function Home() {
   // Fetch applications
   const { isLoading: isAppLoading } = useFetchApplications();
   const { isLoading: isWithdrawLoading } = useFetchWithdrawnApp();
-
-  const {
+  
+  const { 
     data,
     isLoading: isPending,
     error,

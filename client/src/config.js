@@ -58,5 +58,6 @@ export const envVariables = {
   GET_ADMIN_STATS: `${import.meta.env.VITE_API_URL}/jobs/statistics`,
   GET_USER_BY_ID: `${import.meta.env.VITE_API_URL}/auth/user`,
   SUSPEND_USER_URL: `${import.meta.env.VITE_API_URL}/auth/admin/suspend`,
-  UNSUSPEND_USER_URL: `${import.meta.env.VITE_API_URL}/auth/admin/unsuspend`
+  UNSUSPEND_USER_URL: `${import.meta.env.VITE_API_URL}/auth/admin/unsuspend`,
+  FETCH_ALL_USERS_URL: `${import.meta.env.VITE_API_URL}/auth/admin/users`,
 };

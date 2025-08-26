@@ -1,9 +1,11 @@
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
+import { ThemeContext } from "../../../contexts/ThemeContext";
 
-const Pagination = ({totalPages, isDark, currentPage, pageFilter }) => {
+const Pagination = ({ totalPages, currentPage, pageFilter }) => {
+  const { allUserThemeClasses, isDark } = useContext(ThemeContext);
   const pageNumbers = useMemo(() => {
-    const maxVisible = 5;
+    const maxVisible = 3;
 
     if (totalPages <= maxVisible) {
       // Show all pages if total is 5 or less
@@ -38,110 +40,111 @@ const Pagination = ({totalPages, isDark, currentPage, pageFilter }) => {
   };
 
   return (
-    <div
-      className={`fixed bottom-0 left-0 w-full  z-50 ${
-        isDark
-          ? "bg-gray-500/10 backdrop-blur-2xl"
-          : "bg-gray-400/10 backdrop-blur-2xl text-black"
-      } flex justify-center items-center space-x-2 py-4 shadow-md`}
-    >
-      {/* Previous Arrow */}
-      <button
-        type="button"
-        onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-        disabled={currentPage === 1}
-        className={`p-2 rounded-lg transition-colors ${
-          isDark ? "hover:bg-gray-700" : "hover:bg-gray-400"
-        } ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
-      >
-        <ChevronLeft className="h-5 w-5" />
-      </button>
-
-      {/* First page if not visible */}
-      {showStartEllipsis && (
-        <>
-          <button
-            type="button"
-            onClick={() => handlePageChange(1)}
-            className={`px-2 md:px-3 py-1 rounded-lg transition-colors ${
-              currentPage === 1
-                ? "bg-blue-600 text-white"
-                : isDark
-                ? "hover:bg-gray-700"
-                : "hover:bg-gray-300"
-            }`}
-          >
-            1
-          </button>
-          {pageNumbers[0] > 2 && (
-            <span className="px-2 opacity-50">
-              <MoreHorizontal className="h-4 w-4" />
-            </span>
-          )}
-        </>
-      )}
-
-      {/* Visible Page Numbers */}
-      {pageNumbers.map((page) => (
-        <button
-          type="button"
-          key={page}
-          onClick={() => handlePageChange(page)}
-          className={`px-2 md:px-3 py-1 rounded-lg transition-colors ${
-            currentPage === page
-              ? "bg-blue-600 text-white"
-              : isDark
-              ? "hover:bg-gray-700"
-              : "hover:bg-gray-300"
-          }`}
-        >
-          {page}
-        </button>
-      ))}
-
-      {/* Last page if not visible */}
-      {showEndEllipsis && (
-        <>
-          {pageNumbers[pageNumbers.length - 1] < totalPages - 1 && (
-            <span className="px-1 md:px-2 opacity-50">
-              <MoreHorizontal className="h-4 w-4" />
-            </span>
-          )}
-          <button
-            type="button"
-            onClick={() => handlePageChange(totalPages)}
-            className={`px-3 py-1 rounded-lg transition-colors ${
-              currentPage === totalPages
-                ? "bg-blue-600 text-white"
-                : isDark
-                ? "hover:bg-gray-700"
-                : "hover:bg-gray-300"
-            }`}
-          >
-            {totalPages}
-          </button>
-        </>
-      )}
-
-      {/* Next Arrow */}
-      <button
-        type="button"
-        onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-        disabled={currentPage === totalPages}
-        className={`p-2 rounded-lg transition-colors ${
-          isDark ? "hover:bg-gray-700" : "hover:bg-gray-300"
-        } ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""}`}
-      >
-        <ChevronRight className="h-5 w-5" />
-      </button>
-
-      {/* Page info */}
+    <>
       <div
-        className={`ml-4 hidden md:block text-sm ${isDark ? "text-gray-300" : "text-gray-600"}`}
+        className={`mt-8 flex justify-center md:justify-between items-center space-x-2 py-4 shadow-md ${allUserThemeClasses.cardBackground} rounded-xl p-4 border ${allUserThemeClasses.border}`}
       >
-        Page {currentPage} of {totalPages}
+        <div
+          className={`hidden md:block text-sm ${allUserThemeClasses.textSecondary}`}
+        >
+          Page {currentPage} of {totalPages}
+        </div>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+            disabled={currentPage === 1}
+            className={`p-2 rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed ${
+              isDark
+                ? "hover:bg-gray-700"
+                : "text-black disabled:text-gray-600  disabled:hover:bg-gray-300 hover:bg-gray-400"
+            } ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+
+          {showStartEllipsis && (
+            <div className="flex justify-center items-center">
+              <button
+                type="button"
+                onClick={() => handlePageChange(1)}
+                className={`px-2 md:px-3 py-1 cursor-pointer rounded-lg transition-colors ${
+                  currentPage === 1
+                    ? "bg-blue-600"
+                    : isDark
+                    ? "hover:bg-gray-700 text-gray-200"
+                    : "hover:bg-gray-300 text-gray-600"
+                }`}
+              >
+                1
+              </button>
+              {pageNumbers[0] > 2 && (
+                <span className="px-1 md:px-2 relative -bottom-1  opacity-50">
+                  <MoreHorizontal className="h-4 w-4" />
+                </span>
+              )}
+            </div>
+          )}
+
+          {pageNumbers.map((page) => (
+            <button
+              type="button"
+              key={page}
+              onClick={() => handlePageChange(page)}
+              className={`px-2 md:px-3 py-1 rounded-lg transition-colors cursor-pointer ${
+                currentPage === page
+                  ? "bg-blue-600"
+                  : isDark
+                  ? "hover:bg-gray-700"
+                  : "hover:bg-gray-300 text-gray-800"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+
+          {showEndEllipsis && (
+            <div className="flex justify-center items-center">
+              {pageNumbers[pageNumbers.length - 1] < totalPages - 1 && (
+                <span className="px-1 md:px-2 relative -bottom-1  opacity-50">
+                  <MoreHorizontal className="h-4 w-4" />
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => handlePageChange(totalPages)}
+                className={`px-3 py-1 rounded-lg cursor-pointer transition-colors ${
+                  currentPage === totalPages
+                    ? "bg-blue-600 "
+                    : isDark
+                    ? "hover:bg-gray-700"
+                    : "hover:bg-gray-300 text-gray-800"
+                }`}
+              >
+                {totalPages}
+              </button>
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={() =>
+              handlePageChange(Math.min(totalPages, currentPage + 1))
+            }
+            disabled={currentPage === totalPages}
+            className={`p-2 rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed ${
+              isDark
+                ? "hover:bg-gray-700"
+                : "text-black disabled:text-gray-600 disabled:hover:bg-gray-300 hover:bg-gray-300"
+            } ${
+              currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

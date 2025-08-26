@@ -133,7 +133,7 @@ function Header() {
         .catch((error) => {
           console.error("Error fetching all jobs:", error);
         });
-    }
+    } 
   }, [
     debouncedSearch,
     state.locationCoords,

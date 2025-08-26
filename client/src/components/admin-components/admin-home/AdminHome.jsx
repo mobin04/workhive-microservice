@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { ThemeContext } from "../../../contexts/ThemeContext";
-import { TrendingUp, UserCheck, BarChart3 } from "lucide-react";
+import { TrendingUp, UserCheck, BarChart3, UsersRound } from "lucide-react";
 import StatsPieChart from "../../employer-components/statistics-tools/pie-chart/PieChart";
 import LineChartStats from "../../employer-components/statistics-tools/line-chart/LineChart";
 import SummaryCard from "./SummaryCard";
@@ -8,10 +8,12 @@ import EmployerDetailsTable from "./EmployerDetailsTable";
 import CategoryDetailsTable from "./CategoryDetailsTable";
 import useFetchAdminStats from "../../../hooks/admin-hooks/useFetchAdminStats";
 import Loading from "../../loader/Loading";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const { isDark } = useContext(ThemeContext);
   const [adminStats, setAdminStats] = useState(null);
+  const navigate = useNavigate();
 
   const { refetch, isLoading } = useFetchAdminStats({ setAdminStats });
 
@@ -125,6 +127,17 @@ const AdminDashboard = () => {
               WorkHive platform overview and analytics
             </p>
           </div>
+          <button
+            onClick={() => navigate("/admin/all-users")}
+            className={`flex items-center gap-2 ${
+              isDark
+                ? "bg-blue-800/60 text-blue-300 hover:bg-blue-800/70 border-2 border-blue-500"
+                : "bg-blue-200 text-blue-700 hover:bg-blue-100 border-2 border-blue-400"
+            } justify-center cursor-pointer  px-3 py-3 rounded-xl transition-all ease-in-out duration-200`}
+          >
+            <UsersRound />
+            <span>Manage Users</span>
+          </button>
         </div>
 
         {!summaryStats ? (

@@ -8,9 +8,7 @@ export const fetchData = async (filter = {}, url, dispatch = null) => {
       ([_, value]) => value?.toString().trim().toLowerCase() !== "all"
     )
   );
-
   const queryString = new URLSearchParams(cleanedFilter).toString();
-
   try {
     const res = await axios.get(`${url}?${queryString}`, {
       withCredentials: true,
@@ -20,7 +18,7 @@ export const fetchData = async (filter = {}, url, dispatch = null) => {
     if (dispatch !== null) {
       dispatch(
         showPopup({
-          message: err.response?.data?.message || 'Something went wrong',
+          message: err.response?.data?.message || "Something went wrong",
           type: "error",
           visible: true,
           popupId: Date.now(),
