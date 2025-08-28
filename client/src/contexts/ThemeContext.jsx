@@ -480,7 +480,10 @@ export function ThemeContextProvider({ children }) {
       input: isDark
         ? "bg-gray-700 border-gray-600 text-gray-100"
         : "bg-white border-gray-300 text-gray-900",
-      hover: isDark ? "hover:bg-gray-700" : "hover:bg-gray-50",
+      hover: isDark ? "hover:bg-gray-700/30" : "hover:bg-gray-50",
+      iconHover: isDark
+        ? "hover:bg-gray-700/80"
+        : "hover:bg-gray-200",
     }),
     [isDark]
   );
@@ -513,7 +516,7 @@ export function ThemeContextProvider({ children }) {
       getStatusClrUsrProfile,
       getJobByClrTypeUsrProfile,
       suspendThemeClass,
-      allUserThemeClasses
+      allUserThemeClasses,
     }),
     [
       isDark,
@@ -542,7 +545,7 @@ export function ThemeContextProvider({ children }) {
       getStatusClrUsrProfile,
       getJobByClrTypeUsrProfile,
       suspendThemeClass,
-      allUserThemeClasses
+      allUserThemeClasses,
     ]
   );
 
