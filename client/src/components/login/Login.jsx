@@ -14,10 +14,12 @@ import {
   ArrowRight,
   Send,
   UserLock,
+  RotateCcwKey,
 } from "lucide-react";
 import { setUser } from "../../store/slices/userSlice";
 import authHandler from "../../utils/authHandler";
 import useTriggerPopup from "../../hooks/useTriggerPopup";
+import ForgotPassword from "../forgot-password/forgotPassword";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -31,6 +33,7 @@ const Login = () => {
   const [passwordlessEmail, setPasswordlessEmail] = useState("");
   const [isPasswordlessMode, setIsPasswordlessMode] = useState(false);
   const [linkSent, setLinkSent] = useState(false);
+  const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
   const [otpMode, setOtpMode] = useState(false);
   const { REQUEST_LOGINOTP_URL, RESEND_OTP, VERIFY_OTP, REQUEST_MAGIC_LINK } =
     envVariables;
@@ -49,7 +52,13 @@ const Login = () => {
     handleSubmit,
     register,
     formState: { errors },
-  } = useForm();
+    getValues,
+    setValue,
+  } = useForm({
+    defaultValues: {
+      email: "",
+    },
+  });
 
   const useLogin = (url, type) => {
     return useMutation({
@@ -130,6 +139,10 @@ const Login = () => {
     setPasswordlessEmail("");
   };
 
+  const closeForgotMode = () => {
+    setForgotPasswordMode(false);
+  };
+
   useEffect(() => {
     if (seconds === 0) {
       return setIsResendDisabled(false);
@@ -142,8 +155,16 @@ const Login = () => {
     return () => clearInterval(interval);
   }, [seconds]);
 
+  const { email } = getValues();
+
   return (
     <div className={`${authThemeClass} transition-colors duration-300`}>
+      {forgotPasswordMode && (
+        <ForgotPassword
+          closeForgotMode={closeForgotMode}
+          userEmail={email || ""}
+        />
+      )}
       <div className="flex min-h-screen">
         {/* Left Side - Branding */}
         <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 relative overflow-hidden m-15 rounded-3xl">
@@ -227,6 +248,9 @@ const Login = () => {
                               {...register("email", {
                                 required: "Enter your valid email!",
                               })}
+                              onChange={(e) =>
+                                setValue("email", e.target.value)
+                              }
                               type="email"
                               name="email"
                               className={`w-full pl-10 pr-4 py-3 rounded-lg border ${authInputClasses} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200`}
@@ -288,6 +312,16 @@ const Login = () => {
                             </>
                           )}
                         </button>
+                        <div className="flex justify-center">
+                          <button
+                            type="button"
+                            onClick={() => setForgotPasswordMode(true)}
+                            className="cursor-pointer flex items-center justify-center gap-2 text-sm border-1 px-3 py-1 rounded-2xl text-red-600 border-red-400 hover:text-red-700"
+                          >
+                            <RotateCcwKey className="w-5 h-5" />
+                            Forgot password
+                          </button>
+                        </div>
                       </form>
                     ) : (
                       <form onSubmit={handleSubmit(handleLogin)}>

@@ -6,10 +6,12 @@ import useScrollToTop from "../../../hooks/useScrollTo";
 import { useParams } from "react-router-dom";
 import useFetchUserById from "../../../hooks/admin-hooks/useFetchUserById";
 import Loading from "../../loader/Loading";
+import ForgotPassword from "../../forgot-password/forgotPassword";
 
 const AdminUserProfile = () => {
   const { isDark, profileThemeClasses } = useContext(ThemeContext);
   const [userData, setUserData] = useState({});
+  const [isForgotPswdMode, setIsForgotPswdMode] = useState(false);
 
   useScrollToTop();
 
@@ -22,6 +24,10 @@ const AdminUserProfile = () => {
       refetch();
     }
   }, [params?.id, refetch]);
+
+  const closeForgotMode = () => {
+    setIsForgotPswdMode(false);
+  };
 
   if (isLoading) return <Loading />;
 
@@ -45,6 +51,12 @@ const AdminUserProfile = () => {
         isDark ? "bg-gray-900" : "bg-gray-50"
       } py-8 px-4 sm:px-6 lg:px-8`}
     >
+      {isForgotPswdMode && (
+        <ForgotPassword
+          closeForgotMode={closeForgotMode}
+          userEmail={userData?.email}
+        />
+      )}
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -97,6 +109,7 @@ const AdminUserProfile = () => {
                   </p>
                 </div>
                 <button
+                  onClick={() => setIsForgotPswdMode(true)}
                   type="button"
                   className="flex mt-5 items-center cursor-pointer space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                 >
