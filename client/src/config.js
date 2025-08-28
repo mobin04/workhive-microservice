@@ -3,6 +3,8 @@ export const envVariables = {
   REQUEST_LOGINOTP_URL: `${import.meta.env.VITE_API_URL}/auth/login`,
   REQUEST_MAGIC_LINK: `${import.meta.env.VITE_API_URL}/auth/login-link`,
   VERIFY_MAGIC_LOGIN: `${import.meta.env.VITE_API_URL}/auth/magic-login`,
+  FORGOT_PASSWORD_URL: `${import.meta.env.VITE_API_URL}/auth/forgot-password`,
+  RESET_PASSWORD_URL: `${import.meta.env.VITE_API_URL}/auth/reset-password`,
 
   // 🔹OTP Handling
   RESEND_OTP: `${import.meta.env.VITE_API_URL}/auth/resend-otp`,

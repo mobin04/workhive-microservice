@@ -23,12 +23,14 @@ import {
   Key,
   Send,
 } from "lucide-react";
+import ForgotPassword from "../forgot-password/forgotPassword";
 
 const ViewProfile = () => {
   const { isDark, profileThemeClasses } = useContext(ThemeContext);
   const [isEditing, setIsEditing] = useState(false);
   const [previewImg, setPreviewImg] = useState(null);
   const fileInputRef = useRef(null);
+  const [isForgotMode, setForgotMode] = useState(false);
   const { user: userData } = useSelector((state) => state.user);
   const navigate = useNavigate();
 
@@ -143,12 +145,22 @@ const ViewProfile = () => {
       .join(" ");
   };
 
+  const closeForgotMode = () => {
+    setForgotMode(false);
+  };
+
   return (
     <div
       className={`min-h-screen ${
         isDark ? "bg-gray-900" : "bg-gray-50"
       } py-8 px-4 sm:px-6 lg:px-8`}
     >
+      {isForgotMode && (
+        <ForgotPassword
+          closeForgotMode={closeForgotMode}
+          userEmail={userData?.email || ""}
+        />
+      )}
       {userData && (
         <div className="max-w-7xl mx-auto">
           {/* Header */}
@@ -715,6 +727,7 @@ const ViewProfile = () => {
                     </p>
                   </div>
                   <button
+                    onClick={() => setForgotMode(true)}
                     type="button"
                     className="flex mt-5 items-center cursor-pointer space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                   >
