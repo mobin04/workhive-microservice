@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { AuthRepository } = require('../database');
 const handleFileUploads = require('../utils/fileUploads');
+const crypto = require('crypto');
 const {
   EXCHANGE_NAME,
   QUEUE,
@@ -491,6 +492,60 @@ class AuthService {
       await new Email(unSuspendedUser, '', {}).sendUnsuspendEmail();
 
       return formatData(unSuspendedUser);
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
+  async ForgotPassword(userInput) {
+    const { email } = userInput;
+    try {
+      const user = await this.repository.FindUserByEmail({ email });
+
+      if (!user) {
+        throw new AppError('No user found with that email!', 404);
+      }
+
+      const resetToken = await this.repository.GenerateResetToken({ user });
+
+      const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+
+      await new Email(user, resetUrl, {}).sendPasswordResetEmail();
+
+      return formatData(user);
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
+  async ResetPassword(userInput) {
+    const { token, password, confirmPassword } = userInput;
+    try {
+      const hashedToken = crypto
+        .createHash('sha256')
+        .update(token)
+        .digest('hex');
+
+      const user = await this.repository.FindUserByResetToken({
+        hashedToken,
+      });
+
+      if (!user) throw new AppError('Token invalid or expired', 400);
+
+      if (password !== confirmPassword) {
+        throw new AppError('Password do not match, Please try again', 400);
+      }
+
+      const pswdResetUser = await this.repository.SaveResetPassword({
+        user,
+        password,
+      });
+
+      if (!pswdResetUser) throw new AppError('Something went wrong', 500);
+
+      await new Email(pswdResetUser, '', {}).sendPswrdResetSuccessEmail();
+
+      return formatData(pswdResetUser);
     } catch (err) {
       throw new AppError(err.message, err.statusCode);
     }

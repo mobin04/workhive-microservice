@@ -115,17 +115,37 @@ class Email {
   }
 
   async sendSuspensionEmail() {
+    await this.sendEmail('Your account has been suspended', 'suspendAccount', {
+      coverImage: this.user?.coverImage || 'unknown',
+      username: this.user?.name || 'unknown',
+      reason: this.user?.suspendReason || 'unknown',
+      suspensionDays: this.suspensionDays || 'unknown',
+      suspensionUntil: this.user?.suspendedUntil
+        ? new Date(this.user?.suspendedUntil)?.toDateString()
+        : 'unknown',
+    });
+  }
+
+  async sendPasswordResetEmail() {
     await this.sendEmail(
-      'Your account has been suspended',
-      'suspendAccount',
+      'Reset your workhive account password',
+      'passwordResetEmail',
+      {
+        coverImage: this?.user?.coverImage || 'unknown',
+        userName: this?.user?.name || 'unknown',
+        tokenLink: this.url,
+      }
+    );
+  }
+
+  async sendPswrdResetSuccessEmail() {
+    await this.sendEmail(
+      'Your password has been reset successfully',
+      'pswrdResetedEmail',
       {
         coverImage: this.user?.coverImage || 'unknown',
-        username: this.user?.name || 'unknown',
-        reason: this.user?.suspendReason || 'unknown',
-        suspensionDays: this.suspensionDays || 'unknown',
-        suspensionUntil: this.user?.suspendedUntil
-          ? new Date(this.user?.suspendedUntil)?.toDateString()
-          : 'unknown',
+        name: this.user?.name || 'unknown',
+        updateDate: new Date().toDateString(),
       }
     );
   }
