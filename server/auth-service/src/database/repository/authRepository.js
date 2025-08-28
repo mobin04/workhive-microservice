@@ -158,6 +158,49 @@ class AuthRepository {
       throw new AppError(err.message, err.statusCode);
     }
   }
+
+  async FindUserByEmail({ email }) {
+    try {
+      const user = await User.findOne({ email });
+      return user;
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
+  async FindUserByResetToken({ hashedToken }) {
+    try {
+      const user = await User.findOne({
+        passwordResetToken: hashedToken,
+        passwordResetExpires: { $gt: Date.now() },
+      });
+      return user;
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
+
+  async SaveResetPassword({ user, password }) {
+    user.password = password;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+
+    user.password = undefined;
+
+    return user;
+  }
+
+  async GenerateResetToken({ user }) {
+    try {
+      if (!user) return false;
+      const resetToken = user.createPasswordResetToken();
+      await user.save({ validateBeforeSave: false });
+      return resetToken;
+    } catch (err) {
+      throw new AppError(err.message, err.statusCode);
+    }
+  }
 }
 
 module.exports = AuthRepository;

@@ -599,6 +599,74 @@ module.exports = (app, channel) => {
 
   /**
    * @swagger
+   * /api/v2/auth/forgot-password:
+   *   post:
+   *     summary: Request a password reset
+   *     description: Sends a password reset token to the user's registered email address.
+   *     tags:
+   *       - Authentication
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               email:
+   *                 type: string
+   *                 format: email
+   *                 description: Registered email address of the user
+   *                 example: "user@example.com"
+   *     responses:
+   *       200:
+   *         description: Password reset token sent successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: success
+   *                 message:
+   *                   type: string
+   *                   example: Password reset token has been sent to user@example.com
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     user:
+   *                       type: object
+   *                       description: The user object related to the provided email
+   *       400:
+   *         description: Email not found in request
+   *       404:
+   *         description: No user found with that email
+   *       500:
+   *         description: Failed to send reset token
+   */
+
+  app.post(
+    `${baseUrl}/forgot-password`,
+    catchAsync(async (req, res, next) => {
+      const { email } = req.body;
+      if (!email) return next(new AppError('Email not found', 400));
+
+      const { data: user } = await service.ForgotPassword({ email });
+
+      res.status(200).json({
+        status: 'success',
+        message: `Password reset token has send to ${
+          user?.email || 'your email'
+        }`,
+        data: {
+          user: user,
+        },
+      });
+    })
+  );
+
+  /**
+   * @swagger
    * /api/v2/auth/verify-otp:
    *   post:
    *     summary: Verify OTP for signup or login
@@ -828,7 +896,8 @@ module.exports = (app, channel) => {
     catchAsync(async (req, res, next) => {
       let file = '';
       const reqObj = req.body;
-      const id = req.user._id;
+      // const id = req.user._id || req.body._id;
+      const id = reqObj?._id || req.user._id;
 
       if (req.body.password) {
         return next(
@@ -847,6 +916,97 @@ module.exports = (app, channel) => {
         message: 'Profile updated successfully!',
         data: {
           user: data.user,
+        },
+      });
+    })
+  );
+
+  /**
+   * @swagger
+   * /api/v2/auth/reset-password/{token}:
+   *   patch:
+   *     summary: Reset user password
+   *     description: Allows a user to reset their password using a valid reset token.
+   *     tags:
+   *       - Authentication
+   *     parameters:
+   *       - in: path
+   *         name: token
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Password reset token received via email
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - password
+   *               - confirmPassword
+   *             properties:
+   *               password:
+   *                 type: string
+   *                 description: New password to set
+   *                 example: StrongPassword123!
+   *               confirmPassword:
+   *                 type: string
+   *                 description: Confirmation of the new password
+   *                 example: StrongPassword123!
+   *     responses:
+   *       200:
+   *         description: Password reset successful
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: success
+   *                 message:
+   *                   type: string
+   *                   example: Password reset successful
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     user:
+   *                       type: object
+   *                       description: User object after successful password reset
+   *       400:
+   *         description: Token invalid or expired, Password do not match, Please try again
+   *       404:
+   *         description: Token not found
+   *       500:
+   *         description: Failed to reset password
+   */
+
+  app.patch(
+    `${baseUrl}/reset-password/:token`,
+    catchAsync(async (req, res, next) => {
+      const { password, confirmPassword } = req.body;
+      const { token } = req.params;
+      if (!token) return next(new AppError('Token not found', 404));
+      if (!password || !confirmPassword) {
+        return next(
+          new AppError('Password and confirm password are required!', 400)
+        );
+      }
+
+      const { data } = await service.ResetPassword({
+        token,
+        password,
+        confirmPassword,
+      });
+
+      console.log(data);
+
+      res.status(200).json({
+        status: 'success',
+        message: 'Password reset successful',
+        data: {
+          user: data,
         },
       });
     })

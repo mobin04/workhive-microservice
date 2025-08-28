@@ -14,6 +14,10 @@ jest.mock('../database', () => ({
     PullSavedJob: jest.fn(),
     suspendUser: jest.fn(),
     UnsuspendUser: jest.fn(),
+    FindUserByEmail: jest.fn(),
+    FindUserByResetToken: jest.fn(),
+    SaveResetPassword: jest.fn(),
+    GenerateResetToken: jest.fn(),
   })),
 }));
 
@@ -1089,6 +1093,155 @@ describe('AuthService - GetAllUsers', () => {
 
     await expect(
       service.GetAllUsers({ query: { role: 'user' } })
+    ).rejects.toThrow('Database error');
+  });
+});
+
+describe('AuthService - ForgotPassword', () => {
+  let service;
+  let mockRepo;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    service = new AuthService();
+    mockRepo = service.repository;
+
+    Email.mockImplementation(() => ({
+      sendPasswordResetEmail: jest.fn().mockResolvedValue(true),
+    }));
+  });
+
+  it('Should throw error if no user found with email', async () => {
+    mockRepo.FindUserByEmail = jest.fn().mockResolvedValue(null);
+
+    await expect(
+      service.ForgotPassword({ email: 'notfound@example.com' })
+    ).rejects.toThrow('No user found with that email!');
+  });
+
+  it('Should generate token and send reset email when user exists', async () => {
+    const fakeUser = { _id: 'u1', email: 'test@example.com', name: 'Alice' };
+
+    mockRepo.FindUserByEmail = jest.fn().mockResolvedValue(fakeUser);
+    mockRepo.GenerateResetToken = jest.fn().mockResolvedValue('resettoken123');
+
+    const result = await service.ForgotPassword({ email: 'test@example.com' });
+
+    expect(mockRepo.FindUserByEmail).toHaveBeenCalledWith({
+      email: 'test@example.com',
+    });
+
+    expect(mockRepo.GenerateResetToken).toHaveBeenCalledWith({
+      user: fakeUser,
+    });
+
+    expect(Email).toHaveBeenCalledWith(
+      fakeUser,
+      expect.stringContaining('/reset-password?token=resettoken123'),
+      {}
+    );
+
+    const emailInstance = Email.mock.results[0].value;
+    expect(emailInstance.sendPasswordResetEmail).toHaveBeenCalled();
+
+    expect(result).toEqual({ data: fakeUser }); // formatData(user) returns { data: user }
+  });
+
+  it('Should throw error if repository throws error', async () => {
+    mockRepo.FindUserByEmail = jest
+      .fn()
+      .mockRejectedValue(new Error('Database error'));
+
+    await expect(
+      service.ForgotPassword({ email: 'test@example.com' })
+    ).rejects.toThrow('Database error');
+  });
+});
+
+describe('AuthService - ResetPassword', () => {
+  let service;
+  let mockRepo;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    service = new AuthService();
+    mockRepo = service.repository;
+
+    Email.mockImplementation(() => ({
+      sendPswrdResetSuccessEmail: jest.fn().mockResolvedValue(true),
+    }));
+  });
+
+  it('Should throw error if token is invalid or expired', async () => {
+    mockRepo.FindUserByResetToken = jest.fn().mockResolvedValue(null);
+
+    await expect(
+      service.ResetPassword({
+        token: 'invalidtoken',
+        password: 'newPass123',
+        confirmPassword: 'newPass123',
+      })
+    ).rejects.toThrow('Token invalid or expired');
+  });
+
+  it('Should throw error if passwords do not match', async () => {
+    mockRepo.FindUserByResetToken = jest.fn().mockResolvedValue({ _id: 'u1' });
+
+    await expect(
+      service.ResetPassword({
+        token: 'validtoken',
+        password: 'newPass123',
+        confirmPassword: 'wrongPass',
+      })
+    ).rejects.toThrow('Password do not match, Please try again');
+  });
+
+  it('Should throw error if SaveResetPassword fails', async () => {
+    mockRepo.FindUserByResetToken = jest.fn().mockResolvedValue({ _id: 'u1' });
+    mockRepo.SaveResetPassword = jest.fn().mockResolvedValue(null);
+
+    await expect(
+      service.ResetPassword({
+        token: 'validtoken',
+        password: 'newPass123',
+        confirmPassword: 'newPass123',
+      })
+    ).rejects.toThrow('Something went wrong');
+  });
+
+  it('Should send success email and return formatted user on success', async () => {
+    const fakeUser = { _id: 'u1', email: 'test@example.com' };
+
+    mockRepo.FindUserByResetToken = jest.fn().mockResolvedValue(fakeUser);
+    mockRepo.SaveResetPassword = jest.fn().mockResolvedValue(fakeUser);
+
+    const result = await service.ResetPassword({
+      token: 'validtoken',
+      password: 'newPass123',
+      confirmPassword: 'newPass123',
+    });
+
+    expect(mockRepo.FindUserByResetToken).toHaveBeenCalled();
+    expect(mockRepo.SaveResetPassword).toHaveBeenCalledWith({
+      user: fakeUser,
+      password: 'newPass123',
+    });
+
+    expect(Email).toHaveBeenCalledWith(fakeUser, '', {});
+    expect(result).toEqual({ data: fakeUser });
+  });
+
+  it('Should throw error if repository throws error', async () => {
+    mockRepo.FindUserByResetToken = jest
+      .fn()
+      .mockRejectedValue(new Error('Database error'));
+
+    await expect(
+      service.ResetPassword({
+        token: 'validtoken',
+        password: 'newPass123',
+        confirmPassword: 'newPass123',
+      })
     ).rejects.toThrow('Database error');
   });
 });

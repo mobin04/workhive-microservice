@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bycrypt = require('bcryptjs');
 const addIdVirtual = require('../../utils/idVirtualPlugin');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema(
   {
@@ -68,7 +69,13 @@ const userSchema = new mongoose.Schema(
     },
     isSuspended: { type: Boolean, default: false },
     suspendedUntil: { type: Date, default: null },
-    suspendReason: { type: String, default: null }
+    suspendReason: { type: String, default: null },
+    passwordResetToken: {
+      type: String,
+    },
+    passwordResetExpires: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
@@ -84,6 +91,18 @@ userSchema.methods.isPasswordCorrect = async function (
   userPassword
 ) {
   return await bycrypt.compare(candidatePassword, userPassword);
+};
+
+// Generate password reset token
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  return resetToken;
 };
 
 // Hashing the password if it's changed.
