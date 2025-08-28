@@ -1,20 +1,21 @@
 import React, { useContext } from "react";
 import { ThemeContext } from "../../../contexts/ThemeContext";
 import formatDateString from "../../../utils/formatDateString";
+import { useNavigate } from "react-router-dom";
 import {
   Mail,
   Phone,
   MapPin,
   Calendar,
   MoreVertical,
-  Eye,
   Edit,
-  Trash2,
+  SquareArrowOutUpRightIcon,
 } from "lucide-react";
 
 const UserTable = ({ userData }) => {
   const { allUserThemeClasses, isDark } = useContext(ThemeContext);
   const { formatDate } = formatDateString();
+  const navigate = useNavigate();
 
   const getRoleColor = (role) => {
     const colors = {
@@ -29,6 +30,18 @@ const UserTable = ({ userData }) => {
         : "bg-blue-50 text-blue-600 border-blue-200",
     };
     return colors[role] || colors.job_seeker;
+  };
+
+  const statusColor = (status) => {
+    const color = {
+      suspended: isDark
+        ? "bg-red-900/20 text-red-400 border-red-800"
+        : "bg-red-50 text-red-600 border-red-200",
+      active: isDark
+        ? "bg-green-900/20 text-green-400 border-green-800"
+        : "bg-green-50 text-green-600 border-green-200",
+    };
+    return color[status];
   };
 
   return (
@@ -58,6 +71,11 @@ const UserTable = ({ userData }) => {
                 <th
                   className={`px-6 py-4 text-left text-sm font-medium ${allUserThemeClasses.textSecondary} uppercase tracking-wider`}
                 >
+                  Status
+                </th>
+                <th
+                  className={`px-6 py-4 text-left text-sm font-medium ${allUserThemeClasses.textSecondary} uppercase tracking-wider`}
+                >
                   Contact
                 </th>
                 <th
@@ -80,7 +98,7 @@ const UserTable = ({ userData }) => {
               {userData?.data?.users?.map((user) => (
                 <tr
                   key={user._id}
-                  className={`${allUserThemeClasses.hover} transition-colors`}
+                  className={`${allUserThemeClasses.hover} transition-colors ease-in-out duration-300`}
                 >
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-4">
@@ -113,8 +131,17 @@ const UserTable = ({ userData }) => {
                     </span>
                   </td>
                   <td className="px-6 py-4">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium border ${statusColor(
+                        user.isSuspended ? "suspended" : "active"
+                      )}`}
+                    >
+                      {user.isSuspended ? "Suspended" : "Active"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
                     <div className="space-y-1">
-                      {user.phone && user.phone !== "Not specified" && (
+                      {user.phone && user.phone !== "Not specified" ? (
                         <div className="flex items-center gap-2">
                           <Phone
                             className={`h-4 w-4 ${allUserThemeClasses.textSecondary}`}
@@ -125,8 +152,19 @@ const UserTable = ({ userData }) => {
                             {user.phone}
                           </span>
                         </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <Phone
+                            className={`h-4 w-4 ${allUserThemeClasses.textSecondary}`}
+                          />
+                          <span
+                            className={`text-sm ${allUserThemeClasses.text}`}
+                          >
+                            not set
+                          </span>
+                        </div>
                       )}
-                      {user.location && user.location !== "Not specified" && (
+                      {user.location && user.location !== "Not specified" ? (
                         <div className="flex items-center gap-2">
                           <MapPin
                             className={`h-4 w-4 ${allUserThemeClasses.textSecondary}`}
@@ -135,6 +173,17 @@ const UserTable = ({ userData }) => {
                             className={`text-sm ${allUserThemeClasses.text}`}
                           >
                             {user.location}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <MapPin
+                            className={`h-4 w-4 ${allUserThemeClasses.textSecondary}`}
+                          />
+                          <span
+                            className={`text-sm ${allUserThemeClasses.text}`}
+                          >
+                            not set
                           </span>
                         </div>
                       )}
@@ -152,27 +201,29 @@ const UserTable = ({ userData }) => {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
+                      {user?.role === "employer" && (
+                        <button
+                          onClick={() =>
+                            navigate(`/admin/user-profile/${user?._id}`)
+                          }
+                          className={`p-2 rounded-lg ${allUserThemeClasses.hover} ${allUserThemeClasses.iconHover} transition-colors cursor-pointer`}
+                          title="Manage Employer"
+                        >
+                          <SquareArrowOutUpRightIcon
+                            className={`h-5 w-5 ${allUserThemeClasses.textSecondary}`}
+                          />
+                        </button>
+                      )}
                       <button
-                        className={`p-2 rounded-lg ${allUserThemeClasses.hover} transition-colors`}
-                        title="View Details"
-                      >
-                        <Eye
-                          className={`h-4 w-4 ${allUserThemeClasses.textSecondary}`}
-                        />
-                      </button>
-                      <button
-                        className={`p-2 rounded-lg ${allUserThemeClasses.hover} transition-colors`}
+                        onClick={() =>
+                          navigate(`/admin/manage-user/${user?._id}`)
+                        }
+                        className={`p-2 rounded-lg ${allUserThemeClasses.hover} ${allUserThemeClasses.iconHover}  transition-colors cursor-pointer`}
                         title="Edit User"
                       >
                         <Edit
-                          className={`h-4 w-4 ${allUserThemeClasses.textSecondary}`}
+                          className={`h-5 w-5 ${allUserThemeClasses.textSecondary}`}
                         />
-                      </button>
-                      <button
-                        className={`p-2 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors`}
-                        title="Delete User"
-                      >
-                        <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
                   </td>

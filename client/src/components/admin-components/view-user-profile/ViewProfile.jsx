@@ -169,7 +169,10 @@ const EmployerProfileView = () => {
               </div>
               <div className="absolute top-2 md:top-4 right-2 md:right-4 flex gap-2">
                 <button
-                  className={`p-2 rounded-lg transition-colors ${
+                  onClick={() =>
+                    navigate(`/admin/manage-user/${employer?._id}`)
+                  }
+                  className={`p-2 rounded-lg cursor-pointer transition-colors ${
                     isDark
                       ? "bg-gray-700 hover:bg-gray-600"
                       : "bg-white hover:bg-gray-100"

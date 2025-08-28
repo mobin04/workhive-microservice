@@ -17,7 +17,7 @@ const AllUsers = () => {
       search: "",
       order: "dse", // Newest first
       page: "1",
-      limit: "1",
+      limit: "10",
     },
   });
 
@@ -26,7 +26,7 @@ const AllUsers = () => {
   const values = watch();
 
   useEffect(() => {
-    const query = { ...getValues(), search: debounceSearch };
+    const query = { ...getValues(), search: debounceSearch?.trim() };
     mutate(query);
   }, [
     debounceSearch,

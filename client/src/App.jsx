@@ -26,6 +26,7 @@ import ViewJobEmp from "./components/employer-components/view-job/ViewJobEmp";
 import ViewUserProfile from "./components/admin-components/view-user-profile/ViewProfile";
 import useSignOut from "./hooks/useSignout";
 import AllUsers from "./components/admin-components/get-all-users/AllUsers";
+import ManageUser from "./components/admin-components/manage-user/ManageUser";
 
 function App() {
   const { popup } = useSelector((state) => state.popup);
@@ -74,7 +75,8 @@ function App() {
         <Route path="/view-applications" element={<JobApplicationsViewer />} />
         <Route path="/view-job" element={<ViewJobEmp />} />
         <Route path="/admin/user-profile/:id" element={<ViewUserProfile />} />
-        <Route path="/admin/all-users" element={<AllUsers/>} />
+        <Route path="/admin/all-users" element={<AllUsers />} />
+        <Route path="/admin/manage-user/:id" element={<ManageUser />} />
         <Route
           path="*"
           element={

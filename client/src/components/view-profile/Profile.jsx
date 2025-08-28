@@ -19,8 +19,9 @@ import {
   BookOpen,
   Bookmark,
   List,
-  CircleCheck,
   CircleCheckBig,
+  Key,
+  Send,
 } from "lucide-react";
 
 const ViewProfile = () => {
@@ -32,7 +33,10 @@ const ViewProfile = () => {
   const navigate = useNavigate();
 
   const applications = useMergeWithdrawnApp();
-  const { mutate, isPending, fetchProfilePending } = useUpdateProfile();
+  const { mutate, isPending, fetchProfilePending } = useUpdateProfile({
+    type: "for_user",
+    setUserData: null,
+  });
 
   const {
     register,
@@ -686,6 +690,41 @@ const ViewProfile = () => {
               </div>
             </div>
           </form>
+
+          <div>
+            <div
+              className={`${profileThemeClasses.cardClasses} mt-5 rounded-xl shadow-lg border overflow-hidden`}
+            >
+              <div className="px-6 py-6">
+                <div className="flex-1 sm:flex items-center justify-between mb-6">
+                  <div>
+                    <h3
+                      className={`text-lg font-semibold flex items-center gap-2 ${
+                        isDark ? "text-white" : "text-gray-900"
+                      }`}
+                    >
+                      <Key className="h-5 w-5 text-blue-600" />
+                      Password Management
+                    </h3>
+                    <p
+                      className={`text-sm mt-1 ${
+                        isDark ? "text-gray-400" : "text-gray-600"
+                      }`}
+                    >
+                      Send my password reset token via email
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="flex mt-5 items-center cursor-pointer space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <Send className="h-4 w-4" />
+                    <span>Get Reset Link</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

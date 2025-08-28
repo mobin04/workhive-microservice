@@ -3,7 +3,7 @@ import updateProfile from "../server/updateProfile";
 import useFetchProfile from "./useFetchProfile";
 import useTriggerPopup from "./useTriggerPopup";
 
-const useUpdateProfile = () => {
+const useUpdateProfile = ({ type = "for_user", setUserData = null }) => {
   const { triggerPopup } = useTriggerPopup();
 
   const { mutate: fetchMutate, isPending: fetchProfilePending } =
@@ -11,8 +11,12 @@ const useUpdateProfile = () => {
 
   const { mutate, isPending } = useMutation({
     mutationFn: (credential) => updateProfile(credential),
-    onSuccess: () => {
-      fetchMutate();
+    onSuccess: (data) => {
+      if (type === "for_user") {
+        fetchMutate();
+      } else if (type === "for_admin") {
+        setUserData(data?.data?.user);
+      }
       triggerPopup({
         message: "Profile updated successfully",
         type: "success",
@@ -23,7 +27,7 @@ const useUpdateProfile = () => {
         triggerPopup({
           message:
             err.message ||
-            "Failed to update your profile! Please try again after some time",
+            "Failed to update profile! Please try again after some time",
           type: "error",
         });
       }
