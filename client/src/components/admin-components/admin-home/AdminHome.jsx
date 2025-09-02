@@ -191,11 +191,11 @@ const AdminDashboard = () => {
               />
             </div>
 
-            {/* Employers Table */}
-            <EmployerDetailsTable adminStats={adminStats} />
-
             {/* Detailed Category Table */}
             <CategoryDetailsTable adminStats={adminStats} />
+
+            {/* Employers Table */}
+            <EmployerDetailsTable />
           </>
         )}
       </div>
