@@ -4,6 +4,7 @@ import { ThemeContext } from "../../contexts/ThemeContext";
 import checkPasswordStrength from "../../utils/checkPasswordStrength";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useResetPassword } from "../../hooks/useHandlePassword";
+import useSignOut from "../../hooks/useSignout";
 
 const ResetPassword = () => {
   const { isDark } = useContext(ThemeContext);
@@ -18,6 +19,7 @@ const ResetPassword = () => {
   const [count, setCount] = useState(5);
   const location = useLocation();
   const navigate = useNavigate();
+  const signOut = useSignOut();
 
   const { getPasswordStrength } = checkPasswordStrength();
 
@@ -97,6 +99,7 @@ const ResetPassword = () => {
           if (prev > 0) {
             return prev - 1;
           } else {
+            signOut();
             clearInterval(timer);
             return 0;
           }
@@ -107,7 +110,7 @@ const ResetPassword = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [count, navigate, isSuccess]);
+  }, [count, navigate, isSuccess, signOut]);
 
   useEffect(() => {
     if (count === 0) navigate("/login");
