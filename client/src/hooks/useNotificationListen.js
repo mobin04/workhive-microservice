@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { io } from "socket.io-client";
 import { setIsNotification } from "../store/slices/notificationSlice";
 
-const socket = io("http://localhost:8004");
+const socket = io("https://workhive-notification-service.onrender.com");
 
 const useNotificationListen = (userId, refetch) => {
   const dispatch = useDispatch();
