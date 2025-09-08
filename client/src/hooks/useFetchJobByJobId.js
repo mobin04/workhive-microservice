@@ -7,6 +7,8 @@ const useFetchJobByJobId = (url, isEnabled = true) => {
     queryFn: ({ queryKey }) => fetchData({}, queryKey[1]),
     enabled: isEnabled,
     refetchOnWindowFocus: false,
+    retry: 2,
+    retryDelay: 2000,
   });
 
   return {

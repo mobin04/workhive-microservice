@@ -21,7 +21,8 @@ const useFetchWithdrawnApp = () => {
         dispatch
       ),
     enabled: false,
-    retry: 1,
+    retry: 2,
+    retryDelay: 2000,
   });
 
   useEffect(() => {

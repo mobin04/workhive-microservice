@@ -21,6 +21,8 @@ const useFetchApplications = () => {
         dispatch
       ),
     enabled: false,
+    retry: 2,
+    retryDelay: 2000,
   });
 
   useEffect(() => {

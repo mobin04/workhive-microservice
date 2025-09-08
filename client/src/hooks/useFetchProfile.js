@@ -24,6 +24,8 @@ const useFetchProfile = () => {
         dispatch(showError({ type: "500", visible: true, onGoHome: false }));
       }
     },
+    retry: 2,
+    retryDelay: 2000,
   });
   return {
     mutate,

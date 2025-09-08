@@ -11,6 +11,8 @@ const useFetchSavedJobs = () => {
     queryKey: ["saved-jobs"],
     queryFn: () => fetchData({}, envVariables.GET_SAVED_JOBS, null),
     enabled: false,
+    retry: 2,
+    retryDelay: 2000,
   });
 
   useEffect(() => {
