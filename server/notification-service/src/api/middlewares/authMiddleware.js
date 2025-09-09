@@ -43,6 +43,7 @@ exports.createSendToken = (user, statusCode, req, res, authType) => {
     expires: expire,
     httpOnly: true,
     secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    sameSite: 'None',
   });
 
   // Remove the password from output.
