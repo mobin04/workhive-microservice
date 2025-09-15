@@ -1,4 +1,4 @@
-# WorkHive Microservices Project
+# WorkHive Microservices Backend
 
 WorkHive is a scalable, production-ready job platform built with Node.js, Express, MongoDB, and Docker, following a microservices architecture.  
 This project includes services for authentication, job management, applications, notifications, and an NGINX reverse proxy.
