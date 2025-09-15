@@ -297,12 +297,12 @@ The following endpoints are exposed:
 
 Each service exposes Swagger UI for interactive API docs:
 
-| Service              | Swagger URL                                    |
-| -------------------- | ---------------------------------------------- |
-| Auth Service         | http://localhost/api/v2/auth/api-docs          |
-| Job Service          | http://localhost/api/v2/jobs/api-docs          |
-| Application Service  | http://localhost/api/v2/applications/api-docs  |
-| Notification Service | http://localhost/api/v2/notifications/api-docs |
+| Service              | Swagger URL                                                                      |
+| -------------------- | -------------------------------------------------------------------------------- |
+| Auth Service         | https://workhive-auth-service.onrender.com/api/v2/auth/api-docs                  |
+| Job Service          | https://workhive-job-service.onrender.com/api/v2/jobs/api-docs                   |
+| Application Service  | https://workhive-application-service.onrender.com/api/v2/applications/api-docs   |
+| Notification Service | https://workhive-notification-service.onrender.com/api/v2/notifications/api-docs |
 
 - All endpoints are documented with request/response schemas and security requirements.
 
