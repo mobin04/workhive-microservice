@@ -59,6 +59,7 @@ class Email {
       const info = await this.newTransporter().sendMail(mailOptions);
       return info;
     } catch (error) {
+      console.error('Email send error:', error);
       throw new Error(error.message || 'Failed to send email.');
     }
   }

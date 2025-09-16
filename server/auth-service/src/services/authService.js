@@ -90,15 +90,10 @@ class AuthService {
 
       user.password = undefined;
 
-      try {
-        await new Email(user, '', {
-          otpSecret: otpToken,
-        }).sendLoginOtpEmail();
-      } catch (err) {
-        throw new AppError(err.message, err.statusCode);
-      }
-
-      console.log(otpToken);
+      await new Email(user, '', {
+        otpSecret: otpToken,
+      }).sendLoginOtpEmail();
+      // console.log(otpToken)
 
       return formatData({ user });
     } catch (err) {
