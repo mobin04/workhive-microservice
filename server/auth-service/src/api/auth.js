@@ -8,7 +8,7 @@ const isValidObjectId = require('./middlewares/isValidObjectId');
 module.exports = (app, channel) => {
   const service = new AuthService();
   service.RPCObserver(channel);
-  const baseUrl = process.env.API_BASE_URL_AUTH;
+  const baseUrl = process.env.API_BASE_URL_AUTH || '/api/v2/auth';
 
   /**
    * @swagger
