@@ -16,16 +16,17 @@ class Email {
 
   newTransporter() {
     if (process.env.NODE_ENV === 'production') {
+      console.log(process.env.MAIL_JET_HOST);
+      console.log(process.env.MAIL_JET_PORT);
+      console.log(process.env.MAIL_JET_PUBLIC_KEY);
+      console.log(process.env.MAIL_JET_PRIVATE_KEY);
+      
       return nodemailer.createTransport({
         host: process.env.MAIL_JET_HOST,
         port: process.env.MAIL_JET_PORT,
-        secure: false,
         auth: {
           user: process.env.MAIL_JET_PUBLIC_KEY,
           pass: process.env.MAIL_JET_PRIVATE_KEY,
-        },
-        tls: {
-          rejectUnauthorized: false,
         },
       });
     }
