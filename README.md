@@ -1,8 +1,9 @@
 # WorkHive - Job Platform Microservices
 
-[![Node.js](https://img.shields.io/badge/Node.js-18.x+-green.svg)](https://nodejs.org/)
-[![React](https://img.shields.io/badge/React-18.x+-blue.svg)](https://reactjs.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-6.x+-green.svg)](https://www.mongodb.com/)
+[![Express](https://img.shields.io/badge/Express-5.x+-green.svg)](https://expressjs.com/)
+[![React](https://img.shields.io/badge/React-18.x+-blue.svg)](https://reactjs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-18.x+-green.svg)](https://nodejs.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
 WorkHive is a comprehensive, production-ready job platform built with modern technologies and microservices architecture. It provides a scalable solution for job seekers, employers, and administrators with real-time features and robust authentication.
