@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const mailjet = require('node-mailjet');
 const path = require('path');
 const fs = require('fs');
 
@@ -12,6 +13,10 @@ class Email {
     this.loginDetails = others.loggedUserInfo;
     this.otpSecret = others.otpSecret;
     this.suspensionDays = others.suspensionDays;
+    this.mailjet = mailjet.apiConnect(
+      process.env.MAIL_JET_PUBLIC_KEY,
+      process.env.MAIL_JET_PRIVATE_KEY
+    );
   }
 
   newTransporter() {
@@ -49,16 +54,32 @@ class Email {
         template = template.replace(new RegExp(`{{${key}}}`, 'g'), value);
       }
 
-      const mailOptions = {
-        from: this.from,
-        to: this.to,
-        subject,
-        html: template,
-      };
+      // const mailOptions = {
+      //   from: this.from,
+      //   to: this.to,
+      //   subject,
+      //   html: template,
+      // };
 
-      const info = await this.newTransporter().sendMail(mailOptions);
-      return info;
+      const request = this.mailjet.post('send', { version: 'v3.1' }).request({
+        Messages: [
+          {
+            From: {
+              Email: this.from,
+              Name: 'WorkHive',
+            },
+            To: [{ Email: this.to }],
+            Subject: subject,
+            HTMLPart: template,
+          },
+        ],
+      });
+
+      // const info = await this.newTransporter().sendMail(mailOptions);\
+      const info = await request;
+      return info.body;
     } catch (error) {
+      console.error('Mailjet API send error:', error?.response?.data || error);
       throw new Error(error.message || 'Failed to send email.');
     }
   }
