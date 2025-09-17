@@ -10,6 +10,10 @@ module.exports = (app, channel) => {
   service.RPCObserver(channel);
   const baseUrl = process.env.API_BASE_URL_AUTH || '/api/v2/auth';
 
+  app.get(`${baseUrl}/health`, (req, res) => {
+    res.status(200).send('Authentication service working Fine 🕊️');
+  });
+
   /**
    * @swagger
    * /api/v2/auth/profile:

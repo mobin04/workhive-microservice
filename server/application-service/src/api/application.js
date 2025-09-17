@@ -8,6 +8,10 @@ module.exports = (app) => {
   const service = new ApplicationService();
   const baseUrl = process.env.API_BASE_URL_APPLICATION;
 
+  app.get(`${baseUrl}/health`, (req, res) => {
+    res.status(200).send('Application service working Fine 🕊️');
+  });
+
   /**
    * @swagger
    * /api/v1/application/{id}/withdrawn:

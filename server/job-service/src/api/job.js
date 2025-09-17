@@ -9,6 +9,10 @@ module.exports = (app, channel) => {
   service.RPCObserver(channel);
   service.RPCAuthObserver(channel);
 
+  app.get(`${baseUrl}/health`, (req, res) => {
+    res.status(200).send('Job service working Fine 🕊️');
+  });
+
   /**
    * @swagger
    * /api/v2/jobs:

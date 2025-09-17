@@ -7,6 +7,10 @@ module.exports = (app, channel) => {
   const service = new NotificationService();
   service.RPCObserver(channel);
 
+  app.get(`${baseUrl}/health`, (req, res) => {
+    res.status(200).send('Notification service working Fine 🕊️');
+  });
+
   /**
    * @swagger
    * /api/v2/notifications:
