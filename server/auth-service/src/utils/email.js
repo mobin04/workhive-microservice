@@ -19,6 +19,7 @@ class Email {
       return nodemailer.createTransport({
         host: process.env.MAIL_JET_HOST,
         port: process.env.MAIL_JET_PORT,
+        secure: false,
         auth: {
           user: process.env.MAIL_JET_PUBLIC_KEY,
           pass: process.env.MAIL_JET_PRIVATE_KEY,
