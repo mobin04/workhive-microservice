@@ -24,6 +24,9 @@ class Email {
           user: process.env.MAIL_JET_PUBLIC_KEY,
           pass: process.env.MAIL_JET_PRIVATE_KEY,
         },
+        tls: {
+          rejectUnauthorized: false,
+        },
       });
     }
 
