@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const mailjet = require('node-mailjet')
 const path = require('path');
 const fs = require('fs');
 
@@ -11,29 +12,33 @@ class Email {
     this.user = user;
     this.applicationStatus = others.application;
     this.jobDetails = others.jobDetails;
+    this.mailjet = mailjet.apiConnect(
+      process.env.MAIL_JET_PUBLIC_KEY,
+      process.env.MAIL_JET_PRIVATE_KEY
+    );
   }
 
-  newTransporter() {
-    if (process.env.NODE_ENV === 'production') {
-      return nodemailer.createTransport({
-        host: process.env.MAIL_JET_HOST,
-        port: process.env.MAIL_JET_PORT,
-        auth: {
-          user: process.env.MAIL_JET_PUBLIC_KEY,
-          pass: process.env.MAIL_JET_PRIVATE_KEY,
-        },
-      });
-    }
+  // newTransporter() {
+  //   if (process.env.NODE_ENV === 'production') {
+  //     return nodemailer.createTransport({
+  //       host: process.env.MAIL_JET_HOST,
+  //       port: process.env.MAIL_JET_PORT,
+  //       auth: {
+  //         user: process.env.MAIL_JET_PUBLIC_KEY,
+  //         pass: process.env.MAIL_JET_PRIVATE_KEY,
+  //       },
+  //     });
+  //   }
 
-    return nodemailer.createTransport({
-      host: process.env.MAILTRAP_HOST,
-      port: process.env.MAILTRAP_PORT,
-      auth: {
-        user: process.env.MAILTRAP_USER_NAME,
-        pass: process.env.MAILTRAP_PASSWORD,
-      },
-    });
-  }
+  //   return nodemailer.createTransport({
+  //     host: process.env.MAILTRAP_HOST,
+  //     port: process.env.MAILTRAP_PORT,
+  //     auth: {
+  //       user: process.env.MAILTRAP_USER_NAME,
+  //       pass: process.env.MAILTRAP_PASSWORD,
+  //     },
+  //   });
+  // }
 
   async sendEmail(subject, templateName, variables) {
     try {
@@ -48,15 +53,32 @@ class Email {
         template = template.replace(new RegExp(`{{${key}}}`, 'g'), value);
       }
 
-      const mailOptions = {
-        from: this.from,
-        to: this.to,
-        subject,
-        html: template,
-      };
+      // const mailOptions = {
+      //   from: this.from,
+      //   to: this.to,
+      //   subject,
+      //   html: template,
+      // };
 
-      const info = await this.newTransporter().sendMail(mailOptions);
-      return info;
+      // const info = await this.newTransporter().sendMail(mailOptions);
+      // return info;
+
+      const request = this.mailjet.post('send', { version: 'v3.1' }).request({
+        Messages: [
+          {
+            From: {
+              Email: this.from,
+              Name: 'WorkHive',
+            },
+            To: [{ Email: this.to }],
+            Subject: subject,
+            HTMLPart: template,
+          },
+        ],
+      });
+
+      const info = await request;
+      return info.body;
     } catch (error) {
       throw new Error(error.message || 'Failed to send email.');
     }

@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "cross-env NODE_ENV=production nodemon src/index.js",
-    "dev":"nodemon src/index.js",
+    "dev": "nodemon src/index.js",
     "test": "jest"
   },
   "keywords": [],
@@ -24,6 +24,7 @@
     "firebase-admin": "^13.4.0",
     "mongoose": "^8.15.1",
     "multer": "^2.0.1",
+    "node-mailjet": "^6.0.9",
     "nodemailer": "^7.0.3",
     "nodemon": "^3.1.10",
     "sharp": "^0.34.2",

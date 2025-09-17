@@ -19,27 +19,27 @@ class Email {
     );
   }
 
-  newTransporter() {
-    if (process.env.NODE_ENV === 'production') {
-      return nodemailer.createTransport({
-        host: process.env.MAIL_JET_HOST,
-        port: process.env.MAIL_JET_PORT,
-        auth: {
-          user: process.env.MAIL_JET_PUBLIC_KEY,
-          pass: process.env.MAIL_JET_PRIVATE_KEY,
-        },
-      });
-    }
+  // newTransporter() {
+  //   if (process.env.NODE_ENV === 'production') {
+  //     return nodemailer.createTransport({
+  //       host: process.env.MAIL_JET_HOST,
+  //       port: process.env.MAIL_JET_PORT,
+  //       auth: {
+  //         user: process.env.MAIL_JET_PUBLIC_KEY,
+  //         pass: process.env.MAIL_JET_PRIVATE_KEY,
+  //       },
+  //     });
+  //   }
 
-    return nodemailer.createTransport({
-      host: process.env.MAILTRAP_HOST,
-      port: process.env.MAILTRAP_PORT,
-      auth: {
-        user: process.env.MAILTRAP_USER_NAME,
-        pass: process.env.MAILTRAP_PASSWORD,
-      },
-    });
-  }
+  //   return nodemailer.createTransport({
+  //     host: process.env.MAILTRAP_HOST,
+  //     port: process.env.MAILTRAP_PORT,
+  //     auth: {
+  //       user: process.env.MAILTRAP_USER_NAME,
+  //       pass: process.env.MAILTRAP_PASSWORD,
+  //     },
+  //   });
+  // }
 
   async sendEmail(subject, templateName, variables) {
     try {
