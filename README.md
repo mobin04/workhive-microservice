@@ -61,7 +61,7 @@ The platform follows a **microservices architecture** where each service is isol
 - **Smart Alerts**: Application updates, job matches, system notifications
 - **Notification Center**: Centralized inbox with read/unread status
 
-###  Analytics & Reporting
+###  Analytics
 
 - **Employer Insights**: Application statistics per job posting
 - **Admin Dashboard**: Platform-wide usage analytics
