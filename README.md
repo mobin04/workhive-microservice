@@ -10,6 +10,10 @@ WorkHive is a comprehensive, production-ready job platform built with modern tec
 
 ---
 
+## 🚀 Live Demo
+
+Check out the live version here: [WorkHive](https://workhive-microservice.vercel.app)
+
 ## Architecture Overview
 
 ```
@@ -31,37 +35,37 @@ The platform follows a **microservices architecture** where each service is isol
 
 ---
 
-##  Features
+## Features
 
-###  User Management & Authentication
+### User Management & Authentication
 
 - **Multi-factor Authentication**: JWT, OTP, Magic Login (passwordless)
 - **Role-based Access Control**: Job Seekers, Employers, Administrators
 - **Security Features**: Login notifications with location/browser detection
 - **Account Management**: Password reset, email verification, account suspension
 
-###  Job Management
+### Job Management
 
 - **For Employers**: Create, update, close, and renew job postings
 - **For Job Seekers**: Browse, like, save, and apply to jobs
 - **Advanced Features**: Job statistics, category-based filtering
 - **Admin Controls**: Global job management and moderation
 
-###  Application System
+### Application System
 
 - **Application Tracking**: Real-time status updates (pending, shortlisted, accepted, rejected)
 - **Resume Management**: File upload with Firebase storage
 - **Employer Dashboard**: Manage applications with bulk actions
 - **Notification Integration**: Automated alerts for status changes
 
-###  Real-time Notifications
+### Real-time Notifications
 
 - **Live Updates**: WebSocket-based real-time notifications
 - **Email Integration**: Mailtrap (development) and MailJet (production)
 - **Smart Alerts**: Application updates, job matches, system notifications
 - **Notification Center**: Centralized inbox with read/unread status
 
-###  Analytics & Reporting
+### Analytics & Reporting
 
 - **Employer Insights**: Application statistics per job posting
 - **Admin Dashboard**: Platform-wide usage analytics
