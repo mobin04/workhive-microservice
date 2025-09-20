@@ -65,7 +65,8 @@ The platform follows a **microservices architecture** where each service is isol
 - **Smart Alerts**: Application updates, job matches, system notifications
 - **Notification Center**: Centralized inbox with read/unread status
 
-### Analytics & Reporting
+
+###  Analytics
 
 - **Employer Insights**: Application statistics per job posting
 - **Admin Dashboard**: Platform-wide usage analytics
@@ -391,7 +392,3 @@ We welcome contributions!
 ---
 
 ## ✨ Happy Building!
-
-WorkHive is designed to be developer-friendly and production-ready. Whether you're learning microservices architecture or building the next big job platform, WorkHive provides a solid foundation.
-
-**Star ⭐ this repository if you found it helpful!**
