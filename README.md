@@ -387,7 +387,3 @@ We welcome contributions!
 ---
 
 ## ✨ Happy Building!
-
-WorkHive is designed to be developer-friendly and production-ready. Whether you're learning microservices architecture or building the next big job platform, WorkHive provides a solid foundation.
-
-**Star ⭐ this repository if you found it helpful!**
