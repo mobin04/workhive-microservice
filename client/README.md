@@ -199,7 +199,7 @@ Build output will be generated in the dist/ folder.
 
 ### Authentications
 
-- [Login, Password Reset, Magic login](screenshots/Authentication/Login.mp4)
+- [Login, Password Reset, Magic login](screenshots/Authentication/Login-ezgif.com-video-to-gif-converter.gif)
 - [Signup](screenshots/Authentication/Signup.png)
 
 ### Job Seekers
@@ -217,20 +217,20 @@ Build output will be generated in the dist/ folder.
 ### Employers
 
 - [Home](screenshots/employers/Employer_Home.png)
-- [Post a Job](screenshots/employers/Post_Job.mp4)
-- [Statistics](screenshots/employers/Statistics.mp4)
+- [Post a Job](screenshots/employers/Post_Job-ezgif.com-video-to-gif-converter.gif)
+- [Statistics](screenshots/employers/Statistics-ezgif.com-video-to-gif-converter.gif)
 - [View Applications](screenshots/employers/View_applications.png)
-- [View Resume](screenshots/employers/View_Resume.mp4)
+- [View Resume](screenshots/employers/View_Resume-ezgif.com-video-to-gif-converter.gif)
 - [Manage Job](screenshots/employers/Manage_Job.png)
 
 ### Admin
 
-- [Home](screenshots/admin/Admin_Home.mp4)
+- [Home](screenshots/admin/Admin_Home-ezgif.com-video-to-gif-converter.gif)
 - [User Management](screenshots/admin/User_ManageMent.png)
 - [Employer Management](screenshots/admin/Employer_ManageMent.png)
 - [Edit User Profile](screenshots/admin/Edit_User_Details.png)
-- [Account Suspention](screenshots/admin/Account_suspention.mp4)
-- [Edit Job Details](screenshots/admin/Edit_Job_Details.mp4)
+- [Account Suspention](screenshots/admin/Account_suspention-ezgif.com-video-to-gif-converter.gif)
+- [Edit Job Details](screenshots/admin/Edit_Job_Details-ezgif.com-video-to-gif-converter.gif)
 
 ---
 
