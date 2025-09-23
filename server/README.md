@@ -297,12 +297,12 @@ The following endpoints are exposed:
 
 Each service exposes Swagger UI for interactive API docs:
 
-| Service              | Swagger URL                                                                      |
-| -------------------- | -------------------------------------------------------------------------------- |
-| Auth Service         | https://workhive-auth-service.onrender.com/api/v2/auth/api-docs                  |
-| Job Service          | https://workhive-job-service.onrender.com/api/v2/jobs/api-docs                   |
-| Application Service  | https://workhive-application-service.onrender.com/api/v2/applications/api-docs   |
-| Notification Service | https://workhive-notification-service.onrender.com/api/v2/notifications/api-docs |
+| Service              | Swagger URL                                                                           |
+| -------------------- | ------------------------------------------------------------------------------------- |
+| Auth Service         | https://workhive-auth-service-firj.onrender.com/api/v2/auth/api-docs                  |
+| Job Service          | https://workhive-job-service-wm16.onrender.com/api/v2/jobs/api-docs                   |
+| Application Service  | https://workhive-application-service-ibq9.onrender.com/api/v2/applications/api-docs   |
+| Notification Service | https://workhive-notification-service-lf9s.onrender.com/api/v2/notifications/api-docs |
 
 - All endpoints are documented with request/response schemas and security requirements.
 
@@ -310,7 +310,8 @@ Each service exposes Swagger UI for interactive API docs:
 
 ## Testing
 
-Each service uses **Jest** for unit testing.
+- Each service uses **Jest** for unit testing.
+- Total ``146`` unit tests conducted accross all services.
 
 To run tests for a service (example: auth-service):
 
